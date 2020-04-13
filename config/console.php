@@ -5,6 +5,7 @@ use yii\console\controllers\MigrateController;
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 $authManager = require __DIR__ . '/auth_manager.php';
+$mongodb = require __DIR__ . '/mongodb.php';
 
 $config = [
     'id' => 'basic-console',
@@ -30,6 +31,7 @@ $config = [
             ],
         ],
         'db' => $db,
+        'mongodb' => $mongodb,
     ],
     'params' => $params,
     'controllerMap' => [

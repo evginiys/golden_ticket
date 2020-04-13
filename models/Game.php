@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\models\behaviors\MongoLogger;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -22,6 +23,16 @@ use yii\db\ActiveRecord;
  */
 class Game extends ActiveRecord
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            MongoLogger::class,
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
