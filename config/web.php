@@ -1,5 +1,8 @@
 <?php
 
+use app\modules\api\v1\ApiModule;
+use yii\rest\UrlRule;
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 $authManager = require __DIR__ . '/auth_manager.php';
@@ -14,6 +17,11 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
+    'modules' => [
+        'v1' => [
+            'class' => ApiModule::class,
+        ],
+    ],
     'components' => [
         'authManager' => $authManager,
         'request' => [
@@ -25,7 +33,8 @@ $config = [
         ],
         'user' => [
             'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
+            'enableAutoLogin' => false,
+            'enableSession' => false
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -49,7 +58,20 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                '/' => 'site/index'
+                '/' => 'site/index',
+                [
+                    'class' => UrlRule::class,
+                    'controller' => [
+                        'v1/user',
+                    ],
+                    'extraPatterns' => [
+                        'POST sign-in' => 'sign-in',
+                        'GET sign-up' => 'sign-up',
+                        'POST logout' => 'logout',
+                    ],
+                    'prefix' => 'api',
+                    'pluralize' => false,
+                ]
             ],
         ],
     ],
