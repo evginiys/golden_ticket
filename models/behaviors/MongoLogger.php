@@ -10,6 +10,11 @@ use yii\db\ActiveRecord;
 use yii\mongodb\Collection;
 use yii\mongodb\Exception;
 
+/**
+ * Class MongoLogger
+ *
+ * @package app\models\behaviors
+ */
 class MongoLogger extends Behavior
 {
     private const LOG_COLLECTION_NAME = 'log';
@@ -24,7 +29,9 @@ class MongoLogger extends Behavior
      */
     public function init()
     {
-        $this->logCollection = Yii::$app->mongodb->getCollection(self::LOG_COLLECTION_NAME);
+        if (env('YII_ENV') !== 'true') {
+            $this->logCollection = Yii::$app->mongodb->getCollection(self::LOG_COLLECTION_NAME);
+        }
 
         parent::init();
     }
@@ -53,6 +60,9 @@ class MongoLogger extends Behavior
      */
     public function afterSave($event)
     {
+        if (env('YII_ENV') === 'true') {
+            return;
+        }
         $data = $event->sender->getAttributes();
         $loggerData = $data;
         unset($loggerData['id']);
@@ -68,6 +78,9 @@ class MongoLogger extends Behavior
      */
     public function beforeSave($event)
     {
+        if (env('YII_ENV') === 'true') {
+            return;
+        }
         $data = $event->sender->getAttributes();
         unset($data['id']);
         $data['logger_id'] = md5(json_encode($data));
