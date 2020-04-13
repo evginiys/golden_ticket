@@ -22,6 +22,7 @@ use yii\web\IdentityInterface;
  *
  * @property string $authKey
  * @property GameUser[] $gameUsers
+ * @property string     $date_token_expired [datetime]
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -50,7 +51,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'email', 'password', 'token'], 'required'],
-            [['date_reset_password'], 'safe'],
+            [['date_reset_password', 'date_token_expired'], 'safe'],
             [['username'], 'string', 'max' => 45],
             [['email', 'password', 'token', 'reset_password_token'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 15],

@@ -19,6 +19,7 @@ class m200411_140657_initial extends Migration
               `phone` VARCHAR(15) NULL DEFAULT NULL,
               `password` VARCHAR(255) NOT NULL,
               `token` VARCHAR(255) NOT NULL,
+              `date_token_expired` DATETIME NULL DEFAULT NULL,
               `reset_password_token` VARCHAR(255) NULL DEFAULT NULL,
               `date_reset_password` DATETIME NULL DEFAULT NULL,
               PRIMARY KEY (`id`),
@@ -95,19 +96,4 @@ class m200411_140657_initial extends Migration
 
         return false;
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m200411_140657_initial cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }
