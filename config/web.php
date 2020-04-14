@@ -66,7 +66,7 @@ $config = [
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
-                        'GET sign-up' => 'sign-up',
+                        'POST sign-up' => 'sign-up',
                         'POST logout' => 'logout',
                     ],
                     'prefix' => 'api',

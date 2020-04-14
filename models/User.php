@@ -4,9 +4,11 @@ namespace app\models;
 
 use app\models\behaviors\MongoLogger;
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use DateTime;
 
 /**
  * This is the model class for table "user".
@@ -131,6 +133,18 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     *
+     * @throws Exception
+     */
+    public function setPassword($password)
+    {
+        $this->password = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
      * Validates password
      *
      * @param string $password password to validate
@@ -138,6 +152,32 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
+    }
+
+    /**
+     * Generates authentication token for API
+     *
+     * @param bool $force
+     * @return string
+     * @throws Exception
+     */
+    public function generateApiToken($force = false)
+    {
+        if (empty($this->token) || $force) {
+            $this->token = Yii::$app->security->generateRandomString();
+        }
+
+        return $this->token;
+    }
+
+    /**
+     * Updates an expiration date of API token based on value from .env file
+     * @return void
+     * @throws \Exception Emits Exception in case of an error.
+     */
+    public function updateTokenExpirationDate()
+    {
+        $this->date_token_expired = (new DateTime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'))->format('Y-m-d H:i:s');
     }
 }
