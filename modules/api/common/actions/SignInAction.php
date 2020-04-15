@@ -22,6 +22,7 @@ class SignInAction extends Action
         ]);
 
         if ($loginForm->login()) {
+            $loginForm->getUser()->generateApiToken();
             $loginForm->getUser()->updateTokenExpirationDate();
 
             return $this->controller->onSuccess(['token' => $loginForm->getUser()->token]);

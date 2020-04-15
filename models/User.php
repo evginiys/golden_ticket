@@ -105,7 +105,8 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return self::find()
         ->andWhere(['token' => $token])
-        ->andWhere(['<', 'date_token_expired', strtotime('-' . env('TOKEN_LIFE_TIME') . ' seconds')]);
+        ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
+        ->one();
     }
 
     /**
@@ -176,7 +177,10 @@ class User extends ActiveRecord implements IdentityInterface
     public function generateApiToken($force = false)
     {
         if (empty($this->token) || $force) {
-            $this->token = Yii::$app->security->generateRandomString();
+            do {
+                $this->token = Yii::$app->security->generateRandomString();
+                $isExist = self::find()->andWhere(['token' => $this->token])->one();
+            } while ($isExist);
         }
 
         return $this->token;
@@ -190,7 +194,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function updateTokenExpirationDate()
     {
-        $this->date_token_expired = (new DateTime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'))->format('Y-m-d H:i:s');
+        $this->date_token_expired = date('Y-m-d H:i:s', strtotime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'));
         return $this->save();
     }
 }
