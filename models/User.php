@@ -109,6 +109,17 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Finds a user by the given username.
+     *
+     * @param $username
+     * @return User|null
+     */
+    public static function findByUsername($username)
+    {
+        return self::findOne(['username' => $username]);
+    }
+
+    /**
      * @inheritDoc
      */
     public function getId()
@@ -173,11 +184,13 @@ class User extends ActiveRecord implements IdentityInterface
 
     /**
      * Updates an expiration date of API token based on value from .env file
-     * @return void
+     *
+     * @return bool whether the updating succeeded
      * @throws \Exception Emits Exception in case of an error.
      */
     public function updateTokenExpirationDate()
     {
         $this->date_token_expired = (new DateTime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'))->format('Y-m-d H:i:s');
+        return $this->save();
     }
 }

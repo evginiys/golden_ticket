@@ -1,4 +1,5 @@
 <?php
+
 namespace app\modules\api\common\actions;
 
 use app\models\User;
@@ -22,11 +23,12 @@ class SignUpAction extends Action
             $user->phone = Yii::$app->request->post('phone');
             $user->setPassword(Yii::$app->request->post('password'));
             $user->generateApiToken();
-            $user->updateTokenExpirationDate();
 
             if (!$user->save()) {
                 return $this->controller->onError($user->getErrors());
             }
+
+            $user->updateTokenExpirationDate();
 
             return $this->controller->onSuccess(['token' => $user->token]);
         } catch (Exception $e) {
