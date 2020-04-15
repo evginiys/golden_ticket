@@ -8,7 +8,6 @@ use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
-use DateTime;
 
 /**
  * This is the model class for table "user".
