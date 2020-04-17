@@ -2,7 +2,7 @@
 
 namespace app\modules\api\common\actions;
 
-use app\models\User;
+use Yii;
 use yii\rest\Action;
 
 /**
@@ -14,23 +14,15 @@ class LogoutAction extends Action
 {
     public function run()
     {
-        $auth = explode(' ', $_SERVER['HTTP_AUTHORIZATION']);
+        $user = Yii::$app->user->identity;
 
-        if (!is_array($auth))
-        {
+        if (!$user) {
             return ['status' => false];
         }
 
-        $token = $auth[1];
+        $user->token = '';
+        $user->save(false);
 
-        $user = User::findOne(['token' => $token]);
-
-        if ($user) {
-            $user->token = '';
-            $user->save(false);
-            return ['status' => true];
-        }
-
-        return ['status' => false];
+        return ['status' => Yii::$app->user->logout()];
     }
 }
