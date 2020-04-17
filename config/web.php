@@ -68,6 +68,9 @@ $config = [
                         'POST sign-in' => 'sign-in',
                         'POST sign-up' => 'sign-up',
                         'POST logout' => 'logout',
+                        'POST forgot-password' => 'forgot-password',
+                        'GET reset-password' => 'reset-password',
+                        'POST reset-password' => 'reset-password'
                     ],
                     'prefix' => 'api',
                     'pluralize' => false,
