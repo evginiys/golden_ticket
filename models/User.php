@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\models\behaviors\MongoLogger;
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -103,7 +104,19 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return self::find()
         ->andWhere(['token' => $token])
-        ->andWhere(['<', 'date_token_expired', strtotime('-' . env('TOKEN_LIFE_TIME') . ' seconds')]);
+        ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
+        ->one();
+    }
+
+    /**
+     * Finds a user by the given username.
+     *
+     * @param $username
+     * @return User|null
+     */
+    public static function findByUsername($username)
+    {
+        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -131,6 +144,18 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     *
+     * @throws Exception
+     */
+    public function setPassword($password)
+    {
+        $this->password = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
      * Validates password
      *
      * @param string $password password to validate
@@ -138,6 +163,37 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
+    }
+
+    /**
+     * Generates authentication token for API
+     *
+     * @param bool $force
+     * @return string
+     * @throws Exception
+     */
+    public function generateApiToken($force = false)
+    {
+        if (empty($this->token) || $force) {
+            do {
+                $this->token = Yii::$app->security->generateRandomString();
+                $isExist = self::find()->andWhere(['token' => $this->token])->one();
+            } while ($isExist);
+        }
+
+        return $this->token;
+    }
+
+    /**
+     * Updates an expiration date of API token based on value from .env file
+     *
+     * @return bool whether the updating succeeded
+     * @throws \Exception Emits Exception in case of an error.
+     */
+    public function updateTokenExpirationDate()
+    {
+        $this->date_token_expired = date('Y-m-d H:i:s', strtotime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'));
+        return $this->save();
     }
 }
