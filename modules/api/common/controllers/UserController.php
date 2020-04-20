@@ -3,7 +3,10 @@
 namespace app\modules\api\common\controllers;
 
 use app\models\User;
+use app\modules\api\common\actions\ForgotPasswordAction;
 use app\modules\api\common\actions\LogoutAction;
+use app\modules\api\common\actions\ResetPasswordGetAction;
+use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
 use app\modules\api\common\actions\SignUpAction;
 
@@ -18,7 +21,7 @@ class UserController extends ApiController
      * @var array
      */
     public $notNeedTokenActions = [
-        'sign-up', 'sign-in'
+        'sign-up', 'sign-in', 'forgot-password', 'reset-password-get', 'reset-password-post'
     ];
 
     /**
@@ -44,6 +47,18 @@ class UserController extends ApiController
                 'class' => LogoutAction::class,
                 'modelClass' => $this->modelClass
             ],
+            'forgot-password' => [
+                'class' => ForgotPasswordAction::class,
+                'modelClass' => $this->modelClass
+            ],
+            'reset-password-get' => [
+                'class' => ResetPasswordGetAction::class,
+                'modelClass' => $this->modelClass
+            ],
+            'reset-password-post' => [
+                'class' => ResetPasswordPostAction::class,
+                'modelClass' => $this->modelClass
+            ]
         ];
     }
 }
