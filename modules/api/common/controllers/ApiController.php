@@ -2,6 +2,7 @@
 
 namespace app\modules\api\common\controllers;
 
+use app\modules\api\common\actions\ErrorAction;
 use Yii;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
@@ -16,6 +17,7 @@ use yii\web\Response;
  */
 class ApiController extends ActiveController
 {
+    /** @var array  */
     public $notNeedTokenActions = [];
 
     /**
@@ -72,6 +74,19 @@ class ApiController extends ActiveController
         return [
             'error' => (int)$error,
             'data' => $data
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => ErrorAction::class,
+                'modelClass' => ''
+            ]
         ];
     }
 }

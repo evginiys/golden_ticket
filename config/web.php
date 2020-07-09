@@ -37,7 +37,7 @@ $config = [
             'enableSession' => false
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => 'v1/common/error',
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
@@ -61,8 +61,11 @@ $config = [
                 '/' => 'site/index',
                 [
                     'class' => UrlRule::class,
+                    'prefix' => 'api',
                     'controller' => [
                         'v1/user',
+                        'v1/ticket',
+                        'v1/common',
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
@@ -70,9 +73,12 @@ $config = [
                         'POST logout' => 'logout',
                         'POST forgot-password' => 'forgot-password',
                         'GET reset-password' => 'reset-password-get',
-                        'POST reset-password' => 'reset-password-post'
+                        'POST reset-password' => 'reset-password-post',
+                        'GET packs' => 'packs',
+                        'GET tickets' => 'tickets',
+                        'POST buy' => 'buy',
+                        'GET error' => 'error',
                     ],
-                    'prefix' => 'api',
                     'pluralize' => false,
                 ]
             ],
