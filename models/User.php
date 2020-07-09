@@ -7,6 +7,7 @@ use Yii;
 use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
 /**
@@ -27,16 +28,6 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            MongoLogger::class,
-        ];
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -195,5 +186,29 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->date_token_expired = date('Y-m-d H:i:s', strtotime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'));
         return $this->save();
+    }
+
+    /**
+     * @param float $amount
+     * @param int $currency
+     * @return bool
+     */
+    public function canPay(float $amount, int $currency = Payment::CURRENCY_RUR): bool
+    {
+        return $amount <= $this->getBalance($currency);
+    }
+
+    /**
+     * @param $currency
+     * @return float
+     */
+    public function getBalance($currency)
+    {
+        $balance = ArrayHelper::index(Payment::getUserBalance($this->id), 'currency')[$currency] ?? 0;
+        if (empty($balance)) {
+            return $balance;
+        }
+
+        return (float)$balance['balance'];
     }
 }
