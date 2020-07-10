@@ -3,6 +3,7 @@
 namespace app\modules\api\common\controllers;
 
 use app\modules\api\common\actions\ErrorAction;
+use app\modules\api\v1\components\CustomCors;
 use Yii;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
@@ -30,6 +31,20 @@ class ApiController extends ActiveController
                 'class' => ContentNegotiator::class,
                 'formats' => [
                     'application/json' => Response::FORMAT_JSON,
+                ],
+            ],
+            'corsFilter' => [
+                'class' => CustomCors::class,
+                'cors' => [
+                    'Origin' => [
+                        '*'
+                    ],
+                    'Access-Control-Allow-Credentials' => true,
+                    'Access-Control-Allow-Headers' => [
+                        'origin',
+                        'authorization',
+                        'content-type'
+                    ]
                 ],
             ],
             'authenticator' => [
