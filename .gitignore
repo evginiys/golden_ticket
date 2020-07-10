@@ -35,6 +35,7 @@ tests/_support/_generated
 runtime
 composer.phar
 web/assets
+web/.htaccess
 web/uploads
 .env
 ci
