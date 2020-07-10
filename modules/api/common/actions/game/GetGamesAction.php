@@ -16,7 +16,7 @@ class GetGamesAction extends Action
      */
     public function run()
     {
-        $data = Game::find()->all();
+        $data = Game::find()->where('status',1)->all();
 
         return $this->controller->onSuccess($data);
     }

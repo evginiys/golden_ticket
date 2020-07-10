@@ -4,7 +4,9 @@ namespace app\modules\api\common\actions\game;
 
 use app\models\Game;
 use app\models\GameUser;
+use app\models\GameCombination;
 use yii\db\Exception;
+use yii\helpers\Json;
 use yii\rest\Action;
 
 /**
@@ -18,19 +20,28 @@ class BetAction extends Action
      */
     public function run()
     {
-        $game_id =Yii::$app->request->post('game_id') ;
-        $points =array_sum(json_encode(Yii::$app->request->post('points')));
+        $gameId =Yii::$app->request->post('game_id') ;
+        $points =Json::decode(Yii::$app->request->post('points'));
 
             try {
-                if(Game::find($game_id)->one()->status) {
-                    $game_user = new GameUser();
-                    $game_user->game_id = $game_id;
-                    $game_user->user_id = \Yii::$app->user->id;
-                    $game_user->point = $points;
-                    $game_user->date_point = date('Y-n-j G:i:s');
-                    $game_user->is_correct = ($points == Game::find($game_id)->one()->collected_sum) ? 1 : 0;
-                    if(!$game_user->save()){
+                if(!$game=Game::find($gameId)->one()){
+                    throw new Exception("not found game");
+                }
+                if( $game->status) {
+                    $winPoints = $game->hasGameCombination()->select('point')->all();
+                    foreach ($points as $k=>$point) {
+                        $gameUser = new GameUser();
+                        $gameUser->game_id = $gameId;
+                        $gameUser->user_id = \Yii::$app->user->id;
+                        $gameUser->point = $point;
+                        $gameUser->date_point = date('Y-n-j G:i:s');
+
+
+
+                    $gameUser->is_correct = (in_array($point,$winPoints))?1:0;
+                    if (!$gameUser->save()) {
                         throw new Exception('error with points');
+                    }
                     }
                 }else{
                     throw new Exception('game ended');

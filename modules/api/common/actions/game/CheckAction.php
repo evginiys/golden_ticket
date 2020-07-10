@@ -18,13 +18,13 @@ class CheckAction extends Action
      */
     public function run()
     {
-        $game_id =Yii::$app->request->post('game_id') ;
-                $game_user = GameUser::find()->where('user_id',\Yii::$app->user->id)->andWhere('game_id',$game_id)->one();
-                if($game_user->is_correct){
-                    return $this->controller->onSuccsess(['win'=>true]);
-                }else{
-                    return $this->controller->onSuccess(['win'=>false]);
+        $gameId =Yii::$app->request->post('game_id') ;
+                $gameUser = GameUser::find()->where('user_id',\Yii::$app->user->id)->andWhere('game_id',$gameId)->all();
+                foreach ($gameUser as $one) {
+                    if (!$one->is_correct) {
+                        return $this->controller->onSuccess(['win' => false]);
+                    }
                 }
-
+                return $this->controller->onSuccess(['win' => true]);
     }
 }
