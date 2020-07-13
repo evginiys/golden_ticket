@@ -40,6 +40,7 @@ class ApiController extends ActiveController
                         '*'
                     ],
                     'Access-Control-Allow-Credentials' => true,
+                    'Access-Control-Allow-Origin' => '*',
                     'Access-Control-Allow-Headers' => [
                         'origin',
                         'authorization',
