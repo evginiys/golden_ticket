@@ -3,7 +3,7 @@
 namespace app\modules\api\common\controllers;
 
 use app\modules\api\common\actions\ErrorAction;
-use app\modules\api\v1\components\CustomCors;
+use app\modules\api\common\components\CustomCors;
 use Yii;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
