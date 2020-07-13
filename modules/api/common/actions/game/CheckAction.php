@@ -2,10 +2,8 @@
 
 namespace app\modules\api\common\actions\game;
 
-use app\models\Game;
 use app\models\GameUser;
 use Yii;
-use yii\db\Exception;
 use yii\rest\Action;
 
 /**
@@ -20,17 +18,17 @@ class CheckAction extends Action
     public function run()
     {
 
-        $gameId =\Yii::$app->request->post('game_id') ;
-               $gameUser = GameUser::find()->where(['user_id'=>\Yii::$app->user->id])->andWhere(['game_id'=>$gameId])->all();
-               if(!$gameUser){
-                   return $this->controller->onError('user is not in the game');
-               }
-                foreach ($gameUser as $one) {
-                    if (!$one->is_correct) {
-                        return $this->controller->onSuccess(['win' => false]);
-                    }
-                }
-                return $this->controller->onSuccess(['win' => true]);
+        $gameId = Yii::$app->request->post('game_id');
+        $gameUser = GameUser::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['game_id' => $gameId])->all();
+        if (!$gameUser) {
+            return $this->controller->onError(Yii::t('app', 'user is not in the game'));
+        }
+        foreach ($gameUser as $one) {
+            if (!$one->is_correct) {
+                return $this->controller->onSuccess(['win' => false]);
+            }
+        }
+        return $this->controller->onSuccess(['win' => true]);
 
 
     }
