@@ -19,16 +19,6 @@ use yii\db\ActiveRecord;
 class GameCombination extends ActiveRecord
 {
     /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            MongoLogger::class,
-        ];
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function tableName()

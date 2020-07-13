@@ -4,7 +4,7 @@ namespace app\modules\api\common\actions\game;
 
 use app\models\Game;
 use app\models\GameUser;
-use app\models\GameCombination;
+use Yii;
 use yii\db\Exception;
 use yii\helpers\Json;
 use yii\rest\Action;
@@ -20,6 +20,7 @@ class BetAction extends Action
      */
     public function run()
     {
+
         $gameId =\Yii::$app->request->post('game_id');
         $points =Json::decode(\Yii::$app->request->post('points'),true);
 
@@ -44,14 +45,14 @@ class BetAction extends Action
                     if (!$gameUser->save()) {
                         throw new Exception("error with points");
                     }
-                    }
-                }else{
-                    throw new Exception('game ended');
                 }
-            }catch (\Exception $e){
-                return $this->controller->onError($e->getMessage());
+            } else {
+                throw new Exception('game ended');
             }
-
-            return $this->controller->onSuccess(true);
+        } catch (\Exception $e) {
+            return $this->controller->onError($e->getMessage());
         }
+
+        return $this->controller->onSuccess(true);
+    }
 }

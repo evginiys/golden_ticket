@@ -4,6 +4,7 @@ namespace app\modules\api\common\actions\game;
 
 use app\models\Game;
 use app\models\GameUser;
+use Yii;
 use yii\db\Exception;
 use yii\rest\Action;
 
@@ -18,6 +19,7 @@ class CheckAction extends Action
      */
     public function run()
     {
+
         $gameId =\Yii::$app->request->post('game_id') ;
                $gameUser = GameUser::find()->where(['user_id'=>\Yii::$app->user->id])->andWhere(['game_id'=>$gameId])->all();
                if(!$gameUser){
@@ -29,5 +31,7 @@ class CheckAction extends Action
                     }
                 }
                 return $this->controller->onSuccess(['win' => true]);
+
+
     }
 }
