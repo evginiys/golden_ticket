@@ -43,11 +43,11 @@ class BetAction extends Action
 
                     $gameUser->is_correct = (in_array($v, $winPoints)) ? 1 : 0;
                     if (!$gameUser->save()) {
-                        throw new Exception("error with points");
+                        throw new Exception(Yii::t('app', "error with points"));
                     }
                 }
             } else {
-                throw new Exception('game ended');
+                throw new Exception(Yii::t('app', 'game ended'));
             }
         } catch (ExceptionAlias $e) {
             return $this->controller->onError($e->getMessage());
