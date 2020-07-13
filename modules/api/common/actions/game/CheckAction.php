@@ -18,8 +18,11 @@ class CheckAction extends Action
      */
     public function run()
     {
-        $gameId =Yii::$app->request->post('game_id') ;
-                $gameUser = GameUser::find()->where('user_id',\Yii::$app->user->id)->andWhere('game_id',$gameId)->all();
+        $gameId =\Yii::$app->request->post('game_id') ;
+               $gameUser = GameUser::find()->where(['user_id'=>\Yii::$app->user->id])->andWhere(['game_id'=>$gameId])->all();
+               if(!$gameUser){
+                   return $this->controller->onError('user is not in the game');
+               }
                 foreach ($gameUser as $one) {
                     if (!$one->is_correct) {
                         return $this->controller->onSuccess(['win' => false]);

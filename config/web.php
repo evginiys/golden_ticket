@@ -66,6 +66,7 @@ $config = [
                         'v1/user',
                         'v1/ticket',
                         'v1/common',
+                        'v1/game',
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
@@ -78,6 +79,9 @@ $config = [
                         'GET tickets' => 'tickets',
                         'POST buy' => 'buy',
                         'GET error' => 'error',
+                        'GET games' => 'games',
+                        'POST bet' => 'bet',
+                        'POST check' => 'check',
                     ],
                     'pluralize' => false,
                 ]
