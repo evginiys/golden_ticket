@@ -5,6 +5,7 @@ namespace app\modules\api\common\controllers;
 use app\models\User;
 use app\modules\api\common\actions\ForgotPasswordAction;
 use app\modules\api\common\actions\LogoutAction;
+use app\modules\api\common\actions\MyAction;
 use app\modules\api\common\actions\ResetPasswordGetAction;
 use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
@@ -58,7 +59,11 @@ class UserController extends ApiController
             'reset-password-post' => [
                 'class' => ResetPasswordPostAction::class,
                 'modelClass' => $this->modelClass
-            ]
+            ],
+            'my' => [
+                'class' => MyAction::class,
+                'modelClass' => $this->modelClass
+            ],
         ];
     }
 }

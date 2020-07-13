@@ -71,22 +71,25 @@ class ApiController extends ActiveController
     /**
      * @param $message
      *
+     * @param int $code
      * @return array
      */
-    public function onError($message)
+    public function onError($message, $code = 200)
     {
         Yii::error(var_export($message, 1));
-        return $this->respond(true, $message);
+        return $this->respond(true, $message, $code);
     }
 
     /**
      * @param $error
      * @param $data
      *
+     * @param int $code
      * @return array
      */
-    protected function respond($error, $data)
+    protected function respond($error, $data, $code = 200)
     {
+        Yii::$app->response->setStatusCode($code);
         return [
             'error' => (int)$error,
             'data' => $data
