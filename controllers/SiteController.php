@@ -64,6 +64,14 @@ class SiteController extends Controller
     }
 
     /**
+     * @return string
+     */
+    public function actionTest()
+    {
+        return $this->render('test');
+    }
+
+    /**
      * Login action.
      *
      * @return Response|string
