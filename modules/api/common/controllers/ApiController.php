@@ -3,6 +3,7 @@
 namespace app\modules\api\common\controllers;
 
 use app\modules\api\common\actions\ErrorAction;
+use app\modules\api\common\components\CustomCors;
 use Yii;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
@@ -32,6 +33,21 @@ class ApiController extends ActiveController
                     'application/json' => Response::FORMAT_JSON,
                 ],
             ],
+            'corsFilter' => [
+                'class' => CustomCors::class,
+                'cors' => [
+                    'Origin' => [
+                        '*'
+                    ],
+                    'Access-Control-Allow-Credentials' => true,
+                    'Access-Control-Allow-Origin' => '*',
+                    'Access-Control-Allow-Headers' => [
+                        'origin',
+                        'authorization',
+                        'content-type'
+                    ]
+                ],
+            ],
             'authenticator' => [
                 'class' => CompositeAuth::class,
                 'authMethods' => [
@@ -55,22 +71,25 @@ class ApiController extends ActiveController
     /**
      * @param $message
      *
+     * @param int $code
      * @return array
      */
-    public function onError($message)
+    public function onError($message, $code = 200)
     {
         Yii::error(var_export($message, 1));
-        return $this->respond(true, $message);
+        return $this->respond(true, $message, $code);
     }
 
     /**
      * @param $error
      * @param $data
      *
+     * @param int $code
      * @return array
      */
-    protected function respond($error, $data)
+    protected function respond($error, $data, $code = 200)
     {
+        Yii::$app->response->setStatusCode($code);
         return [
             'error' => (int)$error,
             'data' => $data
