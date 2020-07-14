@@ -82,6 +82,7 @@ $config = [
                         'GET games' => 'games',
                         'POST bet' => 'bet',
                         'POST check' => 'check',
+                        'GET online-count' => 'online-count',
                     ],
                     'pluralize' => false,
                 ]

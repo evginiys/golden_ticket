@@ -107,6 +107,14 @@ class OnlineUser extends ActiveRecord
      */
     public static function getOnlineUsers()
     {
-        return self::findAll(['user_id' => 1]);
+        return self::findAll(['is_online' => true]);
+    }
+
+    /**
+     * @return int
+     */
+    public static function getOnlineUsersCount()
+    {
+        return (int)self::find()->where(['is_online' => true])->count();
     }
 }
