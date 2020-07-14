@@ -23,6 +23,13 @@ use yii\db\ActiveRecord;
  */
 class Game extends ActiveRecord
 {
+    public const TYPE_REGULAR = 0;
+    public const TYPE_JACKPOT = 1;
+
+    public const STATUS_SCHEDULED = 0;
+    public const STATUS_IN_PROCESS = 1;
+    public const STATUS_ENDED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -58,6 +65,20 @@ class Game extends ActiveRecord
             'date_end'      => Yii::t('app', 'Date End'),
             'status'        => Yii::t('app', 'Status'),
         ];
+    }
+
+    /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getTypeDescription($key = null)
+    {
+        $data = [
+            self::TYPE_REGULAR => Yii::t('app', 'Regular'),
+            self::TYPE_JACKPOT => Yii::t('app', 'Jackpot'),
+        ];
+
+        return $data[$key] ?? $data;
     }
 
     /**
