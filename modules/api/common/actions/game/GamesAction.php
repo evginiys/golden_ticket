@@ -7,7 +7,7 @@ use yii\rest\Action;
 
 /**
  * Class GetPacksAction
- * @package app\modules\api\common\actions\ticket
+ * @package app\modules\api\common\actions\game
  */
 class GamesAction extends Action
 {
@@ -17,7 +17,6 @@ class GamesAction extends Action
     public function run()
     {
         $data = Game::find()->where(['status' => 1])->one();
-
         return $this->controller->onSuccess($data);
     }
 }

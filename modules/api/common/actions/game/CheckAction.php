@@ -8,7 +8,7 @@ use yii\rest\Action;
 
 /**
  * Class GetPacksAction
- * @package app\modules\api\common\actions\ticket
+ * @package app\modules\api\common\actions\game
  */
 class CheckAction extends Action
 {
@@ -17,9 +17,7 @@ class CheckAction extends Action
      */
     public function run()
     {
-
-        $gameId = Yii::$app->request->post('game_id');
-        $gameUser = GameUser::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['game_id' => $gameId])->all();
+        $gameUser = GameUser::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['game_id' => Yii::$app->request->post('game_id')])->all();
         if (!$gameUser) {
             return $this->controller->onError(Yii::t('app', 'user is not in the game'));
         }
@@ -29,7 +27,5 @@ class CheckAction extends Action
             }
         }
         return $this->controller->onSuccess(['win' => true]);
-
-
     }
 }

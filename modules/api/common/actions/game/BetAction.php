@@ -12,7 +12,7 @@ use yii\rest\Action;
 
 /**
  * Class GetPacksAction
- * @package app\modules\api\common\actions\ticket
+ * @package app\modules\api\common\actions\game
  */
 class BetAction extends Action
 {
@@ -31,23 +31,23 @@ class BetAction extends Action
             }
             if ($game->status == 1) {
                 $gameCombinations = $game->gameCombinations;
-                foreach ($gameCombinations as $k => $v) {
-                    array_push($winPoints, $v->point);
+                foreach ($gameCombinations as $winCombination) {
+                    array_push($winPoints, $winCombination->point);
                 }
-                foreach ($points as $k => $v) {
+                foreach ($points as $point) {
                     $gameUser = new GameUser();
                     $gameUser->game_id = $gameId;
                     $gameUser->user_id = Yii::$app->user->id;
-                    $gameUser->point = $v;
+                    $gameUser->point = $point;
                     $gameUser->date_point = date('Y-n-j G:i:s');
 
-                    $gameUser->is_correct = (in_array($v, $winPoints)) ? 1 : 0;
+                    $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
                     if (!$gameUser->save()) {
-                        throw new Exception(Yii::t('app', "error with points"));
+                        throw new ExceptionAlias(Yii::t('app', "error with points"));
                     }
                 }
             } else {
-                throw new Exception(Yii::t('app', 'game ended'));
+                throw new ExceptionAlias(Yii::t('app', 'game ended'));
             }
         } catch (ExceptionAlias $e) {
             return $this->controller->onError($e->getMessage());
