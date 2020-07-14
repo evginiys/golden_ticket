@@ -5,6 +5,7 @@ namespace app\modules\api\common\controllers;
 use app\models\Game;
 use app\models\GameCombination;
 use app\models\GameUser;
+use app\modules\api\common\actions\game\ChoosenCombinationAction;
 use app\modules\api\common\actions\game\GamesAction;
 use app\modules\api\common\actions\game\BetAction;
 use app\modules\api\common\actions\game\CheckAction;
@@ -29,6 +30,10 @@ class GameController extends ApiController
             'games' => [
                 'class' => GamesAction::class,
                 'modelClass' => Game::class
+            ],
+            'choosenCombination' => [
+                'class' => ChoosenCombinationAction::class,
+                'modelClass' => GameUser::class
             ],
             'bet' => [
                 'class' => BetAction::class,
