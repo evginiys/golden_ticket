@@ -100,4 +100,15 @@ class Game extends ActiveRecord
     {
         return $this->hasMany(GameUser::class, ['game_id' => 'id']);
     }
+
+    /**
+     * @return bool
+     */
+    public function createNewGame()
+    {
+        $this->status = self::STATUS_SCHEDULED;
+        $this->collected_sum = 0;
+
+        return $this->save();
+    }
 }

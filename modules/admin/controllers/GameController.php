@@ -21,7 +21,7 @@ class GameController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
                 ],
@@ -66,7 +66,7 @@ class GameController extends Controller
     {
         $model = new Game();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->createNewGame()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
