@@ -6,7 +6,6 @@ use app\models\Game;
 use app\models\GameUser;
 use Exception as ExceptionAlias;
 use Yii;
-use yii\db\Exception;
 use yii\helpers\Json;
 use yii\rest\Action;
 
@@ -23,10 +22,9 @@ class BetAction extends Action
     {
         $gameId = Yii::$app->request->post('game_id', 0);
         $points = Json::decode(Yii::$app->request->post('points'), true);
-
         try {
             $winPoints = [];
-            if (!$game = Game::find($gameId)->where(['date_start'=>date('Y-n-j G:i:s')])->one()) {
+            if (!$game = Game::find($gameId)->where(["<", "date_end", date('Y-n-j G:i:s')])->one()) {
                 return $this->controller->onError(Yii::t('app', "Game is not found or game ended"));
             }
             if ($game->status == 1) {
@@ -40,7 +38,6 @@ class BetAction extends Action
                     $gameUser->user_id = Yii::$app->user->id;
                     $gameUser->point = $point;
                     $gameUser->date_point = date('Y-n-j G:i:s');
-
                     $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
                     if (!$gameUser->save()) {
                         throw new ExceptionAlias(Yii::t('app', "error with points"));

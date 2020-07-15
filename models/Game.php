@@ -38,6 +38,20 @@ class Game extends ActiveRecord
     }
 
     /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getTypeDescription($key = null)
+    {
+        $data = [
+            self::TYPE_REGULAR => Yii::t('app', 'Regular'),
+            self::TYPE_JACKPOT => Yii::t('app', 'Jackpot'),
+        ];
+
+        return $data[$key] ?? $data;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function rules()
@@ -47,7 +61,7 @@ class Game extends ActiveRecord
             [['type', 'status'], 'integer'],
             [['date_start', 'date_end'], 'safe'],
             [['cost', 'collected_sum'], 'number'],
-            [['password'], 'required','length' => [3, 10]],
+            [['password'], 'required'],
         ];
     }
 
@@ -66,20 +80,6 @@ class Game extends ActiveRecord
             'status' => Yii::t('app', 'Status'),
             'password' => Yii::t('app', 'Password'),
         ];
-    }
-
-    /**
-     * @param null|int $key
-     * @return array|string
-     */
-    public static function getTypeDescription($key = null)
-    {
-        $data = [
-            self::TYPE_REGULAR => Yii::t('app', 'Regular'),
-            self::TYPE_JACKPOT => Yii::t('app', 'Jackpot'),
-        ];
-
-        return $data[$key] ?? $data;
     }
 
     /**
