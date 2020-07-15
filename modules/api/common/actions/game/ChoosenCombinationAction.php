@@ -3,12 +3,8 @@
 namespace app\modules\api\common\actions\game;
 
 use app\models\Game;
-use app\models\GameCombination;
-use app\models\GameUser;
 use Exception as ExceptionAlias;
 use Yii;
-use yii\db\Exception;
-use yii\helpers\Json;
 use yii\rest\Action;
 
 /**
@@ -25,10 +21,10 @@ class ChoosenCombinationAction extends Action
         $gameId = Yii::$app->request->get('game_id', 0);
         $points = [];
         try {
-            if (!$usersInGame = Game::findOne($gameId)->getGameUsers()->select('user_id')->distinct()->all()) {
+            if (!$usersInGame = Game::findOne($gameId)->getGameUsers()->select('user_id')->distinct()->count()) {
                 return $this->controller->onError(Yii::t('app', "game without users"));
             }
-            if(!$points=Game::findOne($gameId)->getGameUsers()->groupBy('user_id , id')->select(['user_id','point'])->all()){
+            if (!$points = Game::findOne($gameId)->getGameUsers()->groupBy('user_id , id')->select(['user_id', 'point'])->all()) {
                 return $this->controller->onError(Yii::t('app', "no bets"));
             }
 
@@ -36,6 +32,6 @@ class ChoosenCombinationAction extends Action
             return $this->controller->onError($e->getMessage());
         }
 
-        return $this->controller->onSuccess(['pints'=>$points,'usersInGame'=>$usersInGame]);
+        return $this->controller->onSuccess(['points' => $points, 'usersInGame' => $usersInGame]);
     }
 }

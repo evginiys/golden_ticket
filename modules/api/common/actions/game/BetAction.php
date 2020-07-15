@@ -26,8 +26,8 @@ class BetAction extends Action
 
         try {
             $winPoints = [];
-            if (!$game = Game::findOne($gameId)) {
-                return $this->controller->onError(Yii::t('app', "Game is not found"));
+            if (!$game = Game::find($gameId)->where(['date_start'=>date('Y-n-j G:i:s')])->one()) {
+                return $this->controller->onError(Yii::t('app', "Game is not found or game ended"));
             }
             if ($game->status == 1) {
                 $gameCombinations = $game->gameCombinations;

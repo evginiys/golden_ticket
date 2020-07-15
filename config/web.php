@@ -80,7 +80,7 @@ $config = [
                         'POST buy' => 'buy',
                         'GET error' => 'error',
                         'GET games' => 'games',
-                        'GET choosenCombination' => 'choosenCombination',
+                        'GET choosen-combination' => 'choosen-combination',
                         'POST bet' => 'bet',
                         'POST check' => 'check',
                     ],

@@ -31,9 +31,9 @@ class GameController extends ApiController
                 'class' => GamesAction::class,
                 'modelClass' => Game::class
             ],
-            'choosenCombination' => [
+            'choosen-combination' => [
                 'class' => ChoosenCombinationAction::class,
-                'modelClass' => GameUser::class
+                'modelClass' => GameCombination::class
             ],
             'bet' => [
                 'class' => BetAction::class,
