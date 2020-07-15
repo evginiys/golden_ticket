@@ -21,11 +21,13 @@ $config = [
         'v1' => [
             'class' => ApiModule::class,
         ],
+        'pro-admin' => [
+            'class' => 'app\modules\admin\AdminModule',
+        ],
     ],
     'components' => [
         'authManager' => $authManager,
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'WugW1ka6Ar_vkMsuJ-2mUK2DJ-Vx-RUY',
         ],
         'cache' => [
@@ -83,6 +85,7 @@ $config = [
                         'GET choosen-combination' => 'choosen-combination',
                         'POST bet' => 'bet',
                         'POST check' => 'check',
+                        'GET online-count' => 'online-count',
                     ],
                     'pluralize' => false,
                 ]
@@ -92,21 +95,19 @@ $config = [
     'params' => $params,
 ];
 
-/*if (YII_ENV_DEV) {
+if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+        'allowedIPs' => ['*'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+        'allowedIPs' => ['*'],
     ];
-}*/
+}
 
 return $config;

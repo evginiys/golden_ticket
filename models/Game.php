@@ -22,6 +22,13 @@ use yii\db\ActiveRecord;
  */
 class Game extends ActiveRecord
 {
+    public const TYPE_REGULAR = 0;
+    public const TYPE_JACKPOT = 1;
+
+    public const STATUS_SCHEDULED = 0;
+    public const STATUS_IN_PROCESS = 1;
+    public const STATUS_ENDED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -62,6 +69,20 @@ class Game extends ActiveRecord
     }
 
     /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getTypeDescription($key = null)
+    {
+        $data = [
+            self::TYPE_REGULAR => Yii::t('app', 'Regular'),
+            self::TYPE_JACKPOT => Yii::t('app', 'Jackpot'),
+        ];
+
+        return $data[$key] ?? $data;
+    }
+
+    /**
      * Gets query for [[GameCombinations]].
      *
      * @return ActiveQuery
@@ -79,5 +100,16 @@ class Game extends ActiveRecord
     public function getGameUsers()
     {
         return $this->hasMany(GameUser::class, ['game_id' => 'id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function createNewGame()
+    {
+        $this->status = self::STATUS_SCHEDULED;
+        $this->collected_sum = 0;
+
+        return $this->save();
     }
 }

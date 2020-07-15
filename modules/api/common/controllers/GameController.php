@@ -3,12 +3,12 @@
 namespace app\modules\api\common\controllers;
 
 use app\models\Game;
-use app\models\GameCombination;
 use app\models\GameUser;
 use app\modules\api\common\actions\game\ChoosenCombinationAction;
 use app\modules\api\common\actions\game\GamesAction;
 use app\modules\api\common\actions\game\BetAction;
 use app\modules\api\common\actions\game\CheckAction;
+use app\modules\api\common\actions\OnlineCounterAction;
 
 /**
  * Class TicketController
@@ -40,9 +40,13 @@ class GameController extends ApiController
                 'modelClass' => GameUser::class
             ],
             'check' => [
-                'class' => checkAction::class,
+                'class' => CheckAction::class,
                 'modelClass' => GameUser::class
             ],
+            'online-count' => [
+                'class' => OnlineCounterAction::class,
+                'modelClass' => GameUser::class
+            ]
         ];
     }
 }
