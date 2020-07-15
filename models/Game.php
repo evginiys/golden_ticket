@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use app\models\behaviors\MongoLogger;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -41,6 +40,7 @@ class Game extends ActiveRecord
             [['type', 'status'], 'integer'],
             [['date_start', 'date_end'], 'safe'],
             [['cost', 'collected_sum'], 'number'],
+            [['password'], 'required','length' => [3, 10]],
         ];
     }
 
@@ -50,13 +50,14 @@ class Game extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id'            => Yii::t('app', 'ID'),
-            'type'          => Yii::t('app', 'Type'),
-            'date_start'    => Yii::t('app', 'Date Start'),
-            'cost'          => Yii::t('app', 'Cost'),
+            'id' => Yii::t('app', 'ID'),
+            'type' => Yii::t('app', 'Type'),
+            'date_start' => Yii::t('app', 'Date Start'),
+            'cost' => Yii::t('app', 'Cost'),
             'collected_sum' => Yii::t('app', 'Collected Sum'),
-            'date_end'      => Yii::t('app', 'Date End'),
-            'status'        => Yii::t('app', 'Status'),
+            'date_end' => Yii::t('app', 'Date End'),
+            'status' => Yii::t('app', 'Status'),
+            'password' => Yii::t('app', 'Password'),
         ];
     }
 
