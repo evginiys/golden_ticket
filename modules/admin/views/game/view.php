@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Game;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
@@ -7,9 +8,9 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Game */
 
-$this->title = $model->id;
+$this->title = Yii::t('app', 'Game #') . $model->id;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Games'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+$this->params['breadcrumbs'][] = $model->id;
 YiiAsset::register($this);
 ?>
 <div class="game-view">
@@ -33,10 +34,13 @@ YiiAsset::register($this);
             'id',
             'type',
             'date_start',
+            [
+                'attribute' => 'status',
+                'value' => Game::getStatusDescription($model->status)
+            ],
+            'date_end',
             'cost',
             'collected_sum',
-            'date_end',
-            'status',
         ],
     ]) ?>
 

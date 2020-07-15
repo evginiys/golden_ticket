@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Game;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -15,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Start New Game'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Create Game'), ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -27,7 +28,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'type',
             'date_start',
-            'status',
+            [
+                'attribute' => 'status',
+                'value' => function (Game $model) {
+                    return Game::getStatusDescription($model->status);
+                }
+            ],
             'date_end',
             'cost',
             'collected_sum',
