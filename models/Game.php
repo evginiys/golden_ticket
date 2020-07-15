@@ -82,6 +82,21 @@ class Game extends ActiveRecord
     }
 
     /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getStatusDescription($key = null)
+    {
+        $data = [
+            self::STATUS_SCHEDULED => Yii::t('app', 'Scheduled'),
+            self::STATUS_IN_PROCESS => Yii::t('app', 'In Process'),
+            self::STATUS_ENDED => Yii::t('app', 'Ended'),
+        ];
+
+        return $data[$key] ?? $data;
+    }
+
+    /**
      * Gets query for [[GameCombinations]].
      *
      * @return ActiveQuery

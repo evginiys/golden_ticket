@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Game;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -19,22 +20,23 @@ $this->params['breadcrumbs'][] = $this->title;
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
             'id',
             'type',
             'date_start',
+            [
+                'attribute' => 'status',
+                'value' => function (Game $model) {
+                    return Game::getStatusDescription($model->status);
+                }
+            ],
+            'date_end',
             'cost',
             'collected_sum',
-            //'date_end',
-            //'status',
-
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
