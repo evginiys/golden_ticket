@@ -11,7 +11,7 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Class ErrorAction
- * @package app\prodamus\api\common\actions
+ * @package app\modules\api\common\actions
  */
 class ErrorAction extends Action
 {
