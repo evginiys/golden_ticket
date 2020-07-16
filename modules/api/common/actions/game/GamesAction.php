@@ -16,7 +16,7 @@ class GamesAction extends Action
      */
     public function run()
     {
-        $data = Game::find()->where(['status' => 1])->andWhere(['date_start'=>date()])->one();
+        $data = Game::find()->where(['status' => 0])->orWhere(['status' => 1])->all();
         return $this->controller->onSuccess($data);
     }
 }
