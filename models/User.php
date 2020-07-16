@@ -28,6 +28,10 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    public const ROLE_PLAYER = 'player';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_BANNED = 'banned';
+
     /**
      * {@inheritdoc}
      */
@@ -68,6 +72,21 @@ class User extends ActiveRecord implements IdentityInterface
             'reset_password_token' => Yii::t('app', 'Reset Password Token'),
             'date_reset_password' => Yii::t('app', 'Date Reset Password'),
         ];
+    }
+
+    /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getRoleDescription($key = null)
+    {
+        $data = [
+            self::ROLE_PLAYER => Yii::t('app', 'Player'),
+            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
+            self::ROLE_BANNED => Yii::t('app', 'Banned')
+        ];
+
+        return $data[$key] ?? $data;
     }
 
     /**
