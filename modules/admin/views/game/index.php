@@ -26,10 +26,17 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             'id',
-            'type',
+            [
+                'attribute' => 'type',
+                'filter' => Game::getTypeDescription(),
+                'value' => function (Game $model) {
+                    return Game::getTypeDescription($model->type);
+                }
+            ],
             'date_start',
             [
                 'attribute' => 'status',
+                'filter' => Game::getStatusDescription(),
                 'value' => function (Game $model) {
                     return Game::getStatusDescription($model->status);
                 }

@@ -3,16 +3,16 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\Game;
-use app\models\GameSearch;
+use app\models\TicketPack;
+use app\models\TicketPackSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * GameController implements the CRUD actions for Game model.
+ * TicketPackController implements the CRUD actions for TicketPack model.
  */
-class GameController extends Controller
+class TicketPackController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -30,12 +30,12 @@ class GameController extends Controller
     }
 
     /**
-     * Lists all Game models.
+     * Lists all TicketPack models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new GameSearch();
+        $searchModel = new TicketPackSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,8 +45,8 @@ class GameController extends Controller
     }
 
     /**
-     * Displays a single Game model.
-     * @param string $id
+     * Displays a single TicketPack model.
+     * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
@@ -58,15 +58,15 @@ class GameController extends Controller
     }
 
     /**
-     * Creates a new Game model.
+     * Creates a new TicketPack model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Game();
+        $model = new TicketPack();
 
-        if ($model->load(Yii::$app->request->post()) && $model->createNewGame()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -76,9 +76,9 @@ class GameController extends Controller
     }
 
     /**
-     * Updates an existing Game model.
+     * Updates an existing TicketPack model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param string $id
+     * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
@@ -96,9 +96,9 @@ class GameController extends Controller
     }
 
     /**
-     * Deletes an existing Game model.
+     * Deletes an existing TicketPack model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param string $id
+     * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      * @throws \Throwable
@@ -112,15 +112,15 @@ class GameController extends Controller
     }
 
     /**
-     * Finds the Game model based on its primary key value.
+     * Finds the TicketPack model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param string $id
-     * @return Game the loaded model
+     * @param integer $id
+     * @return TicketPack the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Game::findOne($id)) !== null) {
+        if (($model = TicketPack::findOne($id)) !== null) {
             return $model;
         }
 
