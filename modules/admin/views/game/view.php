@@ -31,8 +31,10 @@ YiiAsset::register($this);
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
-            'type',
+            [
+                'attribute' => 'type',
+                'value' => Game::getTypeDescription($model->type)
+            ],
             'date_start',
             [
                 'attribute' => 'status',
