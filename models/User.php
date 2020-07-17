@@ -199,12 +199,12 @@ class User extends ActiveRecord implements IdentityInterface
      * Updates an expiration date of API token based on value from .env file
      *
      * @return bool whether the updating succeeded
-     * @throws \Exception Emits Exception in case of an error.
+     * @throws \Exception in case of an error.
      */
     public function updateTokenExpirationDate()
     {
         $this->date_token_expired = date('Y-m-d H:i:s', strtotime('+' . env('TOKEN_LIFE_TIME', 86400) . ' seconds'));
-        return $this->save();
+        return $this->save(false);
     }
 
     /**
