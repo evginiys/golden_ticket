@@ -10,6 +10,12 @@ $this->title = $model->username;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Users'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
+
+$roles = Yii::$app->authManager->getRolesByUser($model->id);
+$roleNames = [];
+foreach ($roles as $role) {
+    $roleNames[] = $role->description;
+}
 ?>
 <div class="user-view">
 
@@ -33,6 +39,10 @@ $this->params['breadcrumbs'][] = $this->title;
             'username',
             'email:email',
             'phone',
+            [
+                'value' => implode(', ', $roleNames),
+                'label' => Yii::t('app', 'Roles')
+            ],
             'token',
             'date_token_expired',
         ],

@@ -1,5 +1,6 @@
 <?php
 
+use app\models\User;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -28,6 +29,17 @@ $this->params['breadcrumbs'][] = $this->title;
             'username',
             'email:email',
             'phone',
+            [
+                'value' => function (User $model) {
+                    $roles = Yii::$app->authManager->getRolesByUser($model->id);
+                    $roleNames = [];
+                    foreach ($roles as $role) {
+                        $roleNames[] = $role->description;
+                    }
+                    return implode('<br>', $roleNames);
+                },
+                'label' => Yii::t('app', 'Roles')
+            ],
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
