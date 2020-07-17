@@ -21,15 +21,6 @@ class AdminController extends Controller
     public function behaviors()
     {
         return array_merge(parent::behaviors(), [
-            'access' => [
-                'class' => AccessControl::class,
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => [User::ROLE_ADMIN]
-                    ]
-                ]
-            ],
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
