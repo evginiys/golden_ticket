@@ -15,7 +15,7 @@ $config = [
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
     ],
     'modules' => [
         'v1' => [
@@ -69,6 +69,7 @@ $config = [
                         'v1/ticket',
                         'v1/common',
                         'v1/game',
+                        'v1/dashboard',
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
@@ -86,6 +87,11 @@ $config = [
                         'POST bet' => 'bet',
                         'POST check' => 'check',
                         'GET online-count' => 'online-count',
+                        'GET user-inf-by-token' => 'user-inf-by-token',
+                        'GET get-balance' => 'get-balance',
+                        'POST change-name' => 'change-name',
+                        'GET get-rate'=>'get-rate',
+                        'POST exchange'=>'exchange'
                     ],
                     'pluralize' => false,
                 ]

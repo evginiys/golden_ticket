@@ -3,6 +3,7 @@
 namespace app\modules\api\common\controllers;
 
 use app\models\User;
+use app\modules\api\common\actions\ChangeNameAction;
 use app\modules\api\common\actions\ForgotPasswordAction;
 use app\modules\api\common\actions\LogoutAction;
 use app\modules\api\common\actions\MyAction;
@@ -10,6 +11,7 @@ use app\modules\api\common\actions\ResetPasswordGetAction;
 use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
 use app\modules\api\common\actions\SignUpAction;
+use app\modules\api\common\actions\UserInfByTokenAction;
 
 /**
  * Class UserController
@@ -62,6 +64,14 @@ class UserController extends ApiController
             ],
             'my' => [
                 'class' => MyAction::class,
+                'modelClass' => $this->modelClass
+            ],
+            'user-inf-by-token' => [
+                'class' => UserInfByTokenAction::class,
+                'modelClass' => $this->modelClass
+            ],
+            'change-name' => [
+                'class' => ChangeNameAction::class,
                 'modelClass' => $this->modelClass
             ],
         ];
