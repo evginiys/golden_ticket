@@ -40,6 +40,7 @@ AppAsset::register($this);
         'items' => [
             ['label' => Yii::t('app', 'Users'), 'url' => ['/pro-admin/user']],
             ['label' => Yii::t('app', 'Games'), 'url' => ['/pro-admin/game']],
+            ['label' => Yii::t('app', 'Promos'), 'url' => ['/pro-admin/promo']],
             ['label' => Yii::t('app', 'Ticket Packs'), 'url' => ['/pro-admin/ticket-pack']],
             Yii::$app->user->isGuest ? (
                 ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']]

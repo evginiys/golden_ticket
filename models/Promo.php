@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -27,6 +28,18 @@ class Promo extends ActiveRecord
         return 'promo';
     }
 
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => false,
+                'value' => date('Y-m-d H:i:s')
+            ]
+        ]);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -38,6 +51,7 @@ class Promo extends ActiveRecord
             [['cost'], 'number', 'min' => 0.0],
             [['created_at', 'expiration_at'], 'safe'],
             [['name', 'imageUrl', 'promocode'], 'string', 'max' => 255],
+            [['promocode'], 'default', 'value' => null]
         ];
     }
 
