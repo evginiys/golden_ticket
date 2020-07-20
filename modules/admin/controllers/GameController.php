@@ -5,30 +5,14 @@ namespace app\modules\admin\controllers;
 use Yii;
 use app\models\Game;
 use app\models\GameSearch;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * GameController implements the CRUD actions for Game model.
  */
-class GameController extends Controller
+class GameController extends AdminController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Game models.
      * @return mixed

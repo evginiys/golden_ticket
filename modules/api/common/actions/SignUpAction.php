@@ -30,6 +30,9 @@ class SignUpAction extends Action
 
             $user->updateTokenExpirationDate();
 
+            $playerRole = Yii::$app->authManager->getRole(User::ROLE_PLAYER);
+            Yii::$app->authManager->assign($playerRole, $user->id);
+
             return $this->controller->onSuccess(['token' => $user->token]);
         } catch (Exception $e) {
             return $this->controller->onError($e->getMessage());

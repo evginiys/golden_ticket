@@ -5,30 +5,14 @@ namespace app\modules\admin\controllers;
 use Yii;
 use app\models\TicketPack;
 use app\models\TicketPackSearch;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * TicketPackController implements the CRUD actions for TicketPack model.
  */
-class TicketPackController extends Controller
+class TicketPackController extends AdminController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all TicketPack models.
      * @return mixed
