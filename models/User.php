@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use app\models\behaviors\MongoLogger;
 use Yii;
 use yii\base\Exception;
 use yii\db\ActiveQuery;
@@ -51,6 +50,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'string', 'max' => 45],
             [['email', 'password', 'token', 'reset_password_token'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 15],
+            [['email'], 'email'],
             [['username'], 'unique'],
             [['email'], 'unique'],
             [['token'], 'unique'],
