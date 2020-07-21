@@ -19,7 +19,7 @@ class UserInfByTokenAction extends Action
         $user = Yii::$app->user->identity;
 
         if (!$user) {
-            return $this->controller->onError(Yii::t('app', 'User is not found'), 401);
+            return $this->controller->onError(Yii::t('app', 'User is not found'));
         }
 
         return $this->controller->onSuccess(['username' => $user->username, 'phone' => $user->phone, 'email' => $user->email]);
