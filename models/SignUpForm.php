@@ -16,6 +16,7 @@ class SignUpForm extends Model
     public $email;
     public $phone;
     public $password;
+    public $password_repeat;
 
     /**
      * {@inheritDoc}
@@ -23,13 +24,25 @@ class SignUpForm extends Model
     public function rules()
     {
         return [
-            [['username', 'password'], 'required'],
+            [['username', 'email', 'password', 'password_repeat'], 'required'],
             [['username'], 'string', 'max' => 45],
-            [['email', 'password'], 'string', 'max' => 255],
+            [['email', 'password', 'password_repeat'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 15],
-            [['username'], 'unique'],
-            [['email'], 'unique'],
+            [['email'], 'email'],
+            [['password_repeat'], 'compare', 'compareAttribute' => 'password'],
+            [['phone'], 'default'],
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function attributeLabels()
+    {
+        $labels = parent::attributeLabels();
+        $labels['password_repeat'] = Yii::t('app', 'Repeat Password');
+
+        return $labels;
     }
 
     /**

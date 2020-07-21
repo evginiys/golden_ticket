@@ -42,6 +42,11 @@ AppAsset::register($this);
             ['label' => Yii::t('app', 'Games'), 'url' => ['/pro-admin/game']],
             ['label' => Yii::t('app', 'Promos'), 'url' => ['/pro-admin/promo']],
             ['label' => Yii::t('app', 'Ticket Packs'), 'url' => ['/pro-admin/ticket-pack']],
+            [
+                'label' => Yii::t('app', 'Sign Up'),
+                'url' => ['/site/sign-up'],
+                'visible' => Yii::$app->user->isGuest
+            ],
             Yii::$app->user->isGuest ? (
                 ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']]
             ) : (

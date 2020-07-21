@@ -17,23 +17,29 @@ class SignUpAction extends Action
     public function run()
     {
         try {
-            $user = new User();
-            $user->username = Yii::$app->request->post('username');
-            $user->email = Yii::$app->request->post('email');
-            $user->phone = Yii::$app->request->post('phone');
-            $user->setPassword(Yii::$app->request->post('password'));
+            $user = new User([
+                'username' => Yii::$app->request->post('username'),
+                'email' => Yii::$app->request->post('email'),
+                'phone' => Yii::$app->request->post('phone'),
+                'password' => Yii::$app->request->post('password'),
+            ]);
+
             $user->generateApiToken();
 
-            if (!$user->save()) {
-                return $this->controller->onError($user->getErrors());
+            if ($user->validate()) {
+                $user->setPassword($user->password);
+
+                if ($user->save(false)) {
+                    $user->updateTokenExpirationDate();
+
+                    $playerRole = Yii::$app->authManager->getRole(User::ROLE_PLAYER);
+                    Yii::$app->authManager->assign($playerRole, $user->id);
+
+                    return $this->controller->onSuccess(['token' => $user->token]);
+                }
             }
 
-            $user->updateTokenExpirationDate();
-
-            $playerRole = Yii::$app->authManager->getRole(User::ROLE_PLAYER);
-            Yii::$app->authManager->assign($playerRole, $user->id);
-
-            return $this->controller->onSuccess(['token' => $user->token]);
+            return $this->controller->onError($user->getErrors());
         } catch (Exception $e) {
             return $this->controller->onError($e->getMessage());
         }
