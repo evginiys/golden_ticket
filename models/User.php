@@ -89,7 +89,9 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @inheritDoc
+     * @param mixed $token
+     * @param null $type
+     * @return array|ActiveRecord|IdentityInterface|null
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
@@ -105,7 +107,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param $username
      * @return User|null
      */
-    public static function findByUsername($username)
+    public static function findByUsername(string $username)
     {
         return self::findOne(['username' => $username]);
     }

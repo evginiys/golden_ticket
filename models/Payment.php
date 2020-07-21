@@ -100,7 +100,13 @@ class Payment extends ActiveRecord
         return 'payment';
     }
 
-    public static function userTickets($userId)
+    /**
+     *
+     * @param $userId
+     * @return int
+     * @throws Exception
+     */
+    public static function userTickets(int $userId)
     {
         $numberOfTickets = 0;
         try {
@@ -110,24 +116,30 @@ class Payment extends ActiveRecord
                 }
             }
         } catch (Exception $e) {
-            throw new Exception(Yii::t('app','not found'));
+            throw new Exception(Yii::t('app', 'not found'));
         }
         return $numberOfTickets;
     }
 
-    public static function refill($userId, $amount)
+    /**
+     * @param $userId
+     * @param $amount
+     * @return bool
+     * @throws Exception
+     */
+    public static function refill(int $userId, float $amount)
     {
         try {
-          $payment=new self();
-          $payment->currency=self::CURRENCY_RUR;
-          $payment->status=self::STATUS_NEW;
-          $payment->amount=$amount;
-          $payment->to_user_id=$userId;
-          $payment->type=self::TYPE_CHARGE;
-          $payment->comment="refill rur";
-          if(!$payment->validate()||!$payment->save()){
-              throw  new Exception(Yii::t('app',"cannot refill wallet"));
-          }
+            $payment = new self();
+            $payment->currency = self::CURRENCY_RUR;
+            $payment->status = self::STATUS_NEW;
+            $payment->amount = $amount;
+            $payment->to_user_id = $userId;
+            $payment->type = self::TYPE_CHARGE;
+            $payment->comment = "refill rur";
+            if (!$payment->validate() || !$payment->save()) {
+                throw  new Exception(Yii::t('app', "cannot refill wallet"));
+            }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
             return false;
@@ -135,7 +147,14 @@ class Payment extends ActiveRecord
         return true;
     }
 
-    public static function CoinsToCoupon($userId, $coins, $coupons)
+    /**
+     * @param $userId
+     * @param $coins
+     * @param $coupons
+     * @return bool
+     * @throws Exception
+     */
+    public static function coinsToCoupon(int $userId, float $coins, float $coupons)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -147,7 +166,7 @@ class Payment extends ActiveRecord
             $sell->amount = $coins;
             $sell->from_user_id = $userId;
 
-            if (!$sell->validate()||!$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
             $buy = new self();
             $buy->status = self::STATUS_DONE;
             $buy->currency = self::CURRENCY_COUPON;
@@ -155,7 +174,7 @@ class Payment extends ActiveRecord
             $buy->comment = 'покупка купонов';
             $buy->to_user_id = $userId;
             $buy->amount = $coupons;
-            if (!$buy->validate()||!$buy->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$buy->validate() || !$buy->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
             $transaction->commit();
             return true;
         } catch (Exception $e) {
