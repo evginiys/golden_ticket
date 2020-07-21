@@ -24,15 +24,25 @@ class SignUpForm extends Model
     public function rules()
     {
         return [
-            [['username', 'password', 'password_repeat'], 'required'],
+            [['username', 'email', 'password', 'password_repeat'], 'required'],
             [['username'], 'string', 'max' => 45],
             [['email', 'password', 'password_repeat'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 15],
             [['email'], 'email'],
-            [['password'], 'compare'],
-            [['username'], 'unique'],
-            [['email'], 'unique'],
+            [['password_repeat'], 'compare', 'compareAttribute' => 'password'],
+            [['phone'], 'default'],
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function attributeLabels()
+    {
+        $labels = parent::attributeLabels();
+        $labels['password_repeat'] = Yii::t('app', 'Repeat Password');
+
+        return $labels;
     }
 
     /**
