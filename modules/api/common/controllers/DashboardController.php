@@ -8,6 +8,11 @@ use app\modules\api\common\actions\dashboard\GetBalanceAction;
 use app\modules\api\common\actions\dashboard\GetRateAction;
 use app\modules\api\common\actions\dashboard\RefillAction;
 
+/**
+ *
+ * Class DashboardController
+ * @package app\modules\api\common\controllers
+ */
 class DashboardController extends ApiController
 {
     public $modelClass = User::class;

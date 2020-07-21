@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class MyAction
+ * Class ChangeNameAction
  * @package app\modules\api\common\actions
  */
 class ChangeNameAction extends Action
@@ -25,7 +25,5 @@ class ChangeNameAction extends Action
             $user->update();
             return $this->controller->onSuccess(['user' => $user->username]);
         }
-
-
     }
 }

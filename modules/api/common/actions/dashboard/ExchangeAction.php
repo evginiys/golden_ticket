@@ -8,13 +8,13 @@ use yii\db\Exception;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
- * @package app\modules\api\common\actions\game
+ * Class ExchangeAction
+ * @package app\modules\api\common\actions\dashboard
  */
 class ExchangeAction extends Action
 {
     /**
-     * @return array
+     * @return mixed
      */
 
     public function run()

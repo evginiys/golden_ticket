@@ -6,7 +6,7 @@ use app\models\Game;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
+ * Class GamesAction
  * @package app\modules\api\common\actions\game
  */
 class GamesAction extends Action

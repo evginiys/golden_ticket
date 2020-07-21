@@ -5,8 +5,8 @@ namespace app\modules\api\common\actions\dashboard;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
- * @package app\modules\api\common\actions\game
+ * Class GetRateAction
+ * @package app\modules\api\common\actions\dashboard
  */
 class GetRateAction extends Action
 {

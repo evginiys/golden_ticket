@@ -8,8 +8,8 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
- * @package app\modules\api\common\actions\game
+ * Class GetBalanceAction
+ * @package app\modules\api\common\actions\dashboard
  */
 class GetBalanceAction extends Action
 {
