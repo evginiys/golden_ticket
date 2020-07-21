@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use phpDocumentor\Reflection\Types\Self_;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -32,6 +33,7 @@ class Payment extends ActiveRecord
 {
     public const TYPE_BUY = 0;
     public const TYPE_CHARGE = 1;
+    public const STATUS_NEW = 1;
     public const STATUS_DONE = 2;
     public const CURRENCY_RUR = 0;
     public const CURRENCY_COUPON = 1;
@@ -108,9 +110,29 @@ class Payment extends ActiveRecord
                 }
             }
         } catch (Exception $e) {
-            throw new Exception('not found');
+            throw new Exception(Yii::t('app','not found'));
         }
         return $numberOfTickets;
+    }
+
+    public static function refill($userId, $amount)
+    {
+        try {
+          $payment=new self();
+          $payment->currency=self::CURRENCY_RUR;
+          $payment->status=self::STATUS_NEW;
+          $payment->amount=$amount;
+          $payment->to_user_id=$userId;
+          $payment->type=self::TYPE_CHARGE;
+          $payment->comment="refill rur";
+          if(!$payment->validate()||!$payment->save()){
+              throw  new Exception(Yii::t('app',"cannot refill wallet"));
+          }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+            return false;
+        }
+        return true;
     }
 
     public static function CoinsToCoupon($userId, $coins, $coupons)
@@ -124,7 +146,8 @@ class Payment extends ActiveRecord
             $sell->comment = 'обмен на купоны';
             $sell->amount = $coins;
             $sell->from_user_id = $userId;
-            if (!$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+
+            if (!$sell->validate()||!$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
             $buy = new self();
             $buy->status = self::STATUS_DONE;
             $buy->currency = self::CURRENCY_COUPON;
@@ -132,7 +155,7 @@ class Payment extends ActiveRecord
             $buy->comment = 'покупка купонов';
             $buy->to_user_id = $userId;
             $buy->amount = $coupons;
-            if (!$buy->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$buy->validate()||!$buy->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
             $transaction->commit();
             return true;
         } catch (Exception $e) {

@@ -1,0 +1,37 @@
+<?php
+
+namespace app\modules\api\common\actions\dashboard;
+
+use app\models\Payment;
+use Yii;
+use yii\db\Exception;
+use yii\rest\Action;
+
+/**
+ * Class GetPacksAction
+ * @package app\modules\api\common\actions\game
+ */
+class RefillAction extends Action
+{
+    /**
+     * @return array
+     */
+
+
+    public function run()
+    {
+        try {
+            if ($amount = Yii::$app->request->post('amount')) {
+                if (Payment::refill(Yii::$app->user->id, $amount)) {
+                    return $this->controller->onSuccess(true);
+                } else {
+                    throw new Exception(Yii::t('app', "cannot refill wallet"));
+                }
+            } else {
+                throw new Exception(Yii::t('app', "cannot refill wallet"));
+            }
+        } catch (Exception $e) {
+            return $this->controller->onError($e->getMessage());
+        }
+    }
+}

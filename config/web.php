@@ -91,7 +91,8 @@ $config = [
                         'GET get-balance' => 'get-balance',
                         'POST change-name' => 'change-name',
                         'GET get-rate'=>'get-rate',
-                        'POST exchange'=>'exchange'
+                        'POST exchange'=>'exchange',
+                        'POST refill'=>'refill'
                     ],
                     'pluralize' => false,
                 ]

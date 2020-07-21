@@ -3,7 +3,6 @@
 namespace app\modules\api\common\actions\dashboard;
 
 use app\models\Payment;
-use app\models\self;
 use Exception;
 use Yii;
 use yii\rest\Action;

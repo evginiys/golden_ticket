@@ -2,7 +2,6 @@
 
 namespace app\modules\api\common\actions;
 
-use app\models\User;
 use Yii;
 use yii\rest\Action;
 
@@ -23,6 +22,6 @@ class UserInfByTokenAction extends Action
             return $this->controller->onError(Yii::t('app', 'User is not found'), 404);
         }
 
-        return $this->controller->onSuccess(['username'=>$user->username,'phone'=>$user->phone,'email'=>$user->email]);
+        return $this->controller->onSuccess(['username' => $user->username, 'phone' => $user->phone, 'email' => $user->email]);
     }
 }

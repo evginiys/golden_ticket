@@ -6,6 +6,7 @@ use app\models\User;
 use app\modules\api\common\actions\dashboard\ExchangeAction;
 use app\modules\api\common\actions\dashboard\GetBalanceAction;
 use app\modules\api\common\actions\dashboard\GetRateAction;
+use app\modules\api\common\actions\dashboard\RefillAction;
 
 class DashboardController extends ApiController
 {
@@ -24,6 +25,10 @@ class DashboardController extends ApiController
             ],
             'exchange' => [
                 'class' => ExchangeAction::class,
+                'modelClass' => User::class
+            ],
+            'refill' => [
+                'class' => RefillAction::class,
                 'modelClass' => User::class
             ],
         ];
