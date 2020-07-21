@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -182,7 +183,7 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * @return array|string[]
      */
     public function attributeLabels()
     {
