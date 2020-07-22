@@ -20,7 +20,7 @@ use app\models\LoginForm;
  *     basePath="/",
  *     produces={"application/json"},
  *     consumes={"application/x-www-form-urlencoded"},
- *     @SWG\Info(version="1.0", title="Simple API"),
+ *     @SWG\Info(version="1.0", title="Golden Ticket API"),
  * )
  */
 class SiteController extends Controller
@@ -66,6 +66,7 @@ class SiteController extends Controller
                 'scanDir' => [
                     Yii::getAlias('@app/controllers'),
                     Yii::getAlias('@app/models'),
+                    Yii::getAlias('@app/modules/api'),
                 ],
             ],
             'error' => [
