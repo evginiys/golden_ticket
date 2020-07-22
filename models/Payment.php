@@ -3,10 +3,10 @@
 namespace app\models;
 
 
+use Exception;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use yii\db\Exception;
 use yii\db\Expression;
 use yii\helpers\Json;
 
@@ -61,7 +61,7 @@ class Payment extends ActiveRecord
                 }
             }
             $transaction->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -110,13 +110,17 @@ class Payment extends ActiveRecord
     {
         $numberOfTickets = 0;
         try {
-            foreach (self::find()->where(['from_user_id' => $userId])->with('ticket')->each() as $payment) {
-                if ($payment->ticket->is_active == 1) {
-                    $numberOfTickets++;
+            if ($payments = self::find()->where(['from_user_id' => $userId])->with('ticket')->all()) {
+                foreach ($payments as $payment) {
+                    if ($payment->ticket->is_active == 1) {
+                        $numberOfTickets++;
+                    }
                 }
+            } else {
+                throw new Exception(Yii::t('app', 'not found tickets'));
             }
         } catch (Exception $e) {
-            throw new Exception(Yii::t('app', 'not found'));
+            throw new Exception(Yii::t('app', $e->getMessage()));
         }
         return $numberOfTickets;
     }
@@ -130,13 +134,8 @@ class Payment extends ActiveRecord
     public static function refill(int $userId, float $amount)
     {
         try {
-            $payment = new self();
-            $payment->currency = self::CURRENCY_RUR;
-            $payment->status = self::STATUS_NEW;
-            $payment->amount = $amount;
-            $payment->to_user_id = $userId;
-            $payment->type = self::TYPE_CHARGE;
-            $payment->comment = "refill rur";
+            $payment = new self(['currency' => self::CURRENCY_RUR, 'status' => self::STATUS_NEW,
+                'amount' => $amount, 'to_user_id' => $userId, 'type' => self::TYPE_CHARGE, 'comment' => "refill rur"]);
             if (!$payment->validate() || !$payment->save()) {
                 throw  new Exception(Yii::t('app', "cannot refill wallet"));
             }
@@ -158,23 +157,25 @@ class Payment extends ActiveRecord
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $sell = new self();
-            $sell->status = self::STATUS_DONE;
-            $sell->currency = self::CURRENCY_RUR;
-            $sell->type = self::TYPE_BUY;
-            $sell->comment = 'обмен на купоны';
-            $sell->amount = $coins;
-            $sell->from_user_id = $userId;
-
+            $sell = new self(['status' => self::STATUS_DONE,
+                'currency' => self::CURRENCY_RUR,
+                'type' => self::TYPE_BUY,
+                'comment' => 'обмен на купоны',
+                'amount' => $coins,
+                'from_user_id' => $userId]);
+//
             if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
-            $buy = new self();
-            $buy->status = self::STATUS_DONE;
-            $buy->currency = self::CURRENCY_COUPON;
-            $buy->type = self::TYPE_CHARGE;
-            $buy->comment = 'покупка купонов';
-            $buy->to_user_id = $userId;
-            $buy->amount = $coupons;
-            if (!$buy->validate() || !$buy->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+
+            $buy = new self(['status' => self::STATUS_DONE,
+                'currency' => self::CURRENCY_COUPON,
+                'type' => self::TYPE_CHARGE,
+                'comment' => 'покупка купонов',
+                'amount' => $coupons,
+                'to_user_id' => $userId]);
+//
+            if (!$buy->validate() || !$buy->save()) {
+                throw new Exception(Yii::t('app', 'cannot exchange'));
+            }
             $transaction->commit();
             return true;
         } catch (Exception $e) {
@@ -202,6 +203,7 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * @inheritDoc
      * @return array|string[]
      */
     public function attributeLabels()

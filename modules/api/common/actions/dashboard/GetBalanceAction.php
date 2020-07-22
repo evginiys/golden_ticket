@@ -24,7 +24,10 @@ class GetBalanceAction extends Action
             $coins = Yii::$app->user->identity->getBalance(Payment::CURRENCY_RUR);
             $coupons = Yii::$app->user->identity->getBalance(Payment::CURRENCY_COUPON);
             $tickets = Payment::userTickets(Yii::$app->user->id);
-            return $this->controller->onSuccess(["coins" => $coins, "coupons" => $coupons, "tickets" => $tickets]);
+            return $this->controller->onSuccess([
+                "coins" => $coins,
+                "coupons" => $coupons,
+                "tickets" => $tickets]);
         } catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()));
         }

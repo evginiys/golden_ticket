@@ -90,9 +90,9 @@ $config = [
                         'GET user-inf-by-token' => 'user-inf-by-token',
                         'GET get-balance' => 'get-balance',
                         'POST change-name' => 'change-name',
-                        'GET get-rate'=>'get-rate',
-                        'POST exchange'=>'exchange',
-                        'POST refill'=>'refill'
+                        'GET get-rate' => 'get-rate',
+                        'POST exchange' => 'exchange',
+                        'POST refill' => 'refill'
                     ],
                     'pluralize' => false,
                 ]

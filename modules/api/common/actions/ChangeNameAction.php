@@ -19,10 +19,12 @@ class ChangeNameAction extends Action
         $user = Yii::$app->user->identity;
 
         if (!$user || !$username = Yii::$app->request->post('username')) {
-            return $this->controller->onError(Yii::t('app', 'Cannot change username'), 404);
+            return $this->controller->onError(Yii::t('app', 'Cannot change username'));
         } else {
             $user->username = $username;
-            $user->update();
+            if (!$user->save()) {
+                return $this->controller->onError(Yii::t('app', $user->getErrors()));
+            }
             return $this->controller->onSuccess(['user' => $user->username]);
         }
     }

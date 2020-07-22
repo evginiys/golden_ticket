@@ -20,12 +20,13 @@ class ExchangeAction extends Action
     public function run()
     {
         try {
-            if (Yii::$app->user->identity->canPay($coins = Yii::$app->request->post('coins')) &&
-                Yii::$app->request->post('coupons') >= 0
-                && $coupons = Yii::$app->request->post('coupons')) {
+            $coins = Yii::$app->request->post('coins');
+            $coupons = Yii::$app->request->post('coupons');
+            if (Yii::$app->user->identity->canPay($coins) &&
+                $coupons >= 0) {
                 Payment::coinsToCoupon(Yii::$app->user->id, $coins, $coupons);
             } else {
-                return $this->controller->onError(Yii::t('app', 'not enough coins'));
+                return $this->controller->onError(Yii::t('app', 'Not enough coins'));
             }
         } catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()));

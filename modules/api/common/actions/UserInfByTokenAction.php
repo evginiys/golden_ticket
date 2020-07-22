@@ -22,6 +22,9 @@ class UserInfByTokenAction extends Action
             return $this->controller->onError(Yii::t('app', 'User is not found'));
         }
 
-        return $this->controller->onSuccess(['username' => $user->username, 'phone' => $user->phone, 'email' => $user->email]);
+        return $this->controller->onSuccess([
+            'username' => $user->username,
+            'phone' => $user->phone,
+            'email' => $user->email]);
     }
 }

@@ -16,8 +16,6 @@ class RefillAction extends Action
     /**
      * @return array
      */
-
-
     public function run()
     {
         try {
@@ -25,10 +23,10 @@ class RefillAction extends Action
                 if (Payment::refill(Yii::$app->user->id, $amount)) {
                     return $this->controller->onSuccess(true);
                 } else {
-                    throw new Exception(Yii::t('app', "cannot refill wallet"));
+                    throw new Exception(Yii::t('app', "Cannot refill wallet"));
                 }
             } else {
-                throw new Exception(Yii::t('app', "cannot refill wallet"));
+                throw new Exception(Yii::t('app', "Cannot refill wallet"));
             }
         } catch (Exception $e) {
             return $this->controller->onError($e->getMessage());
