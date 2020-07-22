@@ -28,6 +28,7 @@ $config = [
     'components' => [
         'authManager' => $authManager,
         'request' => [
+            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'WugW1ka6Ar_vkMsuJ-2mUK2DJ-Vx-RUY',
         ],
         'cache' => [
