@@ -18,13 +18,15 @@ class changeUserInfAction extends Action
     {
         $user = Yii::$app->user->identity;
         $phone = Yii::$app->request->post('phone');
+        $email = Yii::$app->request->post('email');
+        $username = Yii::$app->request->post('username');
         if (isset($phone)) {
             $user->phone = $phone;
         }
-        if (!empty($email = Yii::$app->request->post('email'))) {
+        if (isset($email)) {
             $user->email = $email;
         }
-        if (!empty($username = Yii::$app->request->post('username'))) {
+        if (isset($username)) {
             $user->username = $username;
         }
         if (!$user->save(true)) {
