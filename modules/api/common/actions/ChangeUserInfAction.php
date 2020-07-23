@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class changeUserInfAction
+ * Class ChangeUserInfAction
  * @package app\modules\api\common\actions
  */
 class ChangeUserInfAction extends Action
