@@ -12,7 +12,8 @@ use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
 use app\modules\api\common\actions\SignUpAction;
 use app\modules\api\common\actions\UserInfByTokenAction;
-use app\modules\api\common\actions\changeUserInfAction;
+use app\modules\api\common\actions\ChangeUserInfAction;
+
 /**
  * Class UserController
  *
