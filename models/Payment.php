@@ -134,8 +134,13 @@ class Payment extends ActiveRecord
     public static function refill(int $userId, float $amount)
     {
         try {
-            $payment = new self(['currency' => self::CURRENCY_RUR, 'status' => self::STATUS_NEW,
-                'amount' => $amount, 'to_user_id' => $userId, 'type' => self::TYPE_CHARGE, 'comment' => "refill rur"]);
+            $payment = new self([
+                'currency' => self::CURRENCY_RUR,
+                'status' => self::STATUS_NEW,
+                'amount' => $amount,
+                'to_user_id' => $userId,
+                'type' => self::TYPE_CHARGE,
+                'comment' => "refill rur"]);
             if (!$payment->validate() || !$payment->save()) {
                 throw  new Exception(Yii::t('app', "cannot refill wallet"));
             }
@@ -163,16 +168,13 @@ class Payment extends ActiveRecord
                 'comment' => 'обмен на купоны',
                 'amount' => $coins,
                 'from_user_id' => $userId]);
-//
             if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
-
             $buy = new self(['status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
                 'type' => self::TYPE_CHARGE,
                 'comment' => 'покупка купонов',
                 'amount' => $coupons,
                 'to_user_id' => $userId]);
-//
             if (!$buy->validate() || !$buy->save()) {
                 throw new Exception(Yii::t('app', 'cannot exchange'));
             }
@@ -204,7 +206,6 @@ class Payment extends ActiveRecord
 
     /**
      * @inheritDoc
-     * @return array|string[]
      */
     public function attributeLabels()
     {
