@@ -17,7 +17,8 @@ class changeUserInfAction extends Action
     public function run()
     {
         $user = Yii::$app->user->identity;
-        if (!empty($phone = Yii::$app->request->post('phone'))) {
+        $phone = Yii::$app->request->post('phone');
+        if (isset($phone)) {
             $user->phone = $phone;
         }
         if (!empty($email = Yii::$app->request->post('email'))) {
@@ -26,7 +27,7 @@ class changeUserInfAction extends Action
         if (!empty($username = Yii::$app->request->post('username'))) {
             $user->username = $username;
         }
-        if (!$user->validate() or !$user->save()) {
+        if (!$user->save(true)) {
             return $this->controller->onError(Yii::t('app', $user->getErrors()));
         }
 
