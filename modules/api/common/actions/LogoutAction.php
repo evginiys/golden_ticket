@@ -9,6 +9,15 @@ use yii\rest\Action;
  * Class LogoutAction
  *
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Post(path="/logout",
+ *     tags={"Auth"},
+ *     summary="Logs out a user.",
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Success response"
+ *     ),
+ * )
  */
 class LogoutAction extends Action
 {

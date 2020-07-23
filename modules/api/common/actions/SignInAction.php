@@ -10,6 +10,27 @@ use yii\rest\Action;
  * Class SignInAction
  *
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Post(path="/sign-in",
+ *     tags={"Auth"},
+ *     summary="Signs in a user by provided credentials.",
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="username",
+ *         type="string",
+ *         required=true
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="password",
+ *         type="string",
+ *         required=true
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Token response"
+ *     ),
+ * )
  */
 class SignInAction extends Action
 {
