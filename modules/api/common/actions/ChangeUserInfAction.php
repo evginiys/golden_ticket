@@ -9,7 +9,7 @@ use yii\rest\Action;
  * Class changeUserInfAction
  * @package app\modules\api\common\actions
  */
-class changeUserInfAction extends Action
+class ChangeUserInfAction extends Action
 {
     /**
      * @return array
@@ -20,6 +20,7 @@ class changeUserInfAction extends Action
         $phone = Yii::$app->request->post('phone');
         $email = Yii::$app->request->post('email');
         $username = Yii::$app->request->post('username');
+
         if (isset($phone)) {
             $user->phone = $phone;
         }
@@ -29,8 +30,9 @@ class changeUserInfAction extends Action
         if (isset($username)) {
             $user->username = $username;
         }
-        if (!$user->save(true)) {
-            return $this->controller->onError(Yii::t('app', $user->getErrors()));
+
+        if (!$user->save()) {
+            return $this->controller->onError($user->getErrors());
         }
 
         return $this->controller->onSuccess($user->getAttributes(['username', 'phone', 'email']));
