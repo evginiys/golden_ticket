@@ -13,12 +13,11 @@ use yii\web\Response;
 
 /**
  * Class ApiController
- *
- * @package app\modules\api\common
+ * @package app\modules\api\common\controllers
  */
 class ApiController extends ActiveController
 {
-    /** @var array  */
+    /** @var array */
     public $notNeedTokenActions = [];
 
     /**
@@ -60,24 +59,11 @@ class ApiController extends ActiveController
 
     /**
      * @param $data
-     *
      * @return array
      */
     public function onSuccess($data)
     {
         return $this->respond(false, $data);
-    }
-
-    /**
-     * @param $message
-     *
-     * @param int $code
-     * @return array
-     */
-    public function onError($message, $code = 200)
-    {
-        Yii::error(var_export($message, 1));
-        return $this->respond(true, $message, $code);
     }
 
     /**
@@ -94,6 +80,18 @@ class ApiController extends ActiveController
             'error' => (int)$error,
             'data' => $data
         ];
+    }
+
+    /**
+     * @param $message
+     *
+     * @param int $code
+     * @return array
+     */
+    public function onError($message, $code = 200)
+    {
+        Yii::error(var_export($message, 1));
+        return $this->respond(true, $message, $code);
     }
 
     /**

@@ -2,12 +2,12 @@
 
 namespace app\models;
 
+
+use Exception;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use yii\db\Exception;
 use yii\db\Expression;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -33,8 +33,64 @@ class Payment extends ActiveRecord
 {
     public const TYPE_BUY = 0;
     public const TYPE_CHARGE = 1;
+    public const STATUS_NEW = 1;
     public const STATUS_DONE = 2;
     public const CURRENCY_RUR = 0;
+    public const CURRENCY_COUPON = 1;
+
+    /**
+     * @param Ticket[] $tickets
+     * @param int $userId
+     */
+    public static function buyTickets(array $tickets, int $userId)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            foreach ($tickets as $ticket) {
+                $payment = new self([
+                    'amount' => $ticket->cost,
+                    'from_user_id' => $userId,
+                    'type' => self::TYPE_BUY,
+                    'status' => self::STATUS_DONE,
+                    'currency' => self::CURRENCY_RUR,
+                    'comment' => 'Платеж за билеты',
+                    'ticket_id' => $ticket->id
+                ]);
+                if (!$payment->save()) {
+                    throw new Exception(Json::encode($payment->getErrors()));
+                }
+            }
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $userId
+     * @return array
+     */
+    public static function getUserBalance(int $userId)
+    {
+        return self::find()
+            ->select([
+                new Expression('SUM(COALESCE(plus.amount, 0)) - SUM(COALESCE(minus.amount, 0)) AS balance'),
+                'p.currency'
+            ])
+            ->from(self::tableName() . ' AS p')
+            ->leftJoin(self::tableName() . ' AS plus', 'p.id=plus.id AND plus.type=:plus_type AND plus.to_user_id=:user_id')
+            ->leftJoin(self::tableName() . ' AS minus', 'p.id=minus.id AND minus.type=:minus_type AND minus.from_user_id=:user_id')
+            ->groupBy('p.currency')
+            ->asArray()
+            ->orderBy(['p.currency' => SORT_DESC])
+            ->params([
+                'plus_type' => self::TYPE_CHARGE,
+                'minus_type' => self::TYPE_BUY,
+                'user_id' => $userId
+            ])
+            ->all();
+    }
 
     /**
      * {@inheritdoc}
@@ -42,6 +98,98 @@ class Payment extends ActiveRecord
     public static function tableName()
     {
         return 'payment';
+    }
+
+    /**
+     *
+     * @param $userId
+     * @return int
+     * @throws Exception
+     */
+    public static function userTickets(int $userId)
+    {
+        $numberOfTickets = 0;
+        try {
+            if ($payments = self::find()->where(['from_user_id' => $userId])->with('ticket')->all()) {
+                foreach ($payments as $payment) {
+                    if ($payment->ticket->is_active == 1) {
+                        $numberOfTickets++;
+                    }
+                }
+            } else {
+                throw new Exception(Yii::t('app', 'not found tickets'));
+            }
+        } catch (Exception $e) {
+            throw new Exception(Yii::t('app', $e->getMessage()));
+        }
+        return $numberOfTickets;
+    }
+
+    /**
+     * @param $userId
+     * @param $amount
+     * @return bool
+     * @throws Exception
+     */
+    public static function refill(int $userId, float $amount)
+    {
+        try {
+            $payment = new self([
+                'currency' => self::CURRENCY_RUR,
+                'status' => self::STATUS_NEW,
+                'amount' => $amount,
+                'to_user_id' => $userId,
+                'type' => self::TYPE_CHARGE,
+                'comment' => "refill rur"
+            ]);
+            if (!$payment->validate() || !$payment->save()) {
+                throw  new Exception(Yii::t('app', "cannot refill wallet"));
+            }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param $userId
+     * @param $coins
+     * @param $coupons
+     * @return bool
+     * @throws Exception
+     */
+    public static function coinsToCoupon(int $userId, float $coins, float $coupons)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $sell = new self([
+                'status' => self::STATUS_DONE,
+                'currency' => self::CURRENCY_RUR,
+                'type' => self::TYPE_BUY,
+                'comment' => 'обмен на купоны',
+                'amount' => $coins,
+                'from_user_id' => $userId
+            ]);
+            if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            $buy = new self([
+                'status' => self::STATUS_DONE,
+                'currency' => self::CURRENCY_COUPON,
+                'type' => self::TYPE_CHARGE,
+                'comment' => 'покупка купонов',
+                'amount' => $coupons,
+                'to_user_id' => $userId
+            ]);
+            if (!$buy->validate() || !$buy->save()) {
+                throw new Exception(Yii::t('app', 'cannot exchange'));
+            }
+            $transaction->commit();
+            return true;
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw new Exception($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -62,7 +210,7 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function attributeLabels()
     {
@@ -111,57 +259,4 @@ class Payment extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'to_user_id']);
     }
 
-    /**
-     * @param Ticket[] $tickets
-     * @param int $userId
-     */
-    public static function buyTickets(array $tickets, int $userId)
-    {
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            foreach ($tickets as $ticket) {
-                $payment = new self([
-                    'amount' => $ticket->cost,
-                    'from_user_id' => $userId,
-                    'type' => self::TYPE_BUY,
-                    'status' => self::STATUS_DONE,
-                    'currency' => self::CURRENCY_RUR,
-                    'comment' => 'Платеж за билеты',
-                    'ticket_id' => $ticket->id
-                ]);
-                if (!$payment->save()) {
-                    throw new Exception(Json::encode($payment->getErrors()));
-                }
-            }
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * @param int $userId
-     * @return array
-     */
-    public static function getUserBalance(int $userId)
-    {
-        return self::find()
-            ->select([
-                new Expression('SUM(COALESCE(plus.amount, 0)) - SUM(COALESCE(minus.amount, 0)) AS balance'),
-                'p.currency'
-            ])
-            ->from(self::tableName() . ' AS p')
-            ->leftJoin(self::tableName() . ' AS plus', 'p.id=plus.id AND plus.type=:plus_type AND plus.to_user_id=:user_id')
-            ->leftJoin(self::tableName() . ' AS minus', 'p.id=minus.id AND minus.type=:minus_type AND minus.from_user_id=:user_id')
-            ->groupBy('p.currency')
-            ->asArray()
-            ->orderBy(['p.currency' => SORT_DESC])
-            ->params([
-                'plus_type' => self::TYPE_CHARGE,
-                'minus_type' => self::TYPE_BUY,
-                'user_id' => $userId
-            ])
-            ->all();
-    }
 }

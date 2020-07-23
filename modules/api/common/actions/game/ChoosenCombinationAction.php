@@ -8,7 +8,7 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
+ * Class ChoosenCombinationAction
  * @package app\modules\api\common\actions\game
  */
 class ChoosenCombinationAction extends Action
