@@ -163,7 +163,8 @@ class Payment extends ActiveRecord
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $sell = new self(['status' => self::STATUS_DONE,
+            $sell = new self([
+                'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_RUR,
                 'type' => self::TYPE_BUY,
                 'comment' => 'обмен на купоны',
@@ -171,7 +172,8 @@ class Payment extends ActiveRecord
                 'from_user_id' => $userId
             ]);
             if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
-            $buy = new self(['status' => self::STATUS_DONE,
+            $buy = new self([
+                'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
                 'type' => self::TYPE_CHARGE,
                 'comment' => 'покупка купонов',
