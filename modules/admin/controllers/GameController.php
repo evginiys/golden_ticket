@@ -2,11 +2,11 @@
 
 namespace app\modules\admin\controllers;
 
+use Exception;
 use Yii;
 use app\models\Game;
 use app\models\GameSearch;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * GameController implements the CRUD actions for Game model.
@@ -50,8 +50,12 @@ class GameController extends AdminController
     {
         $model = new Game();
 
-        if ($model->load(Yii::$app->request->post()) && $model->createNewGame()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        try {
+            if ($model->load(Yii::$app->request->post()) && $model->createNewGame()) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+        } catch (Exception $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
         }
 
         return $this->render('create', [
