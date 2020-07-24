@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\modules\generator\Generator;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -16,6 +17,8 @@ use yii\db\ActiveRecord;
  * @property float $collected_sum
  * @property string|null $date_end
  * @property int $status
+ * @property int $archive_url
+ * @property int $archive_hash
  *
  * @property GameCombination[] $gameCombinations
  * @property GameUser[] $gameUsers
@@ -94,6 +97,8 @@ class Game extends ActiveRecord
             'date_end' => Yii::t('app', 'Date End'),
             'status' => Yii::t('app', 'Status'),
             'password' => Yii::t('app', 'Password'),
+            'archive_url' => Yii::t('app', 'Archive URL'),
+            'archive_hash' => Yii::t('app', 'Archive Password Hash'),
         ];
     }
 
@@ -126,5 +131,14 @@ class Game extends ActiveRecord
         $this->collected_sum = 0;
 
         return $this->save();
+    }
+
+    /**
+     * Gets decrypted password for archive with combination.
+     *
+     * @return string
+     */
+    public function getArchivePassword() {
+        return (new Generator())->decryptData($this->archive_hash);
     }
 }
