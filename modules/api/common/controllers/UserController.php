@@ -12,6 +12,7 @@ use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
 use app\modules\api\common\actions\SignUpAction;
 use app\modules\api\common\actions\UserInfByTokenAction;
+use app\modules\api\common\actions\ChangeUserInfAction;
 
 /**
  * Class UserController
@@ -72,6 +73,10 @@ class UserController extends ApiController
             ],
             'change-name' => [
                 'class' => ChangeNameAction::class,
+                'modelClass' => $this->modelClass
+            ],
+            'change-user-inf' => [
+                'class' => ChangeUserInfAction::class,
                 'modelClass' => $this->modelClass
             ],
         ];

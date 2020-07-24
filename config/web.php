@@ -93,6 +93,7 @@ $config = [
                         'POST change-name' => 'change-name',
                         'GET get-rate' => 'get-rate',
                         'POST exchange' => 'exchange',
+                        'POST change-user-inf' => 'change-user-inf',
                         'POST refill' => 'refill'
                     ],
                     'pluralize' => false,
