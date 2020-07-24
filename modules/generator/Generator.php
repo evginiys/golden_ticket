@@ -62,7 +62,7 @@ class Generator
         unset($file);
 
         return [
-            'archive' => $archiveName,
+            'archive' => basename($archiveName),
             'hash' => $hash
         ];
     }

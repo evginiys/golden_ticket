@@ -2,9 +2,12 @@
 
 namespace app\models;
 
+use app\modules\generator\Generator;
+use Exception;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "game".
@@ -16,6 +19,8 @@ use yii\db\ActiveRecord;
  * @property float $collected_sum
  * @property string|null $date_end
  * @property int $status
+ * @property string|null $password
+ * @property string|null $archive_url
  *
  * @property GameCombination[] $gameCombinations
  * @property GameUser[] $gameUsers
@@ -76,7 +81,6 @@ class Game extends ActiveRecord
             [['type', 'status'], 'integer'],
             [['date_start', 'date_end'], 'safe'],
             [['cost', 'collected_sum'], 'number'],
-            [['password'], 'required'],
         ];
     }
 
@@ -93,7 +97,8 @@ class Game extends ActiveRecord
             'collected_sum' => Yii::t('app', 'Collected Sum'),
             'date_end' => Yii::t('app', 'Date End'),
             'status' => Yii::t('app', 'Status'),
-            'password' => Yii::t('app', 'Password'),
+            'password' => Yii::t('app', 'Archive Password Hash'),
+            'archive_url' => Yii::t('app', 'Archive URL'),
         ];
     }
 
@@ -119,12 +124,63 @@ class Game extends ActiveRecord
 
     /**
      * @return bool
+     * @throws Exception
      */
     public function createNewGame()
     {
         $this->status = self::STATUS_SCHEDULED;
         $this->collected_sum = 0;
 
-        return $this->save();
+        $transaction = Yii::$app->db->beginTransaction();
+
+        try {
+            if (!$this->save()) {
+                $transaction->rollBack();
+                return false;
+            }
+
+            $generator = new Generator();
+            $combination = $generator->getCombination();
+            foreach($combination as $point) {
+                $gc = new GameCombination([
+                    'game_id' => $this->id,
+                    'point' => $point
+                ]);
+                if (!$gc->save()) {
+                    $transaction->rollBack();
+                    return false;
+                }
+            }
+
+            $encryptedData = $generator->encryptData();
+
+            $this->archive_url = $encryptedData['archive'];
+            $this->password = $encryptedData['hash'];
+            $this->save(false);
+
+            $transaction->commit();
+            return true;
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Gets decrypted password for archive with combination.
+     *
+     * @return string
+     */
+    public function getArchivePassword() {
+        return (new Generator())->decryptData($this->password);
+    }
+
+    /**
+     * Gets download link for an archive.
+     *
+     * @return string
+     */
+    public function getArchiveUrl() {
+        return Url::to('@web/uploads' . DIRECTORY_SEPARATOR . $this->archive_url, true);
     }
 }
