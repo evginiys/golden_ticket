@@ -7,7 +7,7 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
+ * Class CheckAction
  * @package app\modules\api\common\actions\game
  */
 class CheckAction extends Action

@@ -30,7 +30,6 @@ class SignUpForm extends Model
             [['phone'], 'string', 'max' => 15],
             [['email'], 'email'],
             [['password_repeat'], 'compare', 'compareAttribute' => 'password'],
-            [['phone'], 'default'],
         ];
     }
 

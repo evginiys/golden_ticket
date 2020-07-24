@@ -42,7 +42,7 @@
         "ext-mongodb": "*",
         "workerman/workerman": "^4.0",
         "textalk/websocket": "^1.3",
-        "yii2mod/yii2-swagger": "*"
+        "vladayson/yii2-zip": "^1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

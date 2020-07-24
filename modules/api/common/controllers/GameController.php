@@ -11,7 +11,7 @@ use app\modules\api\common\actions\game\CheckAction;
 use app\modules\api\common\actions\OnlineCounterAction;
 
 /**
- * Class TicketController
+ * Class GameController
  * @package app\modules\api\common\controllers
  */
 class GameController extends ApiController

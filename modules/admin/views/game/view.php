@@ -43,6 +43,11 @@ YiiAsset::register($this);
             'date_end',
             'cost',
             'collected_sum',
+            [
+                'attribute' => 'archive_url',
+                'value' => $model->getArchiveUrl(),
+                'format' => 'url'
+            ],
         ],
     ]) ?>
 

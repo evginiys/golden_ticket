@@ -50,6 +50,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'string', 'max' => 45],
             [['email', 'password', 'token', 'reset_password_token'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 15],
+            [['phone'], 'default'],
             [['email'], 'email'],
             [['username'], 'unique'],
             [['email'], 'unique'],
@@ -108,7 +109,9 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @inheritDoc
+     * @param mixed $token
+     * @param null $type
+     * @return array|ActiveRecord|IdentityInterface|null
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
@@ -124,7 +127,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param $username
      * @return User|null
      */
-    public static function findByUsername($username)
+    public static function findByUsername(string $username)
     {
         return self::findOne(['username' => $username]);
     }

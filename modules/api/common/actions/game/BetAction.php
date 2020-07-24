@@ -10,13 +10,14 @@ use yii\helpers\Json;
 use yii\rest\Action;
 
 /**
- * Class GetPacksAction
+ * Class BetAction
  * @package app\modules\api\common\actions\game
  */
 class BetAction extends Action
 {
+
     /**
-     * @return array
+     * @return mixed
      */
     public function run()
     {
