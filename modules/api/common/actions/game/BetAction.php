@@ -25,10 +25,17 @@ class BetAction extends Action
         $points = Json::decode(Yii::$app->request->post('points'), true);
         try {
             $winPoints = [];
-            if (!$game = Game::find($gameId)->where(["<", "date_end", date('Y-n-j G:i:s')])->one()) {
-                return $this->controller->onError(Yii::t('app', "Game is not found or game ended"));
+            if (!$game = Game::find($gameId)->one()) {
+                throw new ExceptionAlias(Yii::t('app', "Game is not found"));
             }
-            if ($game->status == 1) {
+            if (count($points) != 3) {
+                throw new ExceptionAlias(Yii::t('app', "Incorrect bet"));
+            }
+            if ($game->status != Game::STATUS_ENDED) {
+                $bets = $game->getGameUsers()->where(['user_id' => Yii::$app->user->id])->count();
+                if ($bets >= 3) {
+                    throw new ExceptionAlias(Yii::t('app', "You have already bet"));
+                }
                 $gameCombinations = $game->gameCombinations;
                 foreach ($gameCombinations as $winCombination) {
                     array_push($winPoints, $winCombination->point);
@@ -50,7 +57,6 @@ class BetAction extends Action
         } catch (ExceptionAlias $e) {
             return $this->controller->onError($e->getMessage());
         }
-
-        return $this->controller->onSuccess(true);
+        return $this->controller->onSuccess(['archive' => $game->getArchiveUrl()]);
     }
 }
