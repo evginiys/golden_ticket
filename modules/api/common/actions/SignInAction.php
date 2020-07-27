@@ -51,6 +51,6 @@ class SignInAction extends Action
             return $this->controller->onSuccess(['token' => $loginForm->getUser()->token]);
         }
 
-        return $this->controller->onError(Yii::t('app', $loginForm->getErrors()), 400);
+        return $this->controller->onError($loginForm->getErrors(), 400);
     }
 }
