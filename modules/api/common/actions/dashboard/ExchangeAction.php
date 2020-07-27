@@ -26,10 +26,10 @@ class ExchangeAction extends Action
                 $coupons >= 0) {
                 Payment::coinsToCoupon(Yii::$app->user->id, $coins, $coupons);
             } else {
-                return $this->controller->onError(Yii::t('app', 'Not enough coins'));
+                return $this->controller->onError(Yii::t('app', 'Not enough coins'),400);
             }
         } catch (Exception $e) {
-            return $this->controller->onError(Yii::t('app', $e->getMessage()));
+            return $this->controller->onError(Yii::t('app', $e->getMessage()),400);
         }
         return $this->controller->onSuccess(['done' => true]);
     }

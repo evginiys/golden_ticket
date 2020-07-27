@@ -89,9 +89,9 @@ class SignUpAction extends Action
                 }
             }
 
-            return $this->controller->onError($user->getErrors());
+            return $this->controller->onError($user->getErrors(),400);
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage());
+            return $this->controller->onError($e->getMessage(),400);
         }
     }
 }

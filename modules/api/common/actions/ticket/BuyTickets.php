@@ -25,7 +25,7 @@ class BuyTickets extends Action
             }
             $ticketPack->sell(Yii::$app->user->id, Yii::$app->request->post('amount', 0));
         } catch (\Exception $e) {
-            return $this->controller->onError($e->getMessage());
+            return $this->controller->onError($e->getMessage(),400);
         }
 
         return $this->controller->onSuccess(true);

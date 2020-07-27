@@ -23,11 +23,11 @@ class ResetPasswordPostAction extends Action
             $user = User::findOne(['reset_password_token' => $token]);
 
             if (!$user) {
-                return $this->controller->onError('User not found');
+                return $this->controller->onError('User not found',404);
             }
 
             if (empty($password)) {
-                return $this->controller->onError('New password cannot be blank.');
+                return $this->controller->onError('New password cannot be blank.',400);
             }
 
             $user->setPassword($password);

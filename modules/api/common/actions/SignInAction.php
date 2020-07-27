@@ -67,6 +67,6 @@ class SignInAction extends Action
             return $this->controller->onSuccess(['token' => $loginForm->getUser()->token]);
         }
 
-        return $this->controller->onError($loginForm->getErrors());
+        return $this->controller->onError($loginForm->getErrors(),400);
     }
 }

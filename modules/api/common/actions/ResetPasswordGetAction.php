@@ -19,7 +19,7 @@ class ResetPasswordGetAction extends Action
         $user = User::findOne(['reset_password_token' => $token]);
 
         if (!$user) {
-            return $this->controller->onError('Token is not found');
+            return $this->controller->onError('Token is not found',404);
         }
 
         return ['success' => true];

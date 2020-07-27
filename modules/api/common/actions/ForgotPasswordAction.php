@@ -18,7 +18,7 @@ class ForgotPasswordAction extends Action
         $email = Yii::$app->request->post('email');
 
         if (!$user = User::findOne(['email' => $email])) {
-            return $this->controller->onError('User not found');
+            return $this->controller->onError('User not found',404);
         }
 
         $resetToken = Yii::$app->security->generateRandomString(32);

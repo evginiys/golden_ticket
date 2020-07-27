@@ -28,7 +28,7 @@ class GetBalanceAction extends Action
                 "coupons" => $coupons,
                 "tickets" => $tickets]);
         } catch (Exception $e) {
-            return $this->controller->onError(Yii::t('app', $e->getMessage()));
+            return $this->controller->onError(Yii::t('app', $e->getMessage()),400);
         }
     }
 }

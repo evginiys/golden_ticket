@@ -26,7 +26,7 @@ class BetAction extends Action
         try {
             $winPoints = [];
             if (!$game = Game::find($gameId)->one()) {
-                throw new Exception(Yii::t('app', "Game is not found"));
+                $this->controller->onError(Yii::t('app', "Game is not found"),404);
             }
             if (count($points) != 3) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));
