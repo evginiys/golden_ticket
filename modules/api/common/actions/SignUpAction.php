@@ -13,7 +13,7 @@ use Exception;
  * @package app\modules\api\common\actions
  *
  * @SWG\Post(path="/sign-up",
- *     tags={"Auth"},
+ *     tags={"Authentication"},
  *     summary="Signs up a new user as player.",
  *     @SWG\Parameter(
  *         in="formData",
@@ -30,19 +30,36 @@ use Exception;
  *     @SWG\Parameter(
  *         in="formData",
  *         name="phone",
- *         type="string",
- *         required=true
+ *         type="string"
  *     ),
  *     @SWG\Parameter(
  *         in="formData",
  *         name="password",
  *         type="string",
+ *         format="password",
  *         required=true
  *     ),
  *     @SWG\Response(
  *         response=200,
  *         description="Token response",
- *     ),
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(
+ *                 title="Error status",
+ *                 description="0 when User is successfully created, 1 otherwise",
+ *                 property="error",
+ *                 type="integer"
+ *             ),
+ *             @SWG\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @SWG\Property(
+ *                     property="token",
+ *                     type="string"
+ *                 )
+ *             )
+ *         )
+ *     )
  * )
  */
 class SignUpAction extends Action

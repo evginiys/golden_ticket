@@ -12,8 +12,8 @@ use yii\rest\Action;
  * @package app\modules\api\common\actions
  *
  * @SWG\Post(path="/sign-in",
- *     tags={"Auth"},
- *     summary="Signs in a user by provided credentials.",
+ *     tags={"Authentication"},
+ *     summary="Signs in a user using provided credentials.",
  *     @SWG\Parameter(
  *         in="formData",
  *         name="username",
@@ -24,12 +24,30 @@ use yii\rest\Action;
  *         in="formData",
  *         name="password",
  *         type="string",
+ *         format="password",
  *         required=true
  *     ),
  *     @SWG\Response(
  *         response=200,
- *         description="Token response"
- *     ),
+ *         description="Token response",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(
+ *                 title="Error status",
+ *                 description="0 when User is successfully created, 1 otherwise",
+ *                 property="error",
+ *                 type="integer"
+ *             ),
+ *             @SWG\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @SWG\Property(
+ *                     property="token",
+ *                     type="string"
+ *                 )
+ *             )
+ *         )
+ *     )
  * )
  */
 class SignInAction extends Action
