@@ -3,9 +3,9 @@
 namespace app\modules\api\common\actions;
 
 use app\models\User;
+use Exception;
 use Yii;
 use yii\rest\Action;
-use Exception;
 
 /**
  * Class SignUpAction
@@ -73,9 +73,9 @@ class SignUpAction extends Action
                 }
             }
 
-            return $this->controller->onError($user->getErrors());
+            return $this->controller->onError($user->getErrors(), 400);
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage());
+            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
     }
 }

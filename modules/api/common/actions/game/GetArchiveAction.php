@@ -23,7 +23,7 @@ class GetArchiveAction extends Action
             $archive = $game->getArchiveUrl();
             return $this->controller->onSuccess(['archive' => $archive]);
         } else {
-            return $this->controller->onError(Yii::t('app', "Game is not found"));
+            return $this->controller->onError(Yii::t('app', "Game is not found"), 404);
         }
     }
 }

@@ -23,7 +23,7 @@ class GetPasswordAction extends Action
             $password = $game->getArchivePassword();
             return $this->controller->onSuccess(['password' => $password]);
         } else {
-            return $this->controller->onError(Yii::t('app', "Game is not ended"));
+            return $this->controller->onError(Yii::t('app', "Game is not ended"), 404);
         }
     }
 }
