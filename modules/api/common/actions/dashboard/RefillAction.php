@@ -29,7 +29,7 @@ class RefillAction extends Action
                 throw new Exception(Yii::t('app', "Cannot refill wallet"));
             }
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage(),400);
+            return $this->controller->onError($e->getMessage(), 400);
         }
     }
 }

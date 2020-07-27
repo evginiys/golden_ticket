@@ -2,8 +2,8 @@
 
 namespace app\modules\api\common\actions;
 
-use Yii;
 use app\models\LoginForm;
+use Yii;
 use yii\rest\Action;
 
 /**
@@ -67,6 +67,6 @@ class SignInAction extends Action
             return $this->controller->onSuccess(['token' => $loginForm->getUser()->token]);
         }
 
-        return $this->controller->onError($loginForm->getErrors(),400);
+        return $this->controller->onError($loginForm->getErrors(), 400);
     }
 }
