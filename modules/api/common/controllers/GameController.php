@@ -4,10 +4,12 @@ namespace app\modules\api\common\controllers;
 
 use app\models\Game;
 use app\models\GameUser;
-use app\modules\api\common\actions\game\ChoosenCombinationAction;
-use app\modules\api\common\actions\game\GamesAction;
 use app\modules\api\common\actions\game\BetAction;
 use app\modules\api\common\actions\game\CheckAction;
+use app\modules\api\common\actions\game\ChoosenCombinationAction;
+use app\modules\api\common\actions\game\GamesAction;
+use app\modules\api\common\actions\game\GetArchiveAction;
+use app\modules\api\common\actions\game\GetPasswordAction;
 use app\modules\api\common\actions\OnlineCounterAction;
 
 /**
@@ -46,6 +48,14 @@ class GameController extends ApiController
             'online-count' => [
                 'class' => OnlineCounterAction::class,
                 'modelClass' => GameUser::class
+            ],
+            'get-password' => [
+                'class' => GetPasswordAction::class,
+                'modelClass' => Game::class
+            ],
+            'get-archive' => [
+                'class' => GetArchiveAction::class,
+                'modelClass' => Game::class
             ]
         ];
     }
