@@ -23,16 +23,8 @@ use yii\rest\Action;
  *     ),
  *     @SWG\Response(
  *         response=200,
- *         description="Success response",
- *         @SWG\Schema(
- *             type="object",
- *             @SWG\Property(
- *                 title="Reset token search status",
- *                 description="`true` if user with provided reset token exists",
- *                 property="success",
- *                 type="boolean"
- *             )
- *         )
+ *         description="Reset token exists, password change is possible.",
+ *         @SWG\Schema(ref="#/definitions/SuccessResponse")
  *     )
  * )
  */

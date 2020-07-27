@@ -23,16 +23,8 @@ use yii\rest\Action;
  *     ),
  *     @SWG\Response(
  *         response=200,
- *         description="Success response",
- *         @SWG\Schema(
- *             type="object",
- *             @SWG\Property(
- *                 title="Reset token sending status",
- *                 description="`true` if an email is sent successfully",
- *                 property="success",
- *                 type="boolean"
- *             )
- *         )
+ *         description="The email is successfully sent",
+ *         @SWG\Schema(ref="#/definitions/SuccessResponse")
  *     )
  * )
  */
