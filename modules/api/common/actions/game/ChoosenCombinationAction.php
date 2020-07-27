@@ -22,14 +22,14 @@ class ChoosenCombinationAction extends Action
         $points = [];
         try {
             if (!$usersInGame = Game::findOne($gameId)->getGameUsers()->select('user_id')->distinct()->count()) {
-                return $this->controller->onError(Yii::t('app', "game without users"), 404);
+                return $this->controller->onError(Yii::t('app', "Game without users"), 404);
             }
             if (!$points = Game::findOne($gameId)->getGameUsers()->groupBy('user_id , id')->select(['user_id', 'point'])->all()) {
-                return $this->controller->onError(Yii::t('app', "no bets"), 404);
+                return $this->controller->onError(Yii::t('app', "No bets"), 404);
             }
 
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage(), 400);
+            return $this->controller->onError(Yii::t('app',$e->getMessage()), 400);
         }
 
         return $this->controller->onSuccess(['points' => $points, 'usersInGame' => $usersInGame]);

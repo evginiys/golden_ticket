@@ -48,14 +48,14 @@ class BetAction extends Action
                     $gameUser->date_point = date('Y-n-j G:i:s');
                     $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
                     if (!$gameUser->save()) {
-                        throw new Exception(Yii::t('app', "Error with points"));
+                        throw new Exception("Error with points");
                     }
                 }
             } else {
-                throw new Exception(Yii::t('app', 'Game ended'));
+                throw new Exception('Game ended');
             }
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage(), 400);
+            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
         return $this->controller->onSuccess(['archive' => $game->getArchiveUrl()]);
     }
