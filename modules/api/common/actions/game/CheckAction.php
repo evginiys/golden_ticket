@@ -19,7 +19,7 @@ class CheckAction extends Action
     {
         $gameUser = GameUser::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['game_id' => Yii::$app->request->post('game_id')])->all();
         if (!$gameUser) {
-            return $this->controller->onError(Yii::t('app', 'user is not in game'));
+            return $this->controller->onError(Yii::t('app', 'User is not in game'), 404);
         }
         $points = 3;
         foreach ($gameUser as $one) {

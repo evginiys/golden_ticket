@@ -3,8 +3,8 @@
 namespace app\modules\api\common\actions;
 
 use app\models\User;
-use Yii;
 use Exception;
+use Yii;
 use yii\rest\Action;
 
 /**
@@ -23,11 +23,11 @@ class ResetPasswordPostAction extends Action
             $user = User::findOne(['reset_password_token' => $token]);
 
             if (!$user) {
-                return $this->controller->onError('User not found');
+                return $this->controller->onError(Yii::t('app', 'User not found'), 404);
             }
 
             if (empty($password)) {
-                return $this->controller->onError('New password cannot be blank.');
+                return $this->controller->onError(Yii::t('app', 'New password cannot be blank.'), 400);
             }
 
             $user->setPassword($password);

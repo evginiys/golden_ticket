@@ -26,7 +26,7 @@ class BetAction extends Action
         try {
             $winPoints = [];
             if (!$game = Game::find($gameId)->one()) {
-                throw new Exception(Yii::t('app', "Game is not found"));
+                $this->controller->onError(Yii::t('app', "Game is not found"), 404);
             }
             if (count($points) != 3) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));
@@ -48,14 +48,14 @@ class BetAction extends Action
                     $gameUser->date_point = date('Y-n-j G:i:s');
                     $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
                     if (!$gameUser->save()) {
-                        throw new Exception(Yii::t('app', "Error with points"));
+                        throw new Exception("Error with points");
                     }
                 }
             } else {
-                throw new Exception(Yii::t('app', 'Game ended'));
+                throw new Exception('Game ended');
             }
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage());
+            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
         return $this->controller->onSuccess(['archive' => $game->getArchiveUrl()]);
     }

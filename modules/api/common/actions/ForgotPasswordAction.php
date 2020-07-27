@@ -18,7 +18,7 @@ class ForgotPasswordAction extends Action
         $email = Yii::$app->request->post('email');
 
         if (!$user = User::findOne(['email' => $email])) {
-            return $this->controller->onError('User not found');
+            return $this->controller->onError(Yii::t('app', 'User not found'), 404);
         }
 
         $resetToken = Yii::$app->security->generateRandomString(32);
@@ -32,7 +32,7 @@ class ForgotPasswordAction extends Action
             ->setSubject('Reset Password');
 
         if (!$mailer->send()) {
-            return $this->controller->onError("Can't send an email");
+            return $this->controller->onError(Yii::t('app', "Can't send an email"), 400);
         }
 
         return ['success' => true];
