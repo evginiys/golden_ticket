@@ -10,6 +10,31 @@ use yii\rest\Action;
  * Class ForgotPasswordAction
  *
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Post(path="/forgot-password",
+ *     tags={"Authentication"},
+ *     summary="Sends the reset token to the account email address.",
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="email",
+ *         type="string",
+ *         required=true,
+ *         description="The email address associated with the account"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Success response",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(
+ *                 title="Reset token sending status",
+ *                 description="`true` if an email is sent successfully",
+ *                 property="success",
+ *                 type="boolean"
+ *             )
+ *         )
+ *     )
+ * )
  */
 class ForgotPasswordAction extends Action
 {

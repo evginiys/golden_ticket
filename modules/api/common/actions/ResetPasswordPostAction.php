@@ -11,6 +11,38 @@ use yii\rest\Action;
  * Class ResetPasswordAction
  *
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Post(path="/reset-password-post",
+ *     tags={"Authentication"},
+ *     summary="Checks reset token and sets the new password.",
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="token",
+ *         type="string",
+ *         required=true,
+ *         description="The reset token from email"
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="password",
+ *         type="string",
+ *         format="password",
+ *         description="The new password"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Success response",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(
+ *                 title="Reset token sending status",
+ *                 description="`true` if an email is sent successfully",
+ *                 property="success",
+ *                 type="boolean"
+ *             )
+ *         )
+ *     )
+ * )
  */
 class ResetPasswordPostAction extends Action
 {
