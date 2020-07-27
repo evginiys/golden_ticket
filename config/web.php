@@ -94,7 +94,9 @@ $config = [
                         'GET get-rate' => 'get-rate',
                         'POST exchange' => 'exchange',
                         'POST change-user-inf' => 'change-user-inf',
-                        'POST refill' => 'refill'
+                        'POST refill' => 'refill',
+                        'GET get-password' => 'get-password',
+                        'GET get-archive' => 'get-archive'
                     ],
                     'pluralize' => false,
                 ]
