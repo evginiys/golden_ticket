@@ -4,7 +4,7 @@ namespace app\modules\api\common\actions\game;
 
 use app\models\Game;
 use app\models\GameUser;
-use Exception as ExceptionAlias;
+use Exception;
 use Yii;
 use yii\helpers\Json;
 use yii\rest\Action;
@@ -26,15 +26,15 @@ class BetAction extends Action
         try {
             $winPoints = [];
             if (!$game = Game::find($gameId)->one()) {
-                throw new ExceptionAlias(Yii::t('app', "Game is not found"));
+                throw new Exception(Yii::t('app', "Game is not found"));
             }
             if (count($points) != 3) {
-                throw new ExceptionAlias(Yii::t('app', "Incorrect bet"));
+                throw new Exception(Yii::t('app', "Incorrect bet"));
             }
             if ($game->status != Game::STATUS_ENDED) {
                 $bets = $game->getGameUsers()->where(['user_id' => Yii::$app->user->id])->count();
                 if ($bets >= 3) {
-                    throw new ExceptionAlias(Yii::t('app', "You have already bet"));
+                    throw new Exception(Yii::t('app', "You have already bet"));
                 }
                 $gameCombinations = $game->gameCombinations;
                 foreach ($gameCombinations as $winCombination) {
@@ -48,13 +48,13 @@ class BetAction extends Action
                     $gameUser->date_point = date('Y-n-j G:i:s');
                     $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
                     if (!$gameUser->save()) {
-                        throw new ExceptionAlias(Yii::t('app', "error with points"));
+                        throw new Exception(Yii::t('app', "Error with points"));
                     }
                 }
             } else {
-                throw new ExceptionAlias(Yii::t('app', 'game ended'));
+                throw new Exception(Yii::t('app', 'Game ended'));
             }
-        } catch (ExceptionAlias $e) {
+        } catch (Exception $e) {
             return $this->controller->onError($e->getMessage());
         }
         return $this->controller->onSuccess(['archive' => $game->getArchiveUrl()]);
