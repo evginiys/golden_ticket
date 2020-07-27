@@ -23,8 +23,13 @@ use yii\rest\Action;
  *     ),
  *     @SWG\Response(
  *         response=200,
- *         description="Reset token exists, password change is possible.",
- *         @SWG\Schema(ref="#/definitions/SuccessResponse")
+ *         description="Reset token exists, password change is possible",
+ *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="Token is not found",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
  */

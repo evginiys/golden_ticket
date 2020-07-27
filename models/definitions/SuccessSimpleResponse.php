@@ -7,7 +7,4 @@ namespace app\models\definitions;
  *
  * @SWG\Property(property="success", type="boolean", example=true)
  */
-class SuccessResponse
-{
-
-}
+class SuccessSimpleResponse {}

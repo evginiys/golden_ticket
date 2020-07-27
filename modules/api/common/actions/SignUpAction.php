@@ -43,6 +43,11 @@ use yii\rest\Action;
  *         response=200,
  *         description="Token response",
  *         @SWG\Schema(ref="#/definitions/TokenResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Validation or user data saving failed",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
  */

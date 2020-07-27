@@ -24,7 +24,17 @@ use yii\rest\Action;
  *     @SWG\Response(
  *         response=200,
  *         description="The email is successfully sent",
- *         @SWG\Schema(ref="#/definitions/SuccessResponse")
+ *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Can't send an email",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="User not found",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
  */

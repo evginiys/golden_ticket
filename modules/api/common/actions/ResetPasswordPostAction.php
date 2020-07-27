@@ -32,7 +32,17 @@ use yii\rest\Action;
  *     @SWG\Response(
  *         response=200,
  *         description="The new password successfully set",
- *         @SWG\Schema(ref="#/definitions/SuccessResponse")
+ *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Error: blank password provided or user data saving failed",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="User not found",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
  */
@@ -59,7 +69,7 @@ class ResetPasswordPostAction extends Action
             $user->date_reset_password = date('Y-m-d H:i:s');
             $user->save(false);
         } catch (Exception $e) {
-            return $this->controller->onError($e->getMessage());
+            return $this->controller->onError($e->getMessage(), 400);
         }
 
         return ['success' => true];
