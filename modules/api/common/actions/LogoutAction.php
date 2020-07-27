@@ -34,6 +34,11 @@ use yii\rest\Action;
  *             )
  *         )
  *     ),
+ *     @SWG\Response(
+ *         response=401,
+ *         description="Unauthorized",
+ *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
+ *     )
  * )
  */
 class LogoutAction extends Action
