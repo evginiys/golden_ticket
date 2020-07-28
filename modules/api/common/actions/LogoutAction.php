@@ -10,7 +10,7 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Post(path="/logout",
+ * @SWG\Post(path="/user/logout",
  *     tags={"Authentication"},
  *     summary="Logs out a user.",
  *     @SWG\Parameter(

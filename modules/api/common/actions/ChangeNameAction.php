@@ -8,6 +8,49 @@ use yii\rest\Action;
 /**
  * Class ChangeNameAction
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Post(path="/user/change-name",
+ *     tags={"User"},
+ *     summary="Sets the new name for current user.",
+ *     @SWG\Parameter(
+ *         in="header",
+ *         name="Authorization",
+ *         description="Bearer authentication header. The value must have the following format: `Bearer TOKEN`<br/>where `TOKEN` is the authentication token.",
+ *         type="string",
+ *         required=true,
+ *         default="Bearer TOKEN"
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="username",
+ *         type="string",
+ *         required=true,
+ *         description="The new user name"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="The new user name",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(property="error", type="integer", example=0),
+ *             @SWG\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @SWG\Property(property="user", type="string", example="John Doe")
+ *             )
+ *         )
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Validation of the new user name failed",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=401,
+ *         description="Unauthorized",
+ *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
+ *     )
+ * )
  */
 class ChangeNameAction extends Action
 {
@@ -23,7 +66,7 @@ class ChangeNameAction extends Action
         } else {
             $user->username = $username;
             if (!$user->save()) {
-                return $this->controller->onError(Yii::t('app', $user->getErrors()), 400);
+                return $this->controller->onError($user->getErrors(), 400);
             }
             return $this->controller->onSuccess(['user' => $user->username]);
         }

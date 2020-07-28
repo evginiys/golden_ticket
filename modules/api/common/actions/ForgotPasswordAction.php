@@ -11,7 +11,7 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Post(path="/forgot-password",
+ * @SWG\Post(path="/user/forgot-password",
  *     tags={"Authentication"},
  *     summary="Sends the reset token to the account email address.",
  *     @SWG\Parameter(

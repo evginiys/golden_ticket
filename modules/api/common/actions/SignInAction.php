@@ -11,7 +11,7 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Post(path="/sign-in",
+ * @SWG\Post(path="/user/sign-in",
  *     tags={"Authentication"},
  *     summary="Signs in a user using provided credentials.",
  *     @SWG\Parameter(
