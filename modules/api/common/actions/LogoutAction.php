@@ -23,17 +23,21 @@ use yii\rest\Action;
  *     ),
  *     @SWG\Response(
  *         response=200,
- *         description="Success response",
+ *         description="Logout status",
  *         @SWG\Schema(
  *             type="object",
  *             @SWG\Property(
- *                 title="Logout status",
- *                 description="true if logout is successfull",
  *                 property="status",
- *                 type="boolean"
+ *                 type="boolean",
+ *                 example=true
  *             )
  *         )
  *     ),
+ *     @SWG\Response(
+ *         response=401,
+ *         description="Unauthorized",
+ *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
+ *     )
  * )
  */
 class LogoutAction extends Action

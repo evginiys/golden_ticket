@@ -42,23 +42,12 @@ use yii\rest\Action;
  *     @SWG\Response(
  *         response=200,
  *         description="Token response",
- *         @SWG\Schema(
- *             type="object",
- *             @SWG\Property(
- *                 title="Error status",
- *                 description="0 when User is successfully created, 1 otherwise",
- *                 property="error",
- *                 type="integer"
- *             ),
- *             @SWG\Property(
- *                 property="data",
- *                 type="object",
- *                 @SWG\Property(
- *                     property="token",
- *                     type="string"
- *                 )
- *             )
- *         )
+ *         @SWG\Schema(ref="#/definitions/TokenResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Validation or user data saving failed",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
  */

@@ -10,6 +10,28 @@ use yii\rest\Action;
  * Class ResetPasswordAction
  *
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Get(path="/reset-password-get",
+ *     tags={"Authentication"},
+ *     summary="Checks if the user with provided reset token exists, that is password change is possible.",
+ *     @SWG\Parameter(
+ *         in="query",
+ *         name="token",
+ *         type="string",
+ *         required=true,
+ *         description="The reset token from email"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Reset token exists, password change is possible",
+ *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="Token is not found",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     )
+ * )
  */
 class ResetPasswordGetAction extends Action
 {
