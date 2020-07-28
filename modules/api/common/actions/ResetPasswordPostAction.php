@@ -12,7 +12,7 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Post(path="/reset-password-post",
+ * @SWG\Post(path="/user/reset-password-post",
  *     tags={"Authentication"},
  *     summary="Checks reset token and sets the new password.",
  *     @SWG\Parameter(
