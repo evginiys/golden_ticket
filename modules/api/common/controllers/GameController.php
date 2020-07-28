@@ -3,6 +3,7 @@
 namespace app\modules\api\common\controllers;
 
 use app\models\Game;
+use app\models\GameCombination;
 use app\models\GameUser;
 use app\modules\api\common\actions\game\BetAction;
 use app\modules\api\common\actions\game\CheckAction;
