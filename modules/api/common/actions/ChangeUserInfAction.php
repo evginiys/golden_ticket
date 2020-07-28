@@ -12,14 +12,7 @@ use yii\rest\Action;
  * @SWG\Post(path="/user/change-user-inf",
  *     tags={"User"},
  *     summary="Changes information about the current user.",
- *     @SWG\Parameter(
- *         in="header",
- *         name="Authorization",
- *         description="Bearer authentication header. The value must have the following format: `Bearer TOKEN`<br/>where `TOKEN` is the authentication token.",
- *         type="string",
- *         required=true,
- *         default="Bearer TOKEN"
- *     ),
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Parameter(
  *         in="formData",
  *         name="username",
@@ -48,11 +41,7 @@ use yii\rest\Action;
  *         description="Validation of the new user fields failed",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     ),
- *     @SWG\Response(
- *         response=401,
- *         description="Unauthorized",
- *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
- *     )
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  * )
  */
 class ChangeUserInfAction extends Action

@@ -21,6 +21,20 @@ use app\models\LoginForm;
  *     produces={"application/json"},
  *     consumes={"application/x-www-form-urlencoded"},
  *     @SWG\Info(version="1.0", title="Golden Ticket API"),
+ *     @SWG\Parameter(
+ *         parameter="authorization",
+ *         in="header",
+ *         name="Authorization",
+ *         description="Bearer authentication header. The value must have the following format: `Bearer TOKEN`<br/>where `TOKEN` is the authentication token.",
+ *         type="string",
+ *         required=true,
+ *         default="Bearer TOKEN"
+ *     ),
+ *     @SWG\Response(
+ *         response="unauthorized",
+ *         description="Unauthorized",
+ *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
+ *     )
  * )
  */
 class SiteController extends Controller

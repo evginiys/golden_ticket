@@ -20,13 +20,7 @@ use yii\rest\Action;
  *         required=true,
  *         default="Bearer TOKEN"
  *     ),
- *     @SWG\Parameter(
- *         in="formData",
- *         name="username",
- *         type="string",
- *         required=true,
- *         description="The new user name"
- *     ),
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Response(
  *         response=200,
  *         description="The new user name",
@@ -45,11 +39,7 @@ use yii\rest\Action;
  *         description="Validation of the new user name failed",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     ),
- *     @SWG\Response(
- *         response=401,
- *         description="Unauthorized",
- *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
- *     )
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  * )
  */
 class ChangeNameAction extends Action
