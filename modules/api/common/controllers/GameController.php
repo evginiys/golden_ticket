@@ -10,7 +10,7 @@ use app\modules\api\common\actions\game\ChoosenCombinationAction;
 use app\modules\api\common\actions\game\GamesAction;
 use app\modules\api\common\actions\game\GetArchiveAction;
 use app\modules\api\common\actions\game\GetPasswordAction;
-use app\modules\api\common\actions\OnlineCounterAction;
+use app\modules\api\common\actions\game\OnlineCounterAction;
 
 /**
  * Class GameController

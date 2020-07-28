@@ -16,7 +16,8 @@ class GamesAction extends Action
      */
     public function run()
     {
-        $data = Game::find()->where(['status' => [Game::STATUS_SCHEDULED, Game::STATUS_IN_PROCESS]])->all();
+        $data = Game::find()->where(['status' => [Game::STATUS_SCHEDULED, Game::STATUS_IN_PROCESS]])
+            ->select(['id', 'type', 'cost', 'date_start', 'date_end'])->all();
         return $this->controller->onSuccess($data);
     }
 }
