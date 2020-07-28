@@ -10,6 +10,38 @@ use yii\rest\Action;
 /**
  * Class ChoosenCombinationAction
  * @package app\modules\api\common\actions\game
+ *
+ * @SWG\Get(path="/game/choosen-combination",
+ *     tags={"Game"},
+ *     summary="Retrieves bets and count of players in the game.",
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
+ *     @SWG\Parameter(
+ *         in="query",
+ *         name="game_id",
+ *         type="integer",
+ *         default=0,
+ *         description="ID of the game"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Information about players and bets",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(property="error", type="integer", example=0),
+ *             @SWG\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @SWG\Property(
+ *                     property="points",
+ *                     type="array",
+ *                     @SWG\Items(type="string")
+ *                 ),
+ *                 @SWG\Property(property="usersInGame", type="integer", example=5)
+ *             )
+ *         )
+ *     ),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
+ * )
  */
 class ChoosenCombinationAction extends Action
 {
