@@ -28,8 +28,9 @@ class BetAction extends Action
             $transaction = Yii::$app->db->beginTransaction();
             $points = Json::decode(Yii::$app->request->post('points'), true);
             $winPoints = [];
-            if (!$game = Game::findOne($gameId)) {
-                $this->controller->onError(Yii::t('app', "Game is not found"), 404);
+            $game = Game::findOne($gameId);
+            if (!$game) {
+                return $this->controller->onError(Yii::t('app', "Game is not found"), 404);
             }
             if (count($points) != 3) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));

@@ -19,7 +19,7 @@ class ChoosenCombinationAction extends Action
      */
     public function run()
     {
-        $gameId = Yii::$app->request->get('game_id', 5);
+        $gameId = Yii::$app->request->get('game_id', 0);
         $points = [];
         try {
             $game = Game::findOne($gameId);
