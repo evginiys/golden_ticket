@@ -1,6 +1,6 @@
 <?php
 
-namespace app\modules\api\common\actions;
+namespace app\modules\api\common\actions\game;
 
 use app\models\OnlineUser;
 use yii\rest\Action;

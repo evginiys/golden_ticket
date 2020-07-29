@@ -71,30 +71,15 @@ class Payment extends ActiveRecord
      * @param int $ticketId
      * @param int $userId
      * @return bool
-     */
-    public static function hasTicket(int $ticketId, int $userId):bool {
-        $ticketsIn=Payment::find()->where(['ticket_id' => $ticketId, 'from_user_id' => $userId])->count();
-        $ticketsOut=Payment::find()->where(['ticket_id' => $ticketId, 'to_user_id' => $userId])->count();
-        if($ticketsIn>$ticketsOut){
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    /**
-     * @param int $ticketId
-     * @param int $userId
-     * @return bool
      * @throws Exception
      */
-    public static function ticketForGame(int $ticketId, int $userId):bool
+    public static function ticketForGame(int $ticketId, int $userId): bool
     {
         try {
-            if (!Ticket::find($ticketId)->where(['is_active' => 1])->one()) {
+            if (!Ticket::find()->where(['is_active' => 1, 'id' => $ticketId])->one()) {
                 throw new Exception("Ticket is inactive");
             }
-            if (!Payment::hasTicket($ticketId,$userId)) {
+            if (!Payment::hasTicket($ticketId, $userId)) {
                 throw new Exception("Not found ticket");
             }
 
@@ -115,6 +100,22 @@ class Payment extends ActiveRecord
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param int $ticketId
+     * @param int $userId
+     * @return bool
+     */
+    public static function hasTicket(int $ticketId, int $userId): bool
+    {
+        $ticketsIn = Payment::find()->where(['ticket_id' => $ticketId, 'from_user_id' => $userId])->count();
+        $ticketsOut = Payment::find()->where(['ticket_id' => $ticketId, 'to_user_id' => $userId])->count();
+        if ($ticketsIn > $ticketsOut) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -163,9 +164,9 @@ class Payment extends ActiveRecord
             if ($payments = self::find()->where(['from_user_id' => $userId])->orWhere(['to_user_id' => $userId])->with('ticket')->all()) {
                 foreach ($payments as $payment) {
                     if ($payment->ticket->is_active == 1) {
-                        if($payment->from_user_id==$userId) {
+                        if ($payment->from_user_id == $userId) {
                             $numberOfTickets++;
-                        }else{
+                        } else {
                             $numberOfTickets--;
                         }
                     }
@@ -225,7 +226,7 @@ class Payment extends ActiveRecord
                 'amount' => $coins,
                 'from_user_id' => $userId
             ]);
-            if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
             $buy = new self([
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
@@ -234,7 +235,7 @@ class Payment extends ActiveRecord
                 'amount' => $coupons,
                 'to_user_id' => $userId
             ]);
-            if (!$buy->validate() || !$buy->save()) {
+            if (!$buy->save()) {
                 throw new Exception(Yii::t('app', 'cannot exchange'));
             }
             $transaction->commit();

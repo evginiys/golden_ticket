@@ -24,11 +24,11 @@ class BetAction extends Action
     {
         $gameId = Yii::$app->request->post('game_id', 0);
         $ticketId = Yii::$app->request->post('ticket_id', 0);
-        $points = Json::decode(Yii::$app->request->post('points'), true);
         try {
             $transaction = Yii::$app->db->beginTransaction();
+            $points = Json::decode(Yii::$app->request->post('points'), true);
             $winPoints = [];
-            if (!$game = Game::find($gameId)->one()) {
+            if (!$game = Game::findOne($gameId)) {
                 $this->controller->onError(Yii::t('app', "Game is not found"), 404);
             }
             if (count($points) != 3) {
