@@ -34,7 +34,11 @@ use yii\rest\Action;
  *                 @SWG\Property(
  *                     property="points",
  *                     type="array",
- *                     @SWG\Items(type="string")
+ *                     @SWG\Items(
+ *                         type="object",
+ *                         @SWG\Property(property="user_id", type="integer", example=1),
+ *                         @SWG\Property(property="point", type="integer", example=1)
+ *                     )
  *                 ),
  *                 @SWG\Property(property="usersInGame", type="integer", example=5)
  *             )
