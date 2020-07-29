@@ -13,6 +13,50 @@ use yii\rest\Action;
 /**
  * Class BetAction
  * @package app\modules\api\common\actions\game
+ *
+ * @SWG\Post(path="/game/bet",
+ *     tags={"Game"},
+ *     summary="Makes a bet in the game and returns a link to the password-protected ZIP-archive containing a text file with game combinations.",
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="game_id",
+ *         type="integer",
+ *         default=0,
+ *         description="ID of game to bet in"
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="points",
+ *         type="string",
+ *         required=true,
+ *         description="Array of points to bet on"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Bet successful",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(property="error", type="integer", example=0),
+ *             @SWG\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @SWG\Property(property="archive", type="string", example="combination_1593598500.zip")
+ *             )
+ *         )
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="The bet is incorrect or the bet is made already or error with points",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="Game is not found",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     )
+ * )
  */
 class BetAction extends Action
 {

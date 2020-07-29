@@ -8,6 +8,41 @@ use yii\rest\Action;
 /**
  * Class ChangeUserInfAction
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Post(path="/user/change-user-inf",
+ *     tags={"User"},
+ *     summary="Changes information about the current user.",
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="username",
+ *         type="string",
+ *         description="The new user name (optional)"
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="phone",
+ *         type="string",
+ *         description="The new user phone number (optional)"
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="email",
+ *         type="string",
+ *         description="The new user email address (optional)"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="New information about the user",
+ *         @SWG\Schema(ref="#/definitions/User")
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Validation of the new user fields failed",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
+ * )
  */
 class ChangeUserInfAction extends Action
 {

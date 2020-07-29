@@ -10,17 +10,10 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Post(path="/logout",
+ * @SWG\Post(path="/user/logout",
  *     tags={"Authentication"},
  *     summary="Logs out a user.",
- *     @SWG\Parameter(
- *         in="header",
- *         name="Authorization",
- *         description="Bearer authentication header. The value must have the following format: `Bearer TOKEN`<br/>where `TOKEN` is the authentication token.",
- *         type="string",
- *         required=true,
- *         default="Bearer TOKEN"
- *     ),
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Response(
  *         response=200,
  *         description="Logout status",
@@ -33,10 +26,7 @@ use yii\rest\Action;
  *             )
  *         )
  *     ),
- *     @SWG\Response(
- *         response=401,
- *         description="Unauthorized",
- *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  *     )
  * )
  */

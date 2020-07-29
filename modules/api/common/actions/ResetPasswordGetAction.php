@@ -11,7 +11,7 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Get(path="/reset-password-get",
+ * @SWG\Get(path="/user/reset-password-get",
  *     tags={"Authentication"},
  *     summary="Checks if the user with provided reset token exists, that is password change is possible.",
  *     @SWG\Parameter(
