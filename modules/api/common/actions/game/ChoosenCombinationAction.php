@@ -3,6 +3,7 @@
 namespace app\modules\api\common\actions\game;
 
 use app\models\Game;
+use app\models\GameUser;
 use Exception;
 use Yii;
 use yii\rest\Action;
@@ -57,15 +58,33 @@ class ChoosenCombinationAction extends Action
         $gameId = Yii::$app->request->get('game_id', 0);
         $points = [];
         try {
-            if (!$usersInGame = Game::findOne($gameId)->getGameUsers()->select('user_id')->distinct()->count()) {
+            $game = Game::findOne($gameId);
+            if (!$game) {
+                return $this->controller->onError(Yii::t('app', "Game is not found"), 404);
+            }
+            $gameUsersDistinctUser = $game->getGameUsers()->select('user_id')->distinct();
+            $usersInGame = $gameUsersDistinctUser->count();
+            if (!$usersInGame) {
                 return $this->controller->onError(Yii::t('app', "Game without users"), 404);
             }
-            if (!$points = Game::findOne($gameId)->getGameUsers()->groupBy('user_id , id')->select(['user_id', 'point'])->all()) {
+            $usersId = $gameUsersDistinctUser->all();
+            if (!$usersId) {
                 return $this->controller->onError(Yii::t('app', "No bets"), 404);
+            }
+            foreach ($usersId as $userId) {
+                $userPoints = GameUser::find()
+                    ->select('point')
+                    ->where([
+                        'user_id' => $userId,
+                        'game_id' => $gameId
+                    ])
+                    ->asArray()
+                    ->all();
+                $points[] = $userPoints;
             }
 
         } catch (Exception $e) {
-            return $this->controller->onError(Yii::t('app',$e->getMessage()), 400);
+            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
 
         return $this->controller->onSuccess(['points' => $points, 'usersInGame' => $usersInGame]);

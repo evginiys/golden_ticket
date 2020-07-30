@@ -3,12 +3,12 @@
 namespace app\modules\api\common\actions\ticket;
 
 use app\models\TicketPack;
+use Exception;
 use Yii;
-use yii\base\Exception;
 use yii\rest\Action;
 
 /**
- * Class BuyTickets
+ * Class BuyTicketsAction
  * @package app\modules\api\common\actions\ticket
  *
  * @SWG\Post(path="/ticket/buy",
@@ -46,7 +46,7 @@ use yii\rest\Action;
  *     )
  * )
  */
-class BuyTickets extends Action
+class BuyTicketsAction extends Action
 {
     /**
      * @return mixed
@@ -56,11 +56,11 @@ class BuyTickets extends Action
         try {
             $ticketPack = TicketPack::findOne(Yii::$app->request->post('ticket_pack_id', 0));
             if (!$ticketPack) {
-                throw new Exception(Yii::t('app', 'Ticket pack is not found'));
+                return $this->controller->onError(Yii::t('app', 'Ticket pack is not found'), 404);
             }
             $ticketPack->sell(Yii::$app->user->id, Yii::$app->request->post('amount', 0));
-        } catch (\Exception $e) {
-            return $this->controller->onError($e->getMessage(), 400);
+        } catch (Exception $e) {
+            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
 
         return $this->controller->onSuccess(true);

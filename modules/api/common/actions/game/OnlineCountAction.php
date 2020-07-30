@@ -1,12 +1,12 @@
 <?php
 
-namespace app\modules\api\common\actions;
+namespace app\modules\api\common\actions\game;
 
 use app\models\OnlineUser;
 use yii\rest\Action;
 
 /**
- * Class OnlineCounterAction
+ * Class OnlineCountAction
  * @package app\modules\api\common\actions
  *
  * @SWG\Get(path="/game/online-count",
@@ -29,7 +29,7 @@ use yii\rest\Action;
  *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  * )
  */
-class OnlineCounterAction extends Action
+class OnlineCountAction extends Action
 {
     /**
      * @return array

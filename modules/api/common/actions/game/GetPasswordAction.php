@@ -50,7 +50,7 @@ class GetPasswordAction extends Action
      */
     public function run()
     {
-        $gameId = Yii::$app->request->get('gameId');
+        $gameId = Yii::$app->request->get('game_id');
         $game = Game::find($gameId)->where(['status' => Game::STATUS_ENDED])->one();
         if ($game) {
             $password = $game->getArchivePassword();

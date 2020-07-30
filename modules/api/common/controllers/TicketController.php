@@ -4,7 +4,7 @@ namespace app\modules\api\common\controllers;
 
 use app\models\Ticket;
 use app\models\TicketPack;
-use app\modules\api\common\actions\ticket\BuyTickets;
+use app\modules\api\common\actions\ticket\BuyTicketsAction;
 use app\modules\api\common\actions\ticket\GetPacksAction;
 use app\modules\api\common\actions\ticket\GetTicketsAction;
 
@@ -34,7 +34,7 @@ class TicketController extends ApiController
                 'modelClass' => Ticket::class
             ],
             'buy' => [
-                'class' => BuyTickets::class,
+                'class' => BuyTicketsAction::class,
                 'modelClass' => Ticket::class
             ],
         ];
