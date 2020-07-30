@@ -12,7 +12,7 @@ use yii\rest\Action;
  *
  * @package app\modules\api\common\actions
  *
- * @SWG\Post(path="/sign-up",
+ * @SWG\Post(path="/user/sign-up",
  *     tags={"Authentication"},
  *     summary="Signs up a new user as player.",
  *     @SWG\Parameter(
