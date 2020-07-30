@@ -34,6 +34,8 @@ class Game extends ActiveRecord
     public const STATUS_IN_PROCESS = 1;
     public const STATUS_ENDED = 2;
 
+    public const COUNT_POINT = 3;
+
     /**
      * {@inheritdoc}
      */

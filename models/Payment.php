@@ -73,7 +73,7 @@ class Payment extends ActiveRecord
      * @return bool
      * @throws Exception
      */
-    public static function ticketForGame(int $ticketId, int $userId): bool
+    public static function betByTicket(int $ticketId, int $userId): bool
     {
         try {
             if (!Ticket::find()->where(['is_active' => 1, 'id' => $ticketId])->one()) {

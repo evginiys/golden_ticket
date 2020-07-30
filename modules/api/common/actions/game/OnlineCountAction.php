@@ -6,10 +6,10 @@ use app\models\OnlineUser;
 use yii\rest\Action;
 
 /**
- * Class OnlineCounterAction
+ * Class OnlineCountAction
  * @package app\modules\api\common\actions
  */
-class OnlineCounterAction extends Action
+class OnlineCountAction extends Action
 {
     /**
      * @return array

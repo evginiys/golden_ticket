@@ -24,26 +24,28 @@ class BetAction extends Action
     {
         $gameId = Yii::$app->request->post('game_id', 0);
         $ticketId = Yii::$app->request->post('ticket_id', 0);
+        $transaction = Yii::$app->db->beginTransaction();
         try {
-            $transaction = Yii::$app->db->beginTransaction();
             $points = Json::decode(Yii::$app->request->post('points'), true);
             $winPoints = [];
             $game = Game::findOne($gameId);
             if (!$game) {
                 return $this->controller->onError(Yii::t('app', "Game is not found"), 404);
             }
-            if (count($points) != 3) {
+            if (count($points) != Game::COUNT_POINT) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));
             }
             if (Payment::ticketForGame($ticketId, Yii::$app->user->id)) {
                 if ($game->status != Game::STATUS_ENDED) {
-                    $bets = $game->getGameUsers()->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])->count();
-                    if ($bets > 0) {
+                    $bets = $game->getGameUsers()
+                        ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])
+                        ->count();
+                    if ($bets > 0) {//проверка ставил ли игрок на текущюю игру
                         throw new Exception(Yii::t('app', "You have already bet"));
                     }
                     $gameCombinations = $game->gameCombinations;
                     foreach ($gameCombinations as $winCombination) {
-                        array_push($winPoints, $winCombination->point);
+                        $winPoints[] = $winCombination->point;
                     }
                     foreach ($points as $point) {
                         $gameUser = new GameUser();

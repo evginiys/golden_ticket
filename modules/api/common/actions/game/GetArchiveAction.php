@@ -17,7 +17,7 @@ class GetArchiveAction extends Action
      */
     public function run()
     {
-        $gameId = Yii::$app->request->get('gameId');
+        $gameId = Yii::$app->request->get('game_id');
         $game = Game::findOne($gameId);
         if ($game) {
             $archive = $game->getArchiveUrl();

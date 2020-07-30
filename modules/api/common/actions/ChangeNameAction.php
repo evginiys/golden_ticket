@@ -20,7 +20,7 @@ class ChangeNameAction extends Action
         $username = Yii::$app->request->post('username');
             $user->username = $username;
             if (!$user->save()) {
-                return $this->controller->onError(Yii::t('app', $user->getErrors()), 400);
+                return $this->controller->onError($user->getErrors(), 400);
             }
             return $this->controller->onSuccess(['user' => $user->username]);
 
