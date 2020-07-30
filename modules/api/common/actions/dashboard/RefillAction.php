@@ -3,8 +3,8 @@
 namespace app\modules\api\common\actions\dashboard;
 
 use app\models\Payment;
+use Exception;
 use Yii;
-use yii\db\Exception;
 use yii\rest\Action;
 
 /**
@@ -26,10 +26,10 @@ class RefillAction extends Action
                     throw new Exception("Cannot refill wallet");
                 }
             } else {
-                throw new Exception( "Cannot refill wallet");
+                throw new Exception("Cannot refill wallet");
             }
         } catch (Exception $e) {
-            return $this->controller->onError(Yii::t('app',$e->getMessage()), 400);
+            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
     }
 }

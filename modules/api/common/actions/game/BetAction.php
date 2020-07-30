@@ -79,12 +79,12 @@ class BetAction extends Action
             if (count($points) != Game::COUNT_POINT) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));
             }
-            if (Payment::ticketForGame($ticketId, Yii::$app->user->id)) {
+            if (Payment::betByTicket($ticketId, Yii::$app->user->id)) {
                 if ($game->status != Game::STATUS_ENDED) {
                     $bets = $game->getGameUsers()
                         ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])
                         ->count();
-                    if ($bets > 0) {//проверка ставил ли игрок на текущюю игру
+                    if ($bets) {
                         throw new Exception(Yii::t('app', "You have already bet"));
                     }
                     $gameCombinations = $game->gameCombinations;
