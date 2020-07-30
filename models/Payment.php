@@ -117,7 +117,7 @@ class Payment extends ActiveRecord
                     }
                 }
             } else {
-                throw new Exception(Yii::t('app', 'not found tickets'));
+                throw new Exception(Yii::t('app', 'Not found tickets'));
             }
         } catch (Exception $e) {
             throw new Exception(Yii::t('app', $e->getMessage()));
@@ -171,7 +171,7 @@ class Payment extends ActiveRecord
                 'amount' => $coins,
                 'from_user_id' => $userId
             ]);
-            if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$sell->validate() || !$sell->save()) throw new Exception(Yii::t('app', 'Cannot exchange'));
             $buy = new self([
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
@@ -181,7 +181,7 @@ class Payment extends ActiveRecord
                 'to_user_id' => $userId
             ]);
             if (!$buy->validate() || !$buy->save()) {
-                throw new Exception(Yii::t('app', 'cannot exchange'));
+                throw new Exception(Yii::t('app', 'Cannot exchange'));
             }
             $transaction->commit();
             return true;

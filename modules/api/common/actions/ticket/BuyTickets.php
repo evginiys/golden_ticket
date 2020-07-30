@@ -10,6 +10,41 @@ use yii\rest\Action;
 /**
  * Class BuyTickets
  * @package app\modules\api\common\actions\ticket
+ *
+ * @SWG\Post(path="/ticket/buy",
+ *     tags={"Ticket"},
+ *     summary="Performs a buy of tickets from the ticket pack.",
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="ticket_pack_id",
+ *         type="integer",
+ *         default=0,
+ *         description="ID of the ticket pack to buy a ticket from"
+ *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="amount",
+ *         type="integer",
+ *         default=0,
+ *         description="Amount of tickets to buy"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Buy is successful",
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(property="error", type="integer", example=0),
+ *             @SWG\Property(property="data", type="boolean", example=true)
+ *         )
+ *     ),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="One of the following errors: ticket pack is not found, amount is incorrect, not enough funds in account",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     )
+ * )
  */
 class BuyTickets extends Action
 {
