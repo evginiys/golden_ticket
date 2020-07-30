@@ -11,7 +11,7 @@ use yii\rest\Action;
  *
  * @SWG\Post(path="/user/change-user-inf",
  *     tags={"User"},
- *     summary="Changes information about the current user.",
+ *     summary="Changes information about current user.",
  *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Parameter(
  *         in="formData",
