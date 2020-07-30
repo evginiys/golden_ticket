@@ -60,7 +60,7 @@ class ChoosenCombinationAction extends Action
         try {
             $game = Game::findOne($gameId);
             if (!$game) {
-                throw new Exception('Game is not found');
+                return $this->controller->onError(Yii::t('app', "Game is not found"), 404);
             }
             $gameUsersDistinctUser = $game->getGameUsers()->select('user_id')->distinct();
             $usersInGame = $gameUsersDistinctUser->count();
