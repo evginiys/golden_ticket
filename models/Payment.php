@@ -38,6 +38,8 @@ class Payment extends ActiveRecord
     public const CURRENCY_RUR = 0;
     public const CURRENCY_COUPON = 1;
 
+    public const RUR_GIVE_FOR_COINS = 100;
+    public const COINS_GET_BY_RUR = 10;
     /**
      * @param Ticket[] $tickets
      * @param int $userId
