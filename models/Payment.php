@@ -56,7 +56,7 @@ class Payment extends ActiveRecord
                     'type' => self::TYPE_BUY,
                     'status' => self::STATUS_DONE,
                     'currency' => self::CURRENCY_RUR,
-                    'comment' => 'Платеж за билеты',
+                    'comment' => 'Pay for tickets',
                     'ticket_id' => $ticket->id
                 ]);
                 if (!$payment->save()) {
@@ -228,7 +228,7 @@ class Payment extends ActiveRecord
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_RUR,
                 'type' => self::TYPE_BUY,
-                'comment' => 'обмен на купоны',
+                'comment' => 'Exchange on coupons',
                 'amount' => $coins,
                 'from_user_id' => $userId
             ]);
@@ -237,7 +237,7 @@ class Payment extends ActiveRecord
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
                 'type' => self::TYPE_CHARGE,
-                'comment' => 'покупка купонов',
+                'comment' => 'Bye coupons',
                 'amount' => $coupons,
                 'to_user_id' => $userId
             ]);
