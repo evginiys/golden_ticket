@@ -17,7 +17,7 @@ use yii\rest\Action;
  *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Parameter(
  *         in="query",
- *         name="gameId",
+ *         name="game_id",
  *         type="integer",
  *         required=true,
  *         description="ID of the game to get password for"
@@ -35,10 +35,15 @@ use yii\rest\Action;
  *             )
  *         )
  *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Game is not ended",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
  *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
  *     @SWG\Response(
  *         response=404,
- *         description="Game is not over",
+ *         description="Game is not found",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
@@ -51,12 +56,16 @@ class GetPasswordAction extends Action
     public function run()
     {
         $gameId = Yii::$app->request->get('game_id');
-        $game = Game::find($gameId)->where(['status' => Game::STATUS_ENDED])->one();
-        if ($game) {
-            $password = $game->getArchivePassword();
-            return $this->controller->onSuccess(['password' => $password]);
-        } else {
-            return $this->controller->onError(Yii::t('app', "Game is not ended"), 404);
+
+        $game = Game::findOne($gameId);
+        if (!$game) {
+            return $this->controller->onError(Yii::t('app', 'Game is not found'), 404);
         }
+        if ($game->status != Game::STATUS_ENDED) {
+            return $this->controller->onError(Yii::t('app', "Game is not ended"), 400);
+        }
+        $password = $game->getArchivePassword();
+
+        return $this->controller->onSuccess(['password' => $password]);
     }
 }
