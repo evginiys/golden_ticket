@@ -30,7 +30,6 @@ use yii\rest\Action;
  *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  * )
  */
-
 class GetRateAction extends Action
 {
     /**

@@ -69,6 +69,6 @@ class ExchangeAction extends Action
         } catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
-        return $this->controller->onSuccess(['done' => true]);
+        return $this->controller->onSuccess(true);
     }
 }

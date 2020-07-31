@@ -2,6 +2,7 @@
 
 namespace app\modules\api\common\actions\game;
 
+use app\models\Game;
 use app\models\GameUser;
 use Yii;
 use yii\rest\Action;
@@ -54,15 +55,15 @@ class CheckAction extends Action
         if (!$gameUser) {
             return $this->controller->onError(Yii::t('app', 'User is not in game'), 404);
         }
-        $points = 3;
+        $points = Game::COUNT_POINT;
         foreach ($gameUser as $one) {
             if (!$one->is_correct) {
                 $points--;
             }
         }
-        if ($points != 3) {
+        if ($points != Game::COUNT_POINT) {
             return $this->controller->onSuccess(['win' => false, 'matches' => $points]);
         } else
-            return $this->controller->onSuccess(['win' => true, 'matches' => 3]);
+            return $this->controller->onSuccess(['win' => true, 'matches' => Game::COUNT_POINT]);
     }
 }
