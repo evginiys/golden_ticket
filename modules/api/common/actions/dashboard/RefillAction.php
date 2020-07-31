@@ -38,18 +38,20 @@ class RefillAction extends Action
      */
     public function run()
     {
-        try {
-            if ($amount = Yii::$app->request->post('amount')) {
-                if (Payment::refill(Yii::$app->user->id, $amount)) {
-                    return $this->controller->onSuccess(true);
-                } else {
-                    throw new Exception("Cannot refill wallet");
+        $amount = Yii::$app->request->post('amount');
+
+        if (is_numeric($amount) && $amount > 0) {
+            try {
+                if (!Payment::refill(Yii::$app->user->id, $amount)) {
+                    return $this->controller->onError(Yii::t('app', 'Cannot refill wallet'), 400);
                 }
-            } else {
-                throw new Exception("Cannot refill wallet");
+
+                return $this->controller->onSuccess(true);
+            } catch (Exception $e) {
+                return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
             }
-        } catch (Exception $e) {
-            return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
+
+        return $this->controller->onError(Yii::t('app', 'Amount must be a number greater than 0'), 400);
     }
 }

@@ -19,7 +19,6 @@ namespace app\models\definitions;
  *     description="Date and time of game start in the following format: `YYYY-MM-DD HH:MM:SS`"
  * )
  * @SWG\Property(property="cost", type="number", example=100.0, description="Cost of a game")
- * @SWG\Property(property="collected_sum", type="number", example=115.0, description="Collected sum")
  * @SWG\Property(
  *     property="date_end",
  *     type="string",
