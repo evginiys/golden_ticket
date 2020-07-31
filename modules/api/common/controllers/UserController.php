@@ -3,16 +3,16 @@
 namespace app\modules\api\common\controllers;
 
 use app\models\User;
-use app\modules\api\common\actions\ChangeNameAction;
+use app\modules\api\common\actions\user\ChangeNameAction;
 use app\modules\api\common\actions\ForgotPasswordAction;
 use app\modules\api\common\actions\LogoutAction;
-use app\modules\api\common\actions\MyAction;
+use app\modules\api\common\actions\user\MyAction;
 use app\modules\api\common\actions\ResetPasswordGetAction;
 use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
 use app\modules\api\common\actions\SignUpAction;
-use app\modules\api\common\actions\UserInfByTokenAction;
-use app\modules\api\common\actions\ChangeUserInfAction;
+use app\modules\api\common\actions\user\UserInfByTokenAction;
+use app\modules\api\common\actions\user\ChangeUserInfAction;
 
 /**
  * Class UserController

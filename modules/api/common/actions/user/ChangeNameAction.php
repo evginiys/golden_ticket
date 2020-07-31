@@ -1,6 +1,6 @@
 <?php
 
-namespace app\modules\api\common\actions;
+namespace app\modules\api\common\actions\user;
 
 use Yii;
 use yii\rest\Action;

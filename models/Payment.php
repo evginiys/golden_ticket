@@ -220,7 +220,7 @@ class Payment extends ActiveRecord
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $coins = $coupons * (Payment::COUPONS_GET_BY_RUR / Payment::RUR_GIVE_FOR_COUPONS);
+            $coins = $coupons * (Payment::RUR_GIVE_FOR_COUPONS / Payment::COUPONS_GET_BY_RUR);
             if (!(User::findOne($userId)->getBalance(Payment::CURRENCY_RUR) >= $coins)) {
                 throw new Exception(Yii::t('app', 'Not enough coins'));
             }
