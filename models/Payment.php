@@ -92,7 +92,7 @@ class Payment extends ActiveRecord
                 'type' => self::TYPE_CHARGE,
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_RUR,
-                'comment' => 'билет на игру',
+                'comment' => 'Ticket for game',
                 'ticket_id' => $ticketId
             ]);
             if (!$payment->save()) {
