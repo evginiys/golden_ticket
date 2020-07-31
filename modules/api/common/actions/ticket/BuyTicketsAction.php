@@ -29,15 +29,7 @@ use yii\rest\Action;
  *         default=0,
  *         description="Amount of tickets to buy"
  *     ),
- *     @SWG\Response(
- *         response=200,
- *         description="Buy is successful",
- *         @SWG\Schema(
- *             type="object",
- *             @SWG\Property(property="error", type="integer", example=0),
- *             @SWG\Property(property="data", type="boolean", example=true)
- *         )
- *     ),
+ *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
  *     @SWG\Response(
  *         response=400,

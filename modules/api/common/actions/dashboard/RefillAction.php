@@ -22,15 +22,7 @@ use yii\rest\Action;
  *         required=true,
  *         description="Amount of RUR to refill"
  *     ),
- *     @SWG\Response(
- *         response=200,
- *         description="Refill successful",
- *         @SWG\Schema(
- *             type="object",
- *             @SWG\Property(property="error", type="integer", example=0),
- *             @SWG\Property(property="data", type="boolean", example=true)
- *         )
- *     ),
+ *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(
  *         response=400,
  *         description="Cannot refill wallet or incorrect amount value is provided",
