@@ -50,11 +50,11 @@ class BuyTicketsAction extends Action
             if (!$ticketPack) {
                 return $this->controller->onError(Yii::t('app', 'Ticket pack is not found'), 404);
             }
-            $amount=Yii::$app->request->post('amount', 0);
-            if(!is_numeric($amount)){
+            $amount = Yii::$app->request->post('amount', 0);
+            if (!is_numeric($amount)) {
                 return $this->controller->onError(Yii::t('app', 'Incorrect amount'), 400);
             }
-            $ticketPack->sell(Yii::$app->user->id, Yii::$app->request->post('amount', $amount));
+            $ticketPack->sell(Yii::$app->user->id, $amount);
         } catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }

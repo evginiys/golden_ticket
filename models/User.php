@@ -230,7 +230,6 @@ class User extends ActiveRecord implements IdentityInterface
         if (empty($balance)) {
             return $balance;
         }
-
         return (float)$balance['balance'];
     }
 }
