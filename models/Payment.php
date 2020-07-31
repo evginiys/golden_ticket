@@ -38,8 +38,9 @@ class Payment extends ActiveRecord
     public const CURRENCY_RUR = 0;
     public const CURRENCY_COUPON = 1;
 
-    public const RUR_GIVE_FOR_COINS = 100;
-    public const COINS_GET_BY_RUR = 10;
+    public const RUR_GIVE_FOR_COUPONS = 100;
+    public const COUPONS_GET_BY_RUR = 10;
+
     /**
      * @param Ticket[] $tickets
      * @param int $userId
@@ -165,7 +166,7 @@ class Payment extends ActiveRecord
         try {
             if ($payments = self::find()->where(['from_user_id' => $userId])->orWhere(['to_user_id' => $userId])->with('ticket')->all()) {
                 foreach ($payments as $payment) {
-                    if ($payment->ticket->is_active == 1) {
+                    if ($payment->ticket != null && $payment->ticket->is_active == 1) {
                         if ($payment->from_user_id == $userId) {
                             $numberOfTickets++;
                         } else {
@@ -211,15 +212,18 @@ class Payment extends ActiveRecord
 
     /**
      * @param $userId
-     * @param $coins
      * @param $coupons
      * @return bool
      * @throws Exception
      */
-    public static function coinsToCoupon(int $userId, float $coins, float $coupons)
+    public static function coinsToCoupon(int $userId, int $coupons): bool
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
+            $coins = $coupons * (Payment::COUPONS_GET_BY_RUR / Payment::RUR_GIVE_FOR_COUPONS);
+            if (!(User::findOne($userId)->getBalance(Payment::CURRENCY_RUR) >= $coins)) {
+                throw new Exception(Yii::t('app', 'Not enough coins'));
+            }
             $sell = new self([
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_RUR,
@@ -228,7 +232,7 @@ class Payment extends ActiveRecord
                 'amount' => $coins,
                 'from_user_id' => $userId
             ]);
-            if (!$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$sell->save()) throw new Exception(Yii::t('app', 'Cannot exchange'));
             $buy = new self([
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
@@ -238,7 +242,7 @@ class Payment extends ActiveRecord
                 'to_user_id' => $userId
             ]);
             if (!$buy->save()) {
-                throw new Exception(Yii::t('app', 'cannot exchange'));
+                throw new Exception(Yii::t('app', 'Сannot exchange'));
             }
             $transaction->commit();
             return true;

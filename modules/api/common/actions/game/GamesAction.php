@@ -38,7 +38,7 @@ class GamesAction extends Action
     {
         $data = Game::find()
             ->where(['status' => [Game::STATUS_SCHEDULED, Game::STATUS_IN_PROCESS]])
-            ->select(['id', 'type', 'cost', 'date_start', 'date_end'])
+            ->select(['id', 'type', 'cost', 'status', 'date_start', 'date_end'])
             ->all();
         return $this->controller->onSuccess($data);
     }
