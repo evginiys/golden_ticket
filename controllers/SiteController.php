@@ -34,6 +34,11 @@ use app\models\LoginForm;
  *         response="unauthorized",
  *         description="Unauthorized",
  *         @SWG\Schema(ref="#/definitions/UnauthorizedResponse")
+ *     ),
+ *     @SWG\Response(
+ *         response="success_simple",
+ *         description="Success",
+ *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
  *     )
  * )
  */

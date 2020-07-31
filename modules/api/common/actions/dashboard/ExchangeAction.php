@@ -29,19 +29,7 @@ use yii\rest\Action;
  *         required=true,
  *         description="Amount of coupons to get"
  *     ),
- *     @SWG\Response(
- *         response=200,
- *         description="Information about the exchange rate",
- *         @SWG\Schema(
- *             type="object",
- *             @SWG\Property(property="error", type="integer", example=0),
- *             @SWG\Property(
- *                 property="data",
- *                 type="object",
- *                 @SWG\Property(property="done", type="boolean", example=true)
- *             )
- *         )
- *     ),
+ *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(
  *         response=400,
  *         description="One of the following errors: not enough coins, incorrect coupons amount, cannot perform exchange",
