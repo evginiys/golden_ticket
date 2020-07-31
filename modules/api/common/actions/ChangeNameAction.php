@@ -12,14 +12,6 @@ use yii\rest\Action;
  * @SWG\Post(path="/user/change-name",
  *     tags={"User"},
  *     summary="Sets the new name for current user.",
- *     @SWG\Parameter(
- *         in="header",
- *         name="Authorization",
- *         description="Bearer authentication header. The value must have the following format: `Bearer TOKEN`<br/>where `TOKEN` is the authentication token.",
- *         type="string",
- *         required=true,
- *         default="Bearer TOKEN"
- *     ),
  *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Response(
  *         response=200,
