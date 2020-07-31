@@ -21,11 +21,7 @@ use yii\rest\Action;
  *         required=true,
  *         description="The email address associated with the account"
  *     ),
- *     @SWG\Response(
- *         response=200,
- *         description="The email is successfully sent",
- *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
- *     ),
+ *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(
  *         response=400,
  *         description="Can't send an email",

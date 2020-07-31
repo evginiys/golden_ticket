@@ -45,7 +45,17 @@ use yii\rest\Action;
  *             )
  *         )
  *     ),
- *     @SWG\Response(response=401, ref="#/responses/unauthorized")
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Error",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="One of the following errors: game is not found, game without users, no bets",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     )
  * )
  */
 class ChoosenCombinationAction extends Action

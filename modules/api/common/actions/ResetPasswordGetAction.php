@@ -21,11 +21,7 @@ use yii\rest\Action;
  *         required=true,
  *         description="The reset token from email"
  *     ),
- *     @SWG\Response(
- *         response=200,
- *         description="Reset token exists, password change is possible",
- *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
- *     ),
+ *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(
  *         response=404,
  *         description="Token is not found",

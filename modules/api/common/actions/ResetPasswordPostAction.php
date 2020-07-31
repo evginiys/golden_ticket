@@ -29,11 +29,7 @@ use yii\rest\Action;
  *         format="password",
  *         description="The new password"
  *     ),
- *     @SWG\Response(
- *         response=200,
- *         description="The new password successfully set",
- *         @SWG\Schema(ref="#/definitions/SuccessSimpleResponse")
- *     ),
+ *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(
  *         response=400,
  *         description="Error: blank password provided or user data saving failed",
