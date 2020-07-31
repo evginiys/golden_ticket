@@ -43,6 +43,6 @@ class LogoutAction extends Action
         $user->token = '';
         $user->save(false);
 
-        return ['status' => Yii::$app->user->logout()];
+        return $this->controller->onSuccess(Yii::$app->user->logout());
     }
 }

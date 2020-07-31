@@ -44,6 +44,6 @@ class ResetPasswordGetAction extends Action
             return $this->controller->onError(Yii::t('app', 'Token is not found'), 404);
         }
 
-        return ['success' => true];
+        return $this->controller->onSuccess(true);
     }
 }

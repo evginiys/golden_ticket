@@ -72,6 +72,6 @@ class ResetPasswordPostAction extends Action
             return $this->controller->onError($e->getMessage(), 400);
         }
 
-        return ['success' => true];
+        return $this->controller->onSuccess(true);
     }
 }

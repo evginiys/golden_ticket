@@ -62,6 +62,6 @@ class ForgotPasswordAction extends Action
             return $this->controller->onError(Yii::t('app', "Can't send an email"), 400);
         }
 
-        return ['success' => true];
+        return $this->controller->onSuccess(true);
     }
 }
