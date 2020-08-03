@@ -39,8 +39,7 @@ class GetRateAction extends Action
     public function run()
     {
         return $this->controller->onSuccess([
-            'rur_for_coins' => Payment::RUR_GIVE_FOR_COUPONS,
-            'coins_get' => Payment::COUPONS_GET_BY_RUR
+            'rur_for_coins' => Payment::RUR_FOR_COINS,
         ]);
     }
 }
