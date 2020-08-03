@@ -6,7 +6,7 @@ use Yii;
 use app\models\User;
 use app\models\UserSearch;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
+use Exception;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -45,12 +45,23 @@ class UserController extends AdminController
      * Creates a new User model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws Exception
      */
     public function actionCreate()
     {
         $model = new User();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $model->setPassword($model->password);
+            $model->generateApiToken();
+
+            if ($model->save()) {
+                $playerRole = Yii::$app->authManager->getRole(User::ROLE_PLAYER);
+                Yii::$app->authManager->assign($playerRole, $model->id);
+
+                $model->updateTokenExpirationDate();
+            }
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -92,9 +103,55 @@ class UserController extends AdminController
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        Yii::$app->authManager->revokeAll($model->id);
+        $model->delete();
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Bans an user.
+     *
+     * @param $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     * @throws Exception
+     */
+    public function actionBan($id) {
+        $user = $this->findModel($id);
+
+        if (!Yii::$app->authManager->getAssignment(User::ROLE_BANNED, $user->id)) {
+            $bannedRole = Yii::$app->authManager->getRole(User::ROLE_BANNED);
+            Yii::$app->authManager->assign($bannedRole, $user->id);
+
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Banned successfully'));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'User is banned already'));
+        }
+
+        return $this->redirect(['user/index']);
+    }
+
+    /**
+     * Removes ban of an user.
+     *
+     * @param $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionUnban($id) {
+        $user = $this->findModel($id);
+        $bannedRole = Yii::$app->authManager->getRole(User::ROLE_BANNED);
+
+        if (Yii::$app->authManager->revoke($bannedRole, $user->id)) {
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Ban removed successfully'));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'User is not banned'));
+        }
+
+        return $this->redirect(['user/index']);
     }
 
     /**

@@ -3,6 +3,7 @@
 /* @var $this \yii\web\View */
 /* @var $content string */
 
+use app\models\User;
 use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
@@ -38,10 +39,27 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => Yii::t('app', 'Users'), 'url' => ['/pro-admin/user']],
-            ['label' => Yii::t('app', 'Games'), 'url' => ['/pro-admin/game']],
-            ['label' => Yii::t('app', 'Promos'), 'url' => ['/pro-admin/promo']],
-            ['label' => Yii::t('app', 'Ticket Packs'), 'url' => ['/pro-admin/ticket-pack']],
+            [
+                'label' => Yii::t('app', 'Users'),
+                'url' => ['/pro-admin/user'],
+                'visible' => Yii::$app->user->can(User::ROLE_ADMIN)
+            ],
+            [
+                'label' => Yii::t('app', 'Games'),
+                'url' => ['/pro-admin/game'],
+                'visible' => Yii::$app->user->can(User::ROLE_ADMIN)
+            ],
+            [
+                'label' => Yii::t('app', 'Promos'),
+                'url' => ['/pro-admin/promo'],
+                'visible' => Yii::$app->user->can(User::ROLE_ADMIN)
+            ],
+            [
+                'label' => Yii::t('app', 'Ticket Packs'),
+                'url' => ['/pro-admin/ticket-pack'],
+                'visible' => Yii::$app->user->can(User::ROLE_ADMIN)
+            ],
+            ['label' => Yii::t('app', 'API Documentation'), 'url' => ['/site/docs']],
             [
                 'label' => Yii::t('app', 'Sign Up'),
                 'url' => ['/site/sign-up'],
