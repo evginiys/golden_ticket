@@ -67,7 +67,6 @@ class BetAction extends Action
     public function run()
     {
         $gameId = Yii::$app->request->post('game_id', 0);
-        $ticketId = Yii::$app->request->post('ticket_id', 0);
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $points = Json::decode(Yii::$app->request->post('points'), true);
@@ -79,7 +78,7 @@ class BetAction extends Action
             if (count($points) != Game::COUNT_POINT) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));
             }
-            if (Payment::betByTicket($ticketId, Yii::$app->user->id)) {
+            if (Payment::betByTicket($gameId, Yii::$app->user->id)) {
                 if ($game->status != Game::STATUS_ENDED) {
                     $bets = $game->getGameUsers()
                         ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])

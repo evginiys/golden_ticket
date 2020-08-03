@@ -44,6 +44,7 @@ class Payment extends ActiveRecord
     public const RUR_FOR_COINS = 1;
     public const COINS_FOR_COUPON = 10;
     public const COINS_FOR_RUR = 1;
+
     /**
      * @param Ticket[] $tickets
      * @param int $userId
@@ -74,19 +75,24 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * @param int $ticketId
+     * @param int $gameId
      * @param int $userId
      * @return bool
      * @throws Exception
      */
-    public static function betByTicket(int $ticketId, int $userId): bool
+    public static function betByTicket(int $gameId, int $userId): bool
     {
         try {
-            if (!Ticket::find()->where(['is_active' => 1, 'id' => $ticketId])->one()) {
-                throw new Exception("Ticket is inactive");
+            $costGame = Game::findOne($gameId)->cost;
+            if (!$costGame) {
+                throw new Exception("Not found game");
             }
-            if (!Payment::hasTicket($ticketId, $userId)) {
+            $ticket = Ticket::find()->where(['cost' => $costGame])->one();
+            if (!$ticket) {
                 throw new Exception("Not found ticket");
+            }
+            if (!Payment::hasTicket($ticket->id, $userId)) {
+                throw new Exception("No ticket");
             }
 
             $payment = new self([
@@ -96,14 +102,13 @@ class Payment extends ActiveRecord
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COIN,
                 'comment' => 'Ticket for game',
-                'ticket_id' => $ticketId
+                'ticket_id' => $ticket->id
             ]);
             if (!$payment->save()) {
                 throw new Exception(Json::encode($payment->getErrors()));
             }
         } catch (Exception $e) {
-            throw $e;
-            return false;
+            throw new Exception(Yii::t('app', $e->getMessage()));
         }
         return true;
     }
@@ -115,8 +120,12 @@ class Payment extends ActiveRecord
      */
     public static function hasTicket(int $ticketId, int $userId): bool
     {
-        $ticketsIn = Payment::find()->where(['ticket_id' => $ticketId, 'from_user_id' => $userId])->count();
-        $ticketsOut = Payment::find()->where(['ticket_id' => $ticketId, 'to_user_id' => $userId])->count();
+        $ticketsIn = Payment::find()
+            ->where(['ticket_id' => $ticketId, 'type' => self::TYPE_BUY, 'from_user_id' => $userId])
+            ->count();
+        $ticketsOut = Payment::find()
+            ->where(['ticket_id' => $ticketId, 'type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
+            ->count();
         if ($ticketsIn > $ticketsOut) {
             return true;
         } else {
@@ -167,15 +176,21 @@ class Payment extends ActiveRecord
     {
         $numberOfTickets = 0;
         try {
-            $minus=self::find()->where(['type'=>self::TYPE_CHARGE,'to_user_id'=>$userId])->andWhere(['not in','ticket_id',[null]])->count();
-            $plus=self::find()->where(['type'=>self::TYPE_BUY,'from_user_id'=>$userId])->andWhere(['not in','ticket_id',[null]])->count();
+            $minus = self::find()
+                ->where(['type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
+                ->andWhere(['not in', 'ticket_id', [null]])
+                ->count();
+            $plus = self::find()
+                ->where(['type' => self::TYPE_BUY, 'from_user_id' => $userId])
+                ->andWhere(['not in', 'ticket_id', [null]])
+                ->count();
         } catch (Exception $e) {
             return 0;
         }
-        $ticketCount=$plus-$minus;
-        if($ticketCount>=0){
+        $ticketCount = $plus - $minus;
+        if ($ticketCount >= 0) {
             return $ticketCount;
-        }else{
+        } else {
             return 0;
         }
 
@@ -189,18 +204,18 @@ class Payment extends ActiveRecord
      */
     public static function refill(int $userId, float $amount)
     {
-        $transaction=Yii::$app->db->beginTransaction();
+        $transaction = Yii::$app->db->beginTransaction();
         try {
             $getCoins = new self([
                 'currency' => self::CURRENCY_COIN,
                 'status' => self::STATUS_NEW,
-                'amount' => $amount*self::RUR_FOR_COINS,
+                'amount' => $amount * self::RUR_FOR_COINS,
                 'to_user_id' => $userId,
                 'type' => self::TYPE_CHARGE,
                 'comment' => "Refill COIN"
             ]);
             if (!$getCoins->save()) {
-                throw  new Exception( "Cannot refill wallet");
+                throw  new Exception("Cannot refill wallet");
             }
             $payRur = new self([
                 'currency' => self::CURRENCY_RUR,
@@ -211,12 +226,12 @@ class Payment extends ActiveRecord
                 'comment' => "Pay rur for COIN"
             ]);
             if (!$payRur->save()) {
-                throw  new Exception( "Cannot refill wallet");
+                throw  new Exception("Cannot refill wallet");
             }
             $transaction->commit();
         } catch (Exception $e) {
             $transaction->rollBack();
-            throw new Exception(Yii::t('app',$e->getMessage()));
+            throw new Exception(Yii::t('app', $e->getMessage()));
         }
         return true;
     }
