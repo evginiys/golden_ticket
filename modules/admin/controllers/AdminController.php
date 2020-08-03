@@ -24,13 +24,13 @@ class AdminController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
+                        'allow' => false,
+                        'roles' => [User::ROLE_BANNED]
+                    ],
+                    [
                         'allow' => true,
                         'roles' => [User::ROLE_ADMIN]
                     ],
-                    [
-                        'allow' => false,
-                        'roles' => [User::ROLE_BANNED]
-                    ]
                 ]
             ],
             'verbs' => [
