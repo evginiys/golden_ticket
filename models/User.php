@@ -215,7 +215,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param int $currency
      * @return bool
      */
-    public function canPay(float $amount, int $currency = Payment::CURRENCY_RUR): bool
+    public function canPay(float $amount, int $currency = Payment::CURRENCY_COIN): bool
     {
         return $amount <= $this->getBalance($currency);
     }
@@ -230,7 +230,6 @@ class User extends ActiveRecord implements IdentityInterface
         if (empty($balance)) {
             return $balance;
         }
-
         return (float)$balance['balance'];
     }
 }

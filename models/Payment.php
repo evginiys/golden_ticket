@@ -33,13 +33,18 @@ class Payment extends ActiveRecord
 {
     public const TYPE_BUY = 0;
     public const TYPE_CHARGE = 1;
+
     public const STATUS_NEW = 1;
     public const STATUS_DONE = 2;
-    public const CURRENCY_RUR = 0;
-    public const CURRENCY_COUPON = 1;
 
-    public const RUR_GIVE_FOR_COINS = 100;
-    public const COINS_GET_BY_RUR = 10;
+    public const CURRENCY_COIN = 0;
+    public const CURRENCY_COUPON = 1;
+    public const CURRENCY_RUR = 2;
+
+    public const RUR_FOR_COINS = 1;
+    public const COINS_FOR_COUPON = 10;
+    public const COINS_FOR_RUR = 1;
+
     /**
      * @param Ticket[] $tickets
      * @param int $userId
@@ -54,8 +59,8 @@ class Payment extends ActiveRecord
                     'from_user_id' => $userId,
                     'type' => self::TYPE_BUY,
                     'status' => self::STATUS_DONE,
-                    'currency' => self::CURRENCY_RUR,
-                    'comment' => 'Платеж за билеты',
+                    'currency' => self::CURRENCY_COIN,
+                    'comment' => 'Pay for tickets',
                     'ticket_id' => $ticket->id
                 ]);
                 if (!$payment->save()) {
@@ -70,19 +75,24 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * @param int $ticketId
+     * @param int $gameId
      * @param int $userId
      * @return bool
      * @throws Exception
      */
-    public static function betByTicket(int $ticketId, int $userId): bool
+    public static function betByTicket(int $gameId, int $userId): bool
     {
         try {
-            if (!Ticket::find()->where(['is_active' => 1, 'id' => $ticketId])->one()) {
-                throw new Exception("Ticket is inactive");
+            $game = Game::findOne($gameId);
+            if (!$game) {
+                throw new Exception("Not found game");
             }
-            if (!Payment::hasTicket($ticketId, $userId)) {
+            $ticket = Ticket::find()->where(['cost' => $game->cost])->one();
+            if (!$ticket) {
                 throw new Exception("Not found ticket");
+            }
+            if (!Payment::hasTicket($ticket->id, $userId)) {
+                throw new Exception("No ticket");
             }
 
             $payment = new self([
@@ -90,16 +100,15 @@ class Payment extends ActiveRecord
                 'to_user_id' => $userId,
                 'type' => self::TYPE_CHARGE,
                 'status' => self::STATUS_DONE,
-                'currency' => self::CURRENCY_RUR,
-                'comment' => 'билет на игру',
-                'ticket_id' => $ticketId
+                'currency' => self::CURRENCY_COIN,
+                'comment' => 'Ticket for game',
+                'ticket_id' => $ticket->id
             ]);
             if (!$payment->save()) {
                 throw new Exception(Json::encode($payment->getErrors()));
             }
         } catch (Exception $e) {
-            throw $e;
-            return false;
+            throw new Exception(Yii::t('app', $e->getMessage()));
         }
         return true;
     }
@@ -111,8 +120,12 @@ class Payment extends ActiveRecord
      */
     public static function hasTicket(int $ticketId, int $userId): bool
     {
-        $ticketsIn = Payment::find()->where(['ticket_id' => $ticketId, 'from_user_id' => $userId])->count();
-        $ticketsOut = Payment::find()->where(['ticket_id' => $ticketId, 'to_user_id' => $userId])->count();
+        $ticketsIn = Payment::find()
+            ->where(['ticket_id' => $ticketId, 'type' => self::TYPE_BUY, 'from_user_id' => $userId])
+            ->count();
+        $ticketsOut = Payment::find()
+            ->where(['ticket_id' => $ticketId, 'type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
+            ->count();
         if ($ticketsIn > $ticketsOut) {
             return true;
         } else {
@@ -163,23 +176,24 @@ class Payment extends ActiveRecord
     {
         $numberOfTickets = 0;
         try {
-            if ($payments = self::find()->where(['from_user_id' => $userId])->orWhere(['to_user_id' => $userId])->with('ticket')->all()) {
-                foreach ($payments as $payment) {
-                    if ($payment->ticket->is_active == 1) {
-                        if ($payment->from_user_id == $userId) {
-                            $numberOfTickets++;
-                        } else {
-                            $numberOfTickets--;
-                        }
-                    }
-                }
-            } else {
-                return $numberOfTickets;
-            }
+            $minus = self::find()
+                ->where(['type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
+                ->andWhere(['not', ['ticket_id' => null]])
+                ->count();
+            $plus = self::find()
+                ->where(['type' => self::TYPE_BUY, 'from_user_id' => $userId])
+                ->andWhere(['not', ['ticket_id', null]])
+                ->count();
         } catch (Exception $e) {
-            throw new Exception(Yii::t('app', $e->getMessage()));
+            return 0;
         }
-        return $numberOfTickets;
+        $ticketCount = $plus - $minus;
+        if ($ticketCount >= 0) {
+            return $ticketCount;
+        } else {
+            return 0;
+        }
+
     }
 
     /**
@@ -190,55 +204,71 @@ class Payment extends ActiveRecord
      */
     public static function refill(int $userId, float $amount)
     {
+        $transaction = Yii::$app->db->beginTransaction();
         try {
-            $payment = new self([
+            $getCoins = new self([
+                'currency' => self::CURRENCY_COIN,
+                'status' => self::STATUS_NEW,
+                'amount' => $amount * (1 / self::RUR_FOR_COINS),
+                'to_user_id' => $userId,
+                'type' => self::TYPE_CHARGE,
+                'comment' => "Refill COIN"
+            ]);
+            if (!$getCoins->save()) {
+                throw  new Exception("Cannot refill wallet");
+            }
+            $payRur = new self([
                 'currency' => self::CURRENCY_RUR,
                 'status' => self::STATUS_NEW,
                 'amount' => $amount,
-                'to_user_id' => $userId,
-                'type' => self::TYPE_CHARGE,
-                'comment' => "Refill RUR"
+                'from_user_id' => $userId,
+                'type' => self::TYPE_BUY,
+                'comment' => "Pay rur for COIN"
             ]);
-            if (!$payment->save()) {
-                throw  new Exception(Yii::t('app', "Cannot refill wallet"));
+            if (!$payRur->save()) {
+                throw  new Exception("Cannot refill wallet");
             }
+            $transaction->commit();
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            return false;
+            $transaction->rollBack();
+            throw  $e;
         }
         return true;
     }
 
     /**
      * @param $userId
-     * @param $coins
      * @param $coupons
      * @return bool
      * @throws Exception
      */
-    public static function coinsToCoupon(int $userId, float $coins, float $coupons)
+    public static function coinsToCoupon(int $userId, int $coupons): bool
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
+            $coins = $coupons * (self::COINS_FOR_COUPON);
+            if ((User::findOne($userId)->getBalance(Payment::CURRENCY_COIN) < $coins)) {
+                throw new Exception(Yii::t('app', 'Not enough coins'));
+            }
             $sell = new self([
                 'status' => self::STATUS_DONE,
-                'currency' => self::CURRENCY_RUR,
+                'currency' => self::CURRENCY_COIN,
                 'type' => self::TYPE_BUY,
-                'comment' => 'обмен на купоны',
+                'comment' => 'Exchange on coupons',
                 'amount' => $coins,
                 'from_user_id' => $userId
             ]);
-            if (!$sell->save()) throw new Exception(Yii::t('app', 'cannot exchange'));
+            if (!$sell->save()) throw new Exception(Yii::t('app', 'Cannot exchange'));
             $buy = new self([
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
                 'type' => self::TYPE_CHARGE,
-                'comment' => 'покупка купонов',
+                'comment' => 'Buy coupons',
                 'amount' => $coupons,
                 'to_user_id' => $userId
             ]);
             if (!$buy->save()) {
-                throw new Exception(Yii::t('app', 'cannot exchange'));
+                throw new Exception(Yii::t('app', 'Сannot exchange'));
             }
             $transaction->commit();
             return true;

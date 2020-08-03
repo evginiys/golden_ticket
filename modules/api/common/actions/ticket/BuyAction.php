@@ -8,7 +8,7 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class BuyTicketsAction
+ * Class BuyAction
  * @package app\modules\api\common\actions\ticket
  *
  * @SWG\Post(path="/ticket/buy",
@@ -38,7 +38,7 @@ use yii\rest\Action;
  *     )
  * )
  */
-class BuyTicketsAction extends Action
+class BuyAction extends Action
 {
     /**
      * @return mixed
@@ -50,7 +50,11 @@ class BuyTicketsAction extends Action
             if (!$ticketPack) {
                 return $this->controller->onError(Yii::t('app', 'Ticket pack is not found'), 404);
             }
-            $ticketPack->sell(Yii::$app->user->id, Yii::$app->request->post('amount', 0));
+            $amount = Yii::$app->request->post('amount', 0);
+            if (!is_numeric($amount)) {
+                return $this->controller->onError(Yii::t('app', 'Incorrect amount'), 400);
+            }
+            $ticketPack->sell(Yii::$app->user->id, $amount);
         } catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
