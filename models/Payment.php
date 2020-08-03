@@ -167,23 +167,18 @@ class Payment extends ActiveRecord
     {
         $numberOfTickets = 0;
         try {
-            if ($payments = self::find()->where(['from_user_id' => $userId])->orWhere(['to_user_id' => $userId])->with('ticket')->all()) {
-                foreach ($payments as $payment) {
-                    if ($payment->ticket != null && $payment->ticket->is_active == 1) {
-                        if ($payment->from_user_id == $userId) {
-                            $numberOfTickets++;
-                        } else {
-                            $numberOfTickets--;
-                        }
-                    }
-                }
-            } else {
-                return $numberOfTickets;
-            }
+            $minus=self::find()->where(['type'=>self::TYPE_CHARGE,'to_user_id'=>$userId])->andWhere(['not in','ticket_id',[null]])->count();
+            $plus=self::find()->where(['type'=>self::TYPE_BUY,'from_user_id'=>$userId])->andWhere(['not in','ticket_id',[null]])->count();
         } catch (Exception $e) {
-            throw new Exception(Yii::t('app', $e->getMessage()));
+            return 0;
         }
-        return $numberOfTickets;
+        $ticketCount=$plus-$minus;
+        if($ticketCount>=0){
+            return $ticketCount;
+        }else{
+            return 0;
+        }
+
     }
 
     /**
