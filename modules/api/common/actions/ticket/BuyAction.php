@@ -8,7 +8,7 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class BuyTicketsAction
+ * Class BuyAction
  * @package app\modules\api\common\actions\ticket
  *
  * @SWG\Post(path="/ticket/buy",
@@ -38,7 +38,7 @@ use yii\rest\Action;
  *     )
  * )
  */
-class BuyTicketsAction extends Action
+class BuyAction extends Action
 {
     /**
      * @return mixed

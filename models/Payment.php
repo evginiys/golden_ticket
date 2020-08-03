@@ -83,11 +83,11 @@ class Payment extends ActiveRecord
     public static function betByTicket(int $gameId, int $userId): bool
     {
         try {
-            $costGame = Game::findOne($gameId)->cost;
-            if (!$costGame) {
+            $game = Game::findOne($gameId);
+            if (!$game) {
                 throw new Exception("Not found game");
             }
-            $ticket = Ticket::find()->where(['cost' => $costGame])->one();
+            $ticket = Ticket::find()->where(['cost' => $game->cost])->one();
             if (!$ticket) {
                 throw new Exception("Not found ticket");
             }
@@ -178,7 +178,7 @@ class Payment extends ActiveRecord
         try {
             $minus = self::find()
                 ->where(['type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
-                ->andWhere(['not in', 'ticket_id', [null]])
+                ->andWhere(['not', ['ticket_id' => null]])
                 ->count();
             $plus = self::find()
                 ->where(['type' => self::TYPE_BUY, 'from_user_id' => $userId])
@@ -209,7 +209,7 @@ class Payment extends ActiveRecord
             $getCoins = new self([
                 'currency' => self::CURRENCY_COIN,
                 'status' => self::STATUS_NEW,
-                'amount' => $amount * self::RUR_FOR_COINS,
+                'amount' => $amount * (1 / self::RUR_FOR_COINS),
                 'to_user_id' => $userId,
                 'type' => self::TYPE_CHARGE,
                 'comment' => "Refill COIN"
@@ -231,7 +231,7 @@ class Payment extends ActiveRecord
             $transaction->commit();
         } catch (Exception $e) {
             $transaction->rollBack();
-            throw new Exception(Yii::t('app', $e->getMessage()));
+            throw new Exception(Yii::t('app', $e));
         }
         return true;
     }
@@ -247,7 +247,7 @@ class Payment extends ActiveRecord
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $coins = $coupons * (self::COINS_FOR_COUPON);
-            if (!(User::findOne($userId)->getBalance(Payment::CURRENCY_COIN) >= $coins)) {
+            if ((User::findOne($userId)->getBalance(Payment::CURRENCY_COIN) < $coins)) {
                 throw new Exception(Yii::t('app', 'Not enough coins'));
             }
             $sell = new self([
@@ -263,7 +263,7 @@ class Payment extends ActiveRecord
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
                 'type' => self::TYPE_CHARGE,
-                'comment' => 'Bye coupons',
+                'comment' => 'Buy coupons',
                 'amount' => $coupons,
                 'to_user_id' => $userId
             ]);

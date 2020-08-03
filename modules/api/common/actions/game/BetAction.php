@@ -78,8 +78,8 @@ class BetAction extends Action
             if (count($points) != Game::COUNT_POINT) {
                 throw new Exception(Yii::t('app', "Incorrect bet"));
             }
-            if (Payment::betByTicket($gameId, Yii::$app->user->id)) {
-                if ($game->status != Game::STATUS_ENDED) {
+            if ($game->status != Game::STATUS_ENDED) {
+                if (Payment::betByTicket($gameId, Yii::$app->user->id)) {
                     $bets = $game->getGameUsers()
                         ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])
                         ->count();
@@ -95,17 +95,19 @@ class BetAction extends Action
                         $gameUser->game_id = $gameId;
                         $gameUser->user_id = Yii::$app->user->id;
                         $gameUser->point = $point;
-                        $gameUser->date_point = date('Y-n-j G:i:s');
+                        $gameUser->date_point = date('Y-m-d H:i:s');
                         $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
                         if (!$gameUser->save()) {
                             throw new Exception("Error with points");
                         }
                     }
                 } else {
-                    throw new Exception('Game ended');
+                    throw new Exception('Cannot bet');
                 }
-                $transaction->commit();
+            } else {
+                throw new Exception('Game ended');
             }
+            $transaction->commit();
         } catch (Exception $e) {
             $transaction->rollBack();
             return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
