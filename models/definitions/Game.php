@@ -3,7 +3,7 @@
 namespace app\models\definitions;
 
 /**
- * @SWG\Definition(required={"id", "type", "date_start", "cost", "collected_sum", "date_end", "status", "archive_url"})
+ * @SWG\Definition(required={"id", "type", "date_start", "cost", "date_end", "status", "archive_url"})
  *
  * @SWG\Property(property="id", type="integer", example=1, description="ID of a game")
  * @SWG\Property(

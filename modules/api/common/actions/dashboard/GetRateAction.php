@@ -9,7 +9,7 @@ use yii\rest\Action;
  * Class GetRateAction
  * @package app\modules\api\common\actions\dashboard
  *
- * @SWG\Get(path="/deshboard/get-rate",
+ * @SWG\Get(path="/dashboard/get-rate",
  *     tags={"Dashboard"},
  *     summary="Gets the currency exchange rate between the RUR and the coins.",
  *     @SWG\Parameter(ref="#/parameters/authorization"),
