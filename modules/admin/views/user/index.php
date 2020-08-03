@@ -36,11 +36,38 @@ $this->params['breadcrumbs'][] = $this->title;
                     foreach ($roles as $role) {
                         $roleNames[] = $role->description;
                     }
-                    return implode('<br>', $roleNames);
+                    return implode(',<br>', $roleNames);
                 },
-                'label' => Yii::t('app', 'Roles')
+                'label' => Yii::t('app', 'Roles'),
+                'format' => 'html'
             ],
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{view}&nbsp{update}&nbsp{ban}&nbsp{delete}',
+                'buttons' => [
+                    'ban' => function ($item, User $model, $key) {
+                        if (!Yii::$app->authManager->getAssignment(User::ROLE_BANNED, $model->id)) {
+                            return Html::a('<span class="glyphicon glyphicon-ban-circle"></span>',
+                                ['ban', 'id' => $model->id],
+                                [
+                                    'title' => Yii::t('app', 'Ban'),
+                                    'aria-label' => Yii::t('app', 'Ban'),
+                                    'data-pjax' => 0
+                                ]
+                            );
+                        } else {
+                            return Html::a('<span class="glyphicon glyphicon-ok"></span>',
+                                ['unban', 'id' => $model->id],
+                                [
+                                    'title' => Yii::t('app', 'Remove ban'),
+                                    'aria-label' => Yii::t('app', 'Remove ban'),
+                                    'data-pjax' => 0
+                                ]
+                            );
+                        }
+                    }
+                ]
+            ],
         ],
     ]); ?>
 
