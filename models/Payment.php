@@ -33,14 +33,17 @@ class Payment extends ActiveRecord
 {
     public const TYPE_BUY = 0;
     public const TYPE_CHARGE = 1;
+
     public const STATUS_NEW = 1;
     public const STATUS_DONE = 2;
-    public const CURRENCY_RUR = 0;
+
+    public const CURRENCY_COIN = 0;
     public const CURRENCY_COUPON = 1;
+    public const CURRENCY_RUR = 2;
 
-    public const RUR_GIVE_FOR_COUPONS = 100;
-    public const COUPONS_GET_BY_RUR = 10;
-
+    public const RUR_FOR_COINS = 1;
+    public const COINS_FOR_COUPON = 10;
+    public const COINS_FOR_RUR = 1;
     /**
      * @param Ticket[] $tickets
      * @param int $userId
@@ -55,7 +58,7 @@ class Payment extends ActiveRecord
                     'from_user_id' => $userId,
                     'type' => self::TYPE_BUY,
                     'status' => self::STATUS_DONE,
-                    'currency' => self::CURRENCY_RUR,
+                    'currency' => self::CURRENCY_COIN,
                     'comment' => 'Pay for tickets',
                     'ticket_id' => $ticket->id
                 ]);
@@ -91,7 +94,7 @@ class Payment extends ActiveRecord
                 'to_user_id' => $userId,
                 'type' => self::TYPE_CHARGE,
                 'status' => self::STATUS_DONE,
-                'currency' => self::CURRENCY_RUR,
+                'currency' => self::CURRENCY_COIN,
                 'comment' => 'Ticket for game',
                 'ticket_id' => $ticketId
             ]);
@@ -191,21 +194,34 @@ class Payment extends ActiveRecord
      */
     public static function refill(int $userId, float $amount)
     {
+        $transaction=Yii::$app->db->beginTransaction();
         try {
-            $payment = new self([
+            $getCoins = new self([
+                'currency' => self::CURRENCY_COIN,
+                'status' => self::STATUS_NEW,
+                'amount' => $amount*self::RUR_FOR_COINS,
+                'to_user_id' => $userId,
+                'type' => self::TYPE_CHARGE,
+                'comment' => "Refill COIN"
+            ]);
+            if (!$getCoins->save()) {
+                throw  new Exception( "Cannot refill wallet");
+            }
+            $payRur = new self([
                 'currency' => self::CURRENCY_RUR,
                 'status' => self::STATUS_NEW,
                 'amount' => $amount,
-                'to_user_id' => $userId,
-                'type' => self::TYPE_CHARGE,
-                'comment' => "Refill RUR"
+                'from_user_id' => $userId,
+                'type' => self::TYPE_BUY,
+                'comment' => "Pay rur for COIN"
             ]);
-            if (!$payment->save()) {
-                throw  new Exception(Yii::t('app', "Cannot refill wallet"));
+            if (!$payRur->save()) {
+                throw  new Exception( "Cannot refill wallet");
             }
+            $transaction->commit();
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            return false;
+            $transaction->rollBack();
+            throw new Exception(Yii::t('app',$e->getMessage()));
         }
         return true;
     }
@@ -220,13 +236,13 @@ class Payment extends ActiveRecord
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $coins = $coupons * (Payment::RUR_GIVE_FOR_COUPONS / Payment::COUPONS_GET_BY_RUR);
-            if (!(User::findOne($userId)->getBalance(Payment::CURRENCY_RUR) >= $coins)) {
+            $coins = $coupons * (self::COINS_FOR_COUPON);
+            if (!(User::findOne($userId)->getBalance(Payment::CURRENCY_COIN) >= $coins)) {
                 throw new Exception(Yii::t('app', 'Not enough coins'));
             }
             $sell = new self([
                 'status' => self::STATUS_DONE,
-                'currency' => self::CURRENCY_RUR,
+                'currency' => self::CURRENCY_COIN,
                 'type' => self::TYPE_BUY,
                 'comment' => 'Exchange on coupons',
                 'amount' => $coins,
