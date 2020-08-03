@@ -182,7 +182,7 @@ class Payment extends ActiveRecord
                 ->count();
             $plus = self::find()
                 ->where(['type' => self::TYPE_BUY, 'from_user_id' => $userId])
-                ->andWhere(['not in', 'ticket_id', [null]])
+                ->andWhere(['not', ['ticket_id', null]])
                 ->count();
         } catch (Exception $e) {
             return 0;
@@ -231,7 +231,7 @@ class Payment extends ActiveRecord
             $transaction->commit();
         } catch (Exception $e) {
             $transaction->rollBack();
-            throw new Exception(Yii::t('app', $e));
+            throw  $e;
         }
         return true;
     }
