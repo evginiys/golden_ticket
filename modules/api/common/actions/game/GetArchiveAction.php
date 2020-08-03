@@ -16,7 +16,7 @@ use yii\rest\Action;
  *     @SWG\Parameter(ref="#/parameters/authorization"),
  *     @SWG\Parameter(
  *         in="query",
- *         name="gameId",
+ *         name="game_id",
  *         type="string",
  *         required=true,
  *         description="ID of the game to get archive for"

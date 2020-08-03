@@ -197,7 +197,7 @@ class Payment extends ActiveRecord
                 'amount' => $amount,
                 'to_user_id' => $userId,
                 'type' => self::TYPE_CHARGE,
-                'comment' => "refill rur"
+                'comment' => "Refill RUR"
             ]);
             if (!$payment->save()) {
                 throw  new Exception(Yii::t('app', "Cannot refill wallet"));
