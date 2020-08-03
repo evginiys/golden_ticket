@@ -20,14 +20,14 @@ use yii\rest\Action;
  *         name="ticket_pack_id",
  *         type="integer",
  *         default=0,
- *         description="ID of the ticket pack to buy a ticket from"
+ *         description="ID of the ticket pack to buy"
  *     ),
  *     @SWG\Parameter(
  *         in="formData",
  *         name="amount",
  *         type="integer",
  *         default=0,
- *         description="Amount of tickets to buy"
+ *         description="Amount of coins to pay"
  *     ),
  *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
