@@ -1,6 +1,5 @@
 <?php
 
-
 namespace app\models;
 
 use Yii;
@@ -16,11 +15,9 @@ use yii\base\Model;
  */
 class MailForm extends Model
 {
-
     public $email;
     public $subject;
     public $message;
-
 
     /**
      * @return array|array[]
@@ -45,6 +42,4 @@ class MailForm extends Model
             'email'=>Yii::t('app', 'Email'),
         ];
     }
-
-
 }

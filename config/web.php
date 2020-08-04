@@ -47,10 +47,10 @@ $config = [
             'useFileTransport' => false,
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
-                'host' => 'smtp.gmail.com',
-                'username' => Yii::$app->params['senderEmail'],
-                'password' => 'password',
-                'port' => '587',
+                'host' => env('MAIL_HOST'),
+                'username' => env('MAIL_USERNAME'),
+                'password' => env('MAIL_PASSWORD'),
+                'port' => env('MAIL_PORT'),
                 'encryption' => 'tls',
                 'streamOptions' => [ 'ssl' => [ 'allow_self_signed' => true, 'verify_peer' => false, 'verify_peer_name' => false, ], ]
             ],

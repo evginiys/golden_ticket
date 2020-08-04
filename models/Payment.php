@@ -185,13 +185,13 @@ class Payment extends ActiveRecord
                 ->andWhere(['not', ['ticket_id' => null]])
                 ->count();
         } catch (Exception $e) {
-            throw new Exception(Yii::t('app', 'Exception db'));
+            throw new Exception(Yii::t('app', 'Database error'));
         }
         $ticketCount = $plus - $minus;
         if ($ticketCount >= 0) {
             return $ticketCount;
         } else {
-            throw new Exception(Yii::t('app', 'Ticket minus'));
+            throw new Exception(Yii::t('app', 'Error, negative quantity of tickets'));
         }
 
     }
