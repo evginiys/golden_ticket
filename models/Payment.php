@@ -182,16 +182,16 @@ class Payment extends ActiveRecord
                 ->count();
             $plus = self::find()
                 ->where(['type' => self::TYPE_BUY, 'from_user_id' => $userId])
-                ->andWhere(['not', ['ticket_id', null]])
+                ->andWhere(['not', ['ticket_id' => null]])
                 ->count();
         } catch (Exception $e) {
-            return 0;
+            throw new Exception(Yii::t('app', 'Database error'));
         }
         $ticketCount = $plus - $minus;
         if ($ticketCount >= 0) {
             return $ticketCount;
         } else {
-            return 0;
+            throw new Exception(Yii::t('app', 'Error, negative quantity of tickets'));
         }
 
     }

@@ -6,6 +6,7 @@ use app\models\User;
 use app\modules\api\common\actions\user\ChangeNameAction;
 use app\modules\api\common\actions\ForgotPasswordAction;
 use app\modules\api\common\actions\LogoutAction;
+use app\modules\api\common\actions\user\MailAction;
 use app\modules\api\common\actions\user\MyAction;
 use app\modules\api\common\actions\ResetPasswordGetAction;
 use app\modules\api\common\actions\ResetPasswordPostAction;
@@ -77,6 +78,10 @@ class UserController extends ApiController
             ],
             'change-user-inf' => [
                 'class' => ChangeUserInfAction::class,
+                'modelClass' => $this->modelClass
+            ],
+            'mail' => [
+                'class' => MailAction::class,
                 'modelClass' => $this->modelClass
             ],
         ];
