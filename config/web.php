@@ -44,7 +44,16 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            'useFileTransport' => true,
+            'useFileTransport' => false,
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp.gmail.com',
+                'username' => Yii::$app->params['senderEmail'],
+                'password' => 'password',
+                'port' => '587',
+                'encryption' => 'tls',
+                'streamOptions' => [ 'ssl' => [ 'allow_self_signed' => true, 'verify_peer' => false, 'verify_peer_name' => false, ], ]
+            ],
         ],
         'log' => [
             'traceLevel' => 0,
@@ -96,7 +105,8 @@ $config = [
                         'POST change-user-inf' => 'change-user-inf',
                         'POST refill' => 'refill',
                         'GET get-password' => 'get-password',
-                        'GET get-archive' => 'get-archive'
+                        'GET get-archive' => 'get-archive',
+                        'POST mail' => 'mail',
                     ],
                     'pluralize' => false,
                 ]
