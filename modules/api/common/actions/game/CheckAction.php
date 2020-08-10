@@ -51,7 +51,14 @@ class CheckAction extends Action
      */
     public function run()
     {
-        $gameUser = GameUser::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['game_id' => Yii::$app->request->post('game_id')])->all();
+        $game = Game::findOne(Yii::$app->request->post('game_id'));
+        if (!$game) {
+            return $this->controller->onError(Yii::t('app', 'Game is not found'), 404);
+        }
+        if ($game->status != Game::STATUS_ENDED) {
+            return $this->controller->onError(Yii::t('app', 'Game is not ended'), 400);
+        }
+        $gameUser = GameUser::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['game_id' => $gameId])->all();
         if (!$gameUser) {
             return $this->controller->onError(Yii::t('app', 'User is not in game'), 404);
         }
