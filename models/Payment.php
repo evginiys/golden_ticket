@@ -237,6 +237,28 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * @param int $userId
+     * @param int $cost
+     * @return int
+     * @throws Exception
+     */
+    public static function payForPromo(int $userId, int $cost): int
+    {
+        $payment = new self([
+            'currency' => self::CURRENCY_COUPON,
+            'status' => self::STATUS_NEW,
+            'amount' => $cost,
+            'from_user_id' => $userId,
+            'type' => self::TYPE_BUY,
+            'comment' => "Pay coupons for promo"
+        ]);
+        if (!$payment->save()) {
+            throw new Exception(Json::encode($payment->getErrors()));
+        }
+        return $payment->id;
+    }
+
+    /**
      * @param $userId
      * @param $coupons
      * @return bool

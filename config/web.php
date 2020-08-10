@@ -94,6 +94,7 @@ $config = [
                         'v1/common',
                         'v1/game',
                         'v1/dashboard',
+                        'v1/promo',
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
@@ -121,6 +122,8 @@ $config = [
                         'GET get-password' => 'get-password',
                         'GET get-archive' => 'get-archive',
                         'POST mail' => 'mail',
+                        'GET get-promo' => 'get-promo',
+                        'POST buy-promo' => 'buy-promo',
                     ],
                     'pluralize' => false,
                 ]
