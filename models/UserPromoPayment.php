@@ -38,7 +38,7 @@ class UserPromoPayment extends ActiveRecord
      * @return Promo
      * @throws Exception
      */
-    public static function buyPromo(int $userId, int $promoId):Promo
+    public static function buyPromo(int $userId, int $promoId): Promo
     {
         $promo = Promo::findOne($promoId);
         if (!$promo) {
@@ -48,9 +48,9 @@ class UserPromoPayment extends ActiveRecord
         $userPromoPayment = new self([
             'user_id' => $userId,
             'promo_id' => $promoId,
-            'payment_id'=>$paymentId
+            'payment_id' => $paymentId
         ]);
-        if(!$userPromoPayment->save()){
+        if (!$userPromoPayment->save()) {
             throw new Exception($userPromoPayment->getErrors());
         }
         return $promo;

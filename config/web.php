@@ -108,6 +108,7 @@ $config = [
                         'GET get-password' => 'get-password',
                         'GET get-archive' => 'get-archive',
                         'POST mail' => 'mail',
+                        'GET get-statistics' => 'get-statistics',
                         'GET get-promo' => 'get-promo',
                         'POST buy-promo' => 'buy-promo',
                     ],
