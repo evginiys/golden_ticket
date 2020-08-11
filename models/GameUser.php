@@ -2,10 +2,10 @@
 
 namespace app\models;
 
-use app\models\behaviors\MongoLogger;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 
 /**
  * This is the model class for table "game_user".
@@ -28,6 +28,37 @@ class GameUser extends ActiveRecord
     public static function tableName()
     {
         return 'game_user';
+    }
+
+    /**
+     * @param int $userId
+     * @return int
+     */
+    public static function numberOfGamesPerUser(int $userId): int
+    {
+        $quantityOfGames = self::find()->where(['user_id' => $userId])->count('DISTINCT game_id');
+        return $quantityOfGames;
+    }
+
+    /**
+     * @param int $userId
+     * @return int
+     */
+    public static function numberOfWinGamesPerUser(int $userId): int
+    {
+        $gameWithCountOfWinPoints = (new Query())
+            ->select(['game_id', 'SUM(is_correct) AS coincidence'])
+            ->from('game_user')
+            ->groupBy('game_id, user_id')
+            ->having(['user_id' => $userId])
+            ->all();
+        $amountWinGames = 0;
+        foreach ($gameWithCountOfWinPoints as $game) {
+            if ($game['coincidence'] == Game::COUNT_POINT) {
+                $amountWinGames++;
+            }
+        }
+        return $amountWinGames;
     }
 
     /**
