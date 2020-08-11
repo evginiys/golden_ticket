@@ -2,10 +2,12 @@
 
 namespace app\modules\api\common\controllers;
 
+use app\models\GameUser;
 use app\models\User;
 use app\modules\api\common\actions\dashboard\ExchangeAction;
 use app\modules\api\common\actions\dashboard\GetBalanceAction;
 use app\modules\api\common\actions\dashboard\GetRateAction;
+use app\modules\api\common\actions\dashboard\GetStatisticsAction;
 use app\modules\api\common\actions\dashboard\RefillAction;
 
 /**
@@ -35,6 +37,10 @@ class DashboardController extends ApiController
             'refill' => [
                 'class' => RefillAction::class,
                 'modelClass' => User::class
+            ],
+            'get-statistics' => [
+                'class' => GetStatisticsAction::class,
+                'modelClass' => GameUser::class
             ],
         ];
     }
