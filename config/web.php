@@ -33,8 +33,8 @@ $config = [
                 'transport' => 'yii\httpclient\CurlTransport',
             ],
             'clients' => [
-                'vkontakte' => [
-                    'class' => 'yii\authclient\clients\VKontakte',
+                'customVk' => [
+                    'class' => 'app\modules\api\common\components\CustomVk',
                     'clientId' => env('VK_CLIENT_ID'),
                     'clientSecret' => env('VK_CLIENT_SECRET'),
                 ],
@@ -125,6 +125,7 @@ $config = [
                         'GET get-statistics' => 'get-statistics',
                         'GET get-promo' => 'get-promo',
                         'POST buy-promo' => 'buy-promo',
+                        'GET vkontakte-register' => 'vkontakte-register'
                     ],
                     'pluralize' => false,
                 ]

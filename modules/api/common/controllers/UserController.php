@@ -3,17 +3,18 @@
 namespace app\modules\api\common\controllers;
 
 use app\models\User;
-use app\modules\api\common\actions\user\ChangeNameAction;
 use app\modules\api\common\actions\ForgotPasswordAction;
 use app\modules\api\common\actions\LogoutAction;
-use app\modules\api\common\actions\user\MailAction;
-use app\modules\api\common\actions\user\MyAction;
 use app\modules\api\common\actions\ResetPasswordGetAction;
 use app\modules\api\common\actions\ResetPasswordPostAction;
 use app\modules\api\common\actions\SignInAction;
 use app\modules\api\common\actions\SignUpAction;
-use app\modules\api\common\actions\user\UserInfByTokenAction;
+use app\modules\api\common\actions\user\ChangeNameAction;
 use app\modules\api\common\actions\user\ChangeUserInfAction;
+use app\modules\api\common\actions\user\MailAction;
+use app\modules\api\common\actions\user\MyAction;
+use app\modules\api\common\actions\user\UserInfByTokenAction;
+use app\modules\api\common\actions\VkontakteRegisterAction;
 
 /**
  * Class UserController
@@ -26,7 +27,7 @@ class UserController extends ApiController
      * @var array
      */
     public $notNeedTokenActions = [
-        'sign-up', 'sign-in', 'forgot-password', 'reset-password-get', 'reset-password-post'
+        'sign-up', 'sign-in', 'forgot-password', 'reset-password-get', 'reset-password-post', 'vkontakte-register'
     ];
 
     /**
@@ -84,6 +85,17 @@ class UserController extends ApiController
                 'class' => MailAction::class,
                 'modelClass' => $this->modelClass
             ],
+            'vkontakte-register' => [
+                'class' => VkontakteRegisterAction::class,
+                'successCallback' => [$this, 'successCallback'],
+            ]
         ];
     }
+
+    public function successCallback($client)
+    {
+        $attributes = $client->getUserAttributes();
+        return $this->onSuccess($attributes);
+    }
+
 }
