@@ -101,6 +101,16 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * * Gets query for [[Socials]].
+     *
+     * @return ActiveQuery
+     */
+    public function getSocials()
+    {
+        return $this->hasMany(Social::class, ['user_id' => 'id']);
+    }
+
+    /**
      * @inheritDoc
      */
     public static function findIdentity($id)

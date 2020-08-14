@@ -2,11 +2,13 @@
 
 namespace app\modules\api\common\actions;
 
-use app\modules\api\common\components\CustomVk;
+use app\models\Social;
+use Exception;
 use Yii;
 use yii\authclient\AuthAction;
-use yii\base\Exception;
-use yii\helpers\Url;
+use yii\authclient\clients\VKontakte;
+use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * Class VkontakteRegisterAction
@@ -14,43 +16,96 @@ use yii\helpers\Url;
  */
 class VkontakteRegisterAction extends AuthAction
 {
-
+    /**
+     * @return mixed|Response
+     */
     public function run()
     {
-        $code = Yii::$app->request->get('code');
-        $client = new CustomVk();
-        // return $this->auth($client);
+        try {
+            $collection = Yii::$app->get($this->clientCollection);
+            $clientId = 'vkontakte';
+            if (!$collection->hasClient($clientId)) {
+                throw new NotFoundHttpException("Unknown auth client '{$clientId}'");
+            }
+            $client = $collection->getClient($clientId);
+            $client->validateAuthState = false;
 
-        $request = Yii::$app->getRequest();
-$client->setReturnUrl(env('VK_REDIRECT'));
-        if (($error = $request->get('error')) !== null) {
-            if (
-                $error === 'access_denied' ||
-                $error === 'user_cancelled_login' ||
-                $error === 'user_cancelled_authorize'
-            ) {
-                // user denied error
-                return $this->authCancel($client);
+            $request = Yii::$app->getRequest();
+            $client->setReturnUrl(env('VK_REDIRECT'));
+            if (($error = $request->get('error')) !== null) {
+                if (
+                    $error === 'access_denied' ||
+                    $error === 'user_cancelled_login' ||
+                    $error === 'user_cancelled_authorize'
+                ) {
+                    // user denied error
+                    throw new Exception(Yii::t('app', $error));
+                }
+                // request error
+                $errorMessage = $request->get('error_description', $request->get('error_message'));
+                if ($errorMessage === null) {
+                    $errorMessage = http_build_query($request->get());
+                }
+                throw new Exception('Auth error: ' . $errorMessage);
             }
-            // request error
-            $errorMessage = $request->get('error_description', $request->get('error_message'));
-            if ($errorMessage === null) {
-                $errorMessage = http_build_query($request->get());
+            // Get the access_token
+            if (($code = $request->get('code')) !== null) {
+                $token = $client->fetchAccessToken($code);
+                if (!empty($token)) {
+                    return $this->success($client);
+                }
+                throw new Exception(Yii::t('app', 'Cannot get token'));
             }
-            throw new Exception('Auth error: ' . $errorMessage);
+            throw new Exception(Yii::t('app', 'Not found code in response'));
+        } catch (Exception $e) {
+            return $this->redirectWithParams(['error' => $e->getMessage()], env('REDIRECT_AUTHORIZED'));
         }
+    }
 
-        // Get the access_token and save them to the session.
-        if (($code = $request->get('code')) !== null) {
-            $token = $client->fetchAccessToken($code);
-            if (!empty($token)) {
-                return $this->authSuccess($client);
+    /**
+     * @param VKontakte $client
+     * @throws Exception
+     *
+     * @return resource redirect to url
+     */
+    public function success(VKontakte $client): mixed
+    {
+        $socialClient = $client->getId();
+        $data = $client->getUserAttributes();
+        $client_id = $data['id'];
+        if ($socialUser = Social::findOne([
+            'social_id' => $client_id,
+            'social_client' => $socialClient
+        ])) {
+            $user = $socialUser->user;
+            if ($user) {
+                $token = $socialUser->signIn();
+                return $this->redirectWithParams(['token' => $token], env('REDIRECT_AUTHORIZED'));
+            } else {
+                return $this->redirectWithParams(['social_id' => $socialUser->id], env('REDIRECT_AUTHORIZATION'));
             }
-            return $this->authCancel($client);
+        } else {
+            $socialUser = new Social([
+                'social_id' => $client_id,
+                'social_client' => $socialClient
+            ]);
+            if (!$socialUser->save()) {
+                throw new Exception(Yii::t('app', "Incorrect social data"));
+            }
+            return $this->redirectWithParams(['social_id' => $socialUser->id], env('REDIRECT_AUTHORIZATION'));
         }
+    }
 
-        $url = $client->buildAuthUrl($authUrlParams = []);
-        //return $this->authSuccess($client);
+    /**
+     * @param array $data
+     * @param string $redirectUrl
+     *
+     * @return resource redirect with params
+     */
+    public function redirectWithParams(array $data, string $redirectUrl): mixed
+    {
+        $params = http_build_query($data);
+        return Yii::$app->response->redirect($redirectUrl . "?" . $params)->send();
     }
 
 }

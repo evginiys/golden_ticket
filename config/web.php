@@ -33,10 +33,11 @@ $config = [
                 'transport' => 'yii\httpclient\CurlTransport',
             ],
             'clients' => [
-                'customVk' => [
-                    'class' => 'app\modules\api\common\components\CustomVk',
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
                     'clientId' => env('VK_CLIENT_ID'),
                     'clientSecret' => env('VK_CLIENT_SECRET'),
+                    'scope'=>['email']
                 ],
             ],
         ],
