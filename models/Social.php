@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -62,11 +63,11 @@ class Social extends ActiveRecord
 
     /**
      * @return string
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function signIn()
     {
-        $user=$this->user;
+        $user = $this->user;
         $user->generateApiToken();
         $user->updateTokenExpirationDate();
         return $user->token;

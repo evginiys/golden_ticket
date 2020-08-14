@@ -57,7 +57,7 @@ class SignUpAction extends Action
     public function run()
     {
         try {
-            $socialUserId=Yii::$app->request->post('social_user_id');
+            $socialUserId = Yii::$app->request->post('social_user_id');
             $user = new User([
                 'username' => Yii::$app->request->post('username'),
                 'email' => Yii::$app->request->post('email'),
@@ -73,13 +73,13 @@ class SignUpAction extends Action
                 if ($user->save(false)) {
                     $user->updateTokenExpirationDate();
 
-                    if(isset($socialUserId)){
-                        $socialUser=Social::findOne($socialUserId);
-                        if(!$socialUser){
+                    if (isset($socialUserId)) {
+                        $socialUser = Social::findOne($socialUserId);
+                        if (!$socialUser) {
                             throw new Exception(Yii::t('app', "Not found social user"));
                         }
-                        $socialUser->user_id=$user->id;
-                        if(!$socialUser->save()){
+                        $socialUser->user_id = $user->id;
+                        if (!$socialUser->save()) {
                             throw new Exception(Yii::t('app', "Cannot bind account"));
                         }
                     }

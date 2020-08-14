@@ -23,7 +23,7 @@ use yii\web\IdentityInterface;
  *
  * @property string $authKey
  * @property GameUser[] $gameUsers
- * @property string     $date_token_expired [datetime]
+ * @property string $date_token_expired [datetime]
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -37,6 +37,53 @@ class User extends ActiveRecord implements IdentityInterface
     public static function tableName()
     {
         return 'user';
+    }
+
+    /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getRoleDescription($key = null)
+    {
+        $data = [
+            self::ROLE_PLAYER => Yii::t('app', 'Player'),
+            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
+            self::ROLE_BANNED => Yii::t('app', 'Banned')
+        ];
+
+        return $data[$key] ?? $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function findIdentity($id)
+    {
+        return self::findOne($id);
+    }
+
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return array|ActiveRecord|IdentityInterface|null
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return self::find()
+            ->andWhere(['token' => $token])
+            ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
+            ->one();
+    }
+
+    /**
+     * Finds a user by the given username.
+     *
+     * @param $username
+     * @return User|null
+     */
+    public static function findByUsername(string $username)
+    {
+        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -76,21 +123,6 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @param null|int $key
-     * @return array|string
-     */
-    public static function getRoleDescription($key = null)
-    {
-        $data = [
-            self::ROLE_PLAYER => Yii::t('app', 'Player'),
-            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
-            self::ROLE_BANNED => Yii::t('app', 'Banned')
-        ];
-
-        return $data[$key] ?? $data;
-    }
-
-    /**
      * Gets query for [[GameUsers]].
      *
      * @return ActiveQuery
@@ -108,38 +140,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function getSocials()
     {
         return $this->hasMany(Social::class, ['user_id' => 'id']);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function findIdentity($id)
-    {
-        return self::findOne($id);
-    }
-
-    /**
-     * @param mixed $token
-     * @param null $type
-     * @return array|ActiveRecord|IdentityInterface|null
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        return self::find()
-        ->andWhere(['token' => $token])
-        ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
-        ->one();
-    }
-
-    /**
-     * Finds a user by the given username.
-     *
-     * @param $username
-     * @return User|null
-     */
-    public static function findByUsername(string $username)
-    {
-        return self::findOne(['username' => $username]);
     }
 
     /**
