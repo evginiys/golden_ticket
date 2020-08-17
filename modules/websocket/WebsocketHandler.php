@@ -2,7 +2,6 @@
 
 namespace app\modules\websocket;
 
-use app\modules\websocket\handlers\BaseHandler;
 use Workerman\Connection\ConnectionInterface;
 use \workerman\Worker;
 use yii\helpers\Json;
@@ -54,14 +53,11 @@ class WebsocketHandler
     public function onMessage(ConnectionInterface $connection, string $data)
     {
         $message = Json::decode($data);
-        $handler = BaseHandler::getHandler($message['handle'] ?? 'base');
-        $handler->setData($message['data'] ?? [])->handle();
 
-        $dataToSend = Json::encode($message['data'] ?? []);
         if (($message['broadcast'] ?? 0) == true) {
-            $this->broadCast($dataToSend);
+            $this->broadCast($message['message']);
         } else {
-            $connection->send($dataToSend);
+            $connection->send($message['message']);
         }
     }
 
