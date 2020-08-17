@@ -3,7 +3,7 @@
 $yiiFolder = dirname(__FILE__, 2);
 require($yiiFolder . '/vendor/autoload.php');
 require($yiiFolder . '/vendor/yiisoft/yii2/Yii.php');
-require_once Yii::getAlias('vendor') . '/workerman/workerman/Autoloader.php';
+require_once $yiiFolder . '/vendor/workerman/workerman/Autoloader.php';
 
 $config = require($yiiFolder . '/config/console.php');
 new yii\console\Application($config);
