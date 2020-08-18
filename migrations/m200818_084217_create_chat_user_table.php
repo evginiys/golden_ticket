@@ -1,0 +1,91 @@
+<?php
+
+use yii\db\Migration;
+
+/**
+ * Handles the creation of table `{{%chat_user}}`.
+ * Has foreign keys to the tables:
+ *
+ * - `{{%user}}`
+ * - `{{%chat}}`
+ */
+class m200818_084217_create_chat_user_table extends Migration
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function safeUp()
+    {
+        $this->createTable('{{%chat_user}}', [
+            'id' => $this->primaryKey(),
+            'user_id' => $this->integer()->notNull(),
+            'chat_id' => $this->integet()->notNull(),
+        ]);
+
+        // creates index for column `user_id`
+        $this->createIndex(
+            '{{%idx-chat_user-user_id}}',
+            '{{%chat_user}}',
+            'user_id'
+        );
+
+        // add foreign key for table `{{%user}}`
+        $this->addForeignKey(
+            '{{%fk-chat_user-user_id}}',
+            '{{%chat_user}}',
+            'user_id',
+            '{{%user}}',
+            'id',
+            'CASCADE'
+        );
+
+        // creates index for column `chat_id`
+        $this->createIndex(
+            '{{%idx-chat_user-chat_id}}',
+            '{{%chat_user}}',
+            'chat_id'
+        );
+
+        // add foreign key for table `{{%chat}}`
+        $this->addForeignKey(
+            '{{%fk-chat_user-chat_id}}',
+            '{{%chat_user}}',
+            'chat_id',
+            '{{%chat}}',
+            'id',
+            'CASCADE'
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function safeDown()
+    {
+        // drops foreign key for table `{{%user}}`
+        $this->dropForeignKey(
+            '{{%fk-chat_user-user_id}}',
+            '{{%chat_user}}'
+        );
+
+        // drops index for column `user_id`
+        $this->dropIndex(
+            '{{%idx-chat_user-user_id}}',
+            '{{%chat_user}}'
+        );
+
+        // drops foreign key for table `{{%chat}}`
+        $this->dropForeignKey(
+            '{{%fk-chat_user-chat_id}}',
+            '{{%chat_user}}'
+        );
+
+        // drops index for column `chat_id`
+        $this->dropIndex(
+            '{{%idx-chat_user-chat_id}}',
+            '{{%chat_user}}'
+        );
+
+        $this->dropTable('{{%chat_user}}');
+    }
+}
