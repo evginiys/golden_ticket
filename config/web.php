@@ -26,6 +26,21 @@ $config = [
         ],
     ],
     'components' => [
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            // all Auth clients will use this configuration for HTTP client:
+            'httpClient' => [
+                'transport' => 'yii\httpclient\CurlTransport',
+            ],
+            'clients' => [
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
+                    'clientId' => env('VK_CLIENT_ID'),
+                    'clientSecret' => env('VK_CLIENT_SECRET'),
+                    'scope'=>['email']
+                ],
+            ],
+        ],
         'authManager' => $authManager,
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -52,7 +67,7 @@ $config = [
                 'password' => env('MAIL_PASSWORD'),
                 'port' => env('MAIL_PORT'),
                 'encryption' => 'tls',
-                'streamOptions' => [ 'ssl' => [ 'allow_self_signed' => true, 'verify_peer' => false, 'verify_peer_name' => false, ], ]
+                'streamOptions' => ['ssl' => ['allow_self_signed' => true, 'verify_peer' => false, 'verify_peer_name' => false,],]
             ],
         ],
         'log' => [
@@ -111,6 +126,7 @@ $config = [
                         'GET get-statistics' => 'get-statistics',
                         'GET get-promo' => 'get-promo',
                         'POST buy-promo' => 'buy-promo',
+                        'GET vkontakte-register' => 'vkontakte-register'
                     ],
                     'pluralize' => false,
                 ]
