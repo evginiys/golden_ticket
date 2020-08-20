@@ -1,0 +1,10 @@
+image: node:8
+stages:
+    - build_master
+
+build_master:
+    stage: build_master
+    only:
+        - master
+    script:
+        - sshpass ssh -t admin@84.201.139.43 "cd /home/admin/web/gt.dev-gns.com/public_html && git pull https://gitlab.dev-gns.com/gns/golden-ticket"
