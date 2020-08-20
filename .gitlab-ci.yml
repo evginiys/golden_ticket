@@ -7,7 +7,4 @@ deploy_master:
     only:
         - master
     script:
-        - sshpass ssh -t admin@84.201.139.43 "cd web/gt.dev-gns.com/public_html && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git"
-        
-variables:
-    CI_DEBUG_SERVICES: trace
+        - sshpass ssh -t admin@84.201.139.43 "cd web/gt.dev-gns.com/public_html && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git && composer install && php yii migrate --interactive=0"
