@@ -7,4 +7,4 @@ build_master:
     only:
         - master
     script:
-        - sshpass ssh -t admin@84.201.139.43 "cd /home/admin/web/gt.dev-gns.com/public_html && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git"
+        - sshpass ssh -t admin@84.201.139.43 "cd web/gt.dev-gns.com/public_html && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git"
