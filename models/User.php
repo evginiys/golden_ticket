@@ -24,7 +24,13 @@ use yii\web\IdentityInterface;
  * @property string $authKey
  * @property GameUser[] $gameUsers
  * @property string     $date_token_expired [datetime]
+ * @property Chat[] $ownChats
+ * @property Chat[] $inChats
+ * @property ChatUser[] $chatUsers
+ * @property Message[] $messages
+ * @property MessageStatus[] $messageStatus
  */
+
 class User extends ActiveRecord implements IdentityInterface
 {
     public const ROLE_PLAYER = 'player';
@@ -98,6 +104,52 @@ class User extends ActiveRecord implements IdentityInterface
     public function getGameUsers()
     {
         return $this->hasMany(GameUser::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ChatUsers]].
+     * @return ActiveQuery
+     */
+    public function getChatUsers()
+    {
+        return $this->hasMany(ChatUser::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Chat]].
+     * @return ActiveQuery
+     */
+    public function getOwnChats()
+    {
+        return $this->hasMany(Chat::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Message]].
+     * @return ActiveQuery
+     */
+    public function getMessages()
+    {
+        return $this->hasMany(Message::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[MessageStatus]].
+     * @return ActiveQuery
+     */
+    public function getMessageStatuses()
+    {
+        return $this->hasMany(MessageStatus::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Chat]].
+     * @return ActiveQuery
+     */
+    public function getInChats()
+    {
+        return $this->hasMany(Chat::class, ['id' => 'chat_id'])
+            ->via('chatUsers');
     }
 
     /**

@@ -81,6 +81,7 @@ $config = [
                         'v1/game',
                         'v1/dashboard',
                         'v1/promo',
+                        'v1/chat',
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
@@ -111,6 +112,7 @@ $config = [
                         'GET get-statistics' => 'get-statistics',
                         'GET get-promo' => 'get-promo',
                         'POST buy-promo' => 'buy-promo',
+                        'GET chats' => 'chats',
                     ],
                     'pluralize' => false,
                 ]
@@ -120,7 +122,7 @@ $config = [
     'params' => $params,
 ];
 
-/*if (YII_ENV_DEV) {
+if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
@@ -133,6 +135,6 @@ $config = [
         'class' => 'yii\gii\Module',
         'allowedIPs' => ['*'],
     ];
-}*/
+}
 
 return $config;

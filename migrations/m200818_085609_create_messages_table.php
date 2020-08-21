@@ -18,18 +18,12 @@ class m200818_085609_create_messages_table extends Migration
     {
         $this->createTable('{{%messages}}', [
             'id' => $this->primaryKey(),
-            'user_id' => $this->bigInt()->notNull(),
+            'user_id' => $this->bigInteger()->unsigned()->notNull(),
             'message' => $this->text()->notNull(),
             'chat_id' => $this->integer()->notNull(),
             'created_at' => $this->timestamp()->notNull(),
+            'updated_at' => $this->timestamp()->notNull(),
         ]);
-
-        // creates index for column `user_id`
-        $this->createIndex(
-            '{{%idx-messages-user_id}}',
-            '{{%messages}}',
-            'user_id'
-        );
 
         // add foreign key for table `{{%user}}`
         $this->addForeignKey(
@@ -38,14 +32,8 @@ class m200818_085609_create_messages_table extends Migration
             'user_id',
             '{{%user}}',
             'id',
-            'CASCADE'
-        );
-
-        // creates index for column `chat_id`
-        $this->createIndex(
-            '{{%idx-messages-chat_id}}',
-            '{{%messages}}',
-            'chat_id'
+            'NO ACTION',
+            'NO ACTION'
         );
 
         // add foreign key for table `{{%chat}}`
@@ -55,7 +43,8 @@ class m200818_085609_create_messages_table extends Migration
             'chat_id',
             '{{%chat}}',
             'id',
-            'CASCADE'
+            'NO ACTION',
+            'NO ACTION'
         );
     }
 
@@ -70,21 +59,9 @@ class m200818_085609_create_messages_table extends Migration
             '{{%messages}}'
         );
 
-        // drops index for column `user_id`
-        $this->dropIndex(
-            '{{%idx-messages-user_id}}',
-            '{{%messages}}'
-        );
-
         // drops foreign key for table `{{%chat}}`
         $this->dropForeignKey(
             '{{%fk-messages-chat_id}}',
-            '{{%messages}}'
-        );
-
-        // drops index for column `chat_id`
-        $this->dropIndex(
-            '{{%idx-messages-chat_id}}',
             '{{%messages}}'
         );
 

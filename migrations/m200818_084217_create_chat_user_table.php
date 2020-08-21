@@ -18,16 +18,9 @@ class m200818_084217_create_chat_user_table extends Migration
     {
         $this->createTable('{{%chat_user}}', [
             'id' => $this->primaryKey(),
-            'user_id' => $this->integer()->notNull(),
-            'chat_id' => $this->integet()->notNull(),
+            'user_id' => $this->bigInteger()->unsigned()->notNull(),
+            'chat_id' => $this->integer()->notNull(),
         ]);
-
-        // creates index for column `user_id`
-        $this->createIndex(
-            '{{%idx-chat_user-user_id}}',
-            '{{%chat_user}}',
-            'user_id'
-        );
 
         // add foreign key for table `{{%user}}`
         $this->addForeignKey(
@@ -36,14 +29,8 @@ class m200818_084217_create_chat_user_table extends Migration
             'user_id',
             '{{%user}}',
             'id',
-            'CASCADE'
-        );
-
-        // creates index for column `chat_id`
-        $this->createIndex(
-            '{{%idx-chat_user-chat_id}}',
-            '{{%chat_user}}',
-            'chat_id'
+            'CASCADE',
+            'NO ACTION'
         );
 
         // add foreign key for table `{{%chat}}`
@@ -53,7 +40,8 @@ class m200818_084217_create_chat_user_table extends Migration
             'chat_id',
             '{{%chat}}',
             'id',
-            'CASCADE'
+            'NO ACTION',
+            'NO ACTION'
         );
     }
 
@@ -68,21 +56,9 @@ class m200818_084217_create_chat_user_table extends Migration
             '{{%chat_user}}'
         );
 
-        // drops index for column `user_id`
-        $this->dropIndex(
-            '{{%idx-chat_user-user_id}}',
-            '{{%chat_user}}'
-        );
-
         // drops foreign key for table `{{%chat}}`
         $this->dropForeignKey(
             '{{%fk-chat_user-chat_id}}',
-            '{{%chat_user}}'
-        );
-
-        // drops index for column `chat_id`
-        $this->dropIndex(
-            '{{%idx-chat_user-chat_id}}',
             '{{%chat_user}}'
         );
 

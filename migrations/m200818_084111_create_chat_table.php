@@ -18,6 +18,7 @@ class m200818_084111_create_chat_table extends Migration
         $this->createTable('{{%chat}}', [
             'id' => $this->primaryKey(),
             'user_id' => $this->bigInteger()->unsigned()->notNull(),
+            'type' => $this->smallInteger()->defaultValue(0),
             'created_at' => $this->timestamp()->notNull(),
             'name' => $this->text()->notNull(),
         ]);
@@ -29,8 +30,8 @@ class m200818_084111_create_chat_table extends Migration
             'user_id',
             '{{%user}}',
             'id',
-            'SET NULL',
-            'SET NULL'
+            'NO ACTION',
+            'NO ACTION'
         );
     }
 
