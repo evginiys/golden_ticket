@@ -7,4 +7,6 @@ build_master:
     only:
         - master
     script:
-        - sshpass ssh -t gns73@185.186.141.125 "cd www/gt.dev-gns.com && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git && /opt/php72/bin/php yii migrate --interactive=0"
+        - sshpass ssh -t gns73@185.186.141.125 "cd www/gt.dev-gns.com && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git && /opt/php72/bin/php yii migrate --interactive=0 && && /opt/php72/bin/php yii mongodb-migrate/up --interactive=0"
+        
+        
