@@ -1,10 +1,10 @@
-image: node:8
+image: php:7.2
 stages:
-    - deploy_master
+    - build_master
 
-deploy_master:
-    stage: deploy_master
+build_master:
+    stage: build_master
     only:
         - master
     script:
-        - sshpass ssh -t admin@84.201.139.43 "cd web/gt.dev-gns.com/public_html && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git && composer install && php yii migrate --interactive=0"
+        - sshpass ssh -t gns73@185.186.141.125 "cd www/gt.dev-gns.com && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git && /opt/php72/bin/php yii migrate --interactive=0"
