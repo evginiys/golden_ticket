@@ -8,7 +8,7 @@ $db = require __DIR__ . '/db.php';
 $authManager = require __DIR__ . '/auth_manager.php';
 $mongodb = require __DIR__ . '/mongodb.php';
 
-$config = [
+$config  = [
     'id' => 'basic',
     'name' => 'Golden Ticket',
     'basePath' => dirname(__DIR__),
@@ -26,6 +26,21 @@ $config = [
         ],
     ],
     'components' => [
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            // all Auth clients will use this configuration for HTTP client:
+            'httpClient' => [
+                'transport' => 'yii\httpclient\CurlTransport',
+            ],
+            'clients' => [
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
+                    'clientId' => env('VK_CLIENT_ID'),
+                    'clientSecret' => env('VK_CLIENT_SECRET'),
+                    'scope'=>['email']
+                ],
+            ],
+        ],
         'authManager' => $authManager,
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -52,7 +67,7 @@ $config = [
                 'password' => env('MAIL_PASSWORD'),
                 'port' => env('MAIL_PORT'),
                 'encryption' => 'tls',
-                'streamOptions' => [ 'ssl' => [ 'allow_self_signed' => true, 'verify_peer' => false, 'verify_peer_name' => false, ], ]
+                'streamOptions' => ['ssl' => ['allow_self_signed' => true, 'verify_peer' => false, 'verify_peer_name' => false,],]
             ],
         ],
         'log' => [
@@ -81,7 +96,6 @@ $config = [
                         'v1/game',
                         'v1/dashboard',
                         'v1/promo',
-                        'v1/chat',
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
@@ -113,6 +127,7 @@ $config = [
                         'GET get-promo' => 'get-promo',
                         'POST buy-promo' => 'buy-promo',
                         'GET chats' => 'chats',
+                        'GET vkontakte-register' => 'vkontakte-register'
                     ],
                     'pluralize' => false,
                 ]
@@ -122,7 +137,7 @@ $config = [
     'params' => $params,
 ];
 
-if (YII_ENV_DEV) {
+/*if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
@@ -135,6 +150,6 @@ if (YII_ENV_DEV) {
         'class' => 'yii\gii\Module',
         'allowedIPs' => ['*'],
     ];
-}
+}*/
 
 return $config;

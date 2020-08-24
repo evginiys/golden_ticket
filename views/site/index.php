@@ -1,8 +1,11 @@
 <?php
 
 /* @var $this yii\web\View */
-
 $this->title = 'My Yii Application';
+
+?>
+<?php
+use yii\authclient\widgets\AuthChoice;
 ?>
 <div class="site-index">
 
@@ -13,7 +16,15 @@ $this->title = 'My Yii Application';
 
         <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
     </div>
-
+    <?php $authAuthChoice = AuthChoice::begin([
+        'baseAuthUrl' => ['/site/auth']
+    ]); ?>
+    <ul>
+        <?php foreach ($authAuthChoice->getClients() as $client): ?>
+            <li><?= $authAuthChoice->clientLink($client) ?></li>
+        <?php endforeach; ?>
+    </ul>
+    <?php AuthChoice::end(); ?>
     <div class="body-content">
 
         <div class="row">

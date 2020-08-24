@@ -1,0 +1,12 @@
+image: php:7.2
+stages:
+    - build_master
+
+build_master:
+    stage: build_master
+    only:
+        - master
+    script:
+        - sshpass ssh -t gns73@185.186.141.125 "cd www/gt.dev-gns.com && git checkout -f && git pull git@gitlab.dev-gns.com:gns/golden-ticket.git && /opt/php72/bin/php yii migrate --interactive=0"
+        
+        
