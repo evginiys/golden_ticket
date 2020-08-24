@@ -21,9 +21,10 @@ use yii\db\ActiveRecord;
 class Chat extends ActiveRecord
 {
 
-    public const TYPE_PRIVATE=0;
-    public const TYPE_FOR_GAME=1;
-    public const TYPE_COMMON=2;
+    public const TYPE_PRIVATE = 0;
+    public const TYPE_FOR_GAME = 1;
+    public const TYPE_COMMON = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -54,7 +55,7 @@ class Chat extends ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
-            'type'=>'Type',
+            'type' => 'Type',
             'created_at' => 'Created At',
             'name' => 'Name',
         ];
