@@ -89,26 +89,9 @@ class WebsocketHandler
             if (!is_callable([$this, $method])) {
                 throw new Exception('Not found method');
             }
-            $dataForSend = call_user_func_array([$this, $method], [$decodedData]);
-            $users = $dataForSend['users'];
-            unset($dataForSend['users']);
-
-            foreach ($users as $user) {
-                if (key_exists($user['id'], $this->worker->connections)) {
-                    if ($connection->id == $user['id']) {
-                        $dataForSend['type'] = self::TYPE_SENDED_MESSAGE;
-                        $dataForSend = Json::encode($dataForSend);
-                        $this->worker->connections[$user['id']]->send($dataForSend);
-                    } else {
-                        $dataForSend['type'] = self::TYPE_ADD_MESSAGE;
-                        $dataForSend = Json::encode($dataForSend);
-                        $this->worker->connections[$user['id']]->send($dataForSend);
-                    }
-                }
-            }
-
+            call_user_func_array([$this, $method], [$decodedData]);
         } catch (Exception $e) {
-            $connection->send($e->getMessage() . $e->getLine() . $e->getFile());
+            $connection->send($e->getMessage());
             echo $e->getMessage() . $e->getLine() . $e->getFile();
         }
     }
@@ -154,7 +137,7 @@ class WebsocketHandler
      * @return array
      * @throws Exception
      */
-    public function addMessage(array $data): array
+    public function addMessage(array $data)
     {
         $connectionId = $data['connection_id'];
         $chatId = $data['chat_id'];
@@ -181,9 +164,47 @@ class WebsocketHandler
             ->all();
 
         $data = array_merge(['username' => $ownerOfMessage->username], $messageInstanse->toArray());
-        $response = ['type' => self::TYPE_ADD_MESSAGE, 'users' => $users, 'data' => $data];
-        return $response;
+        $response = ['type' => self::TYPE_ADD_MESSAGE, 'data' => $data];
+
+        $this->sendResponse($response, $users, $connectionId,
+            self::TYPE_ADD_MESSAGE, self::TYPE_SENDED_MESSAGE);
     }
+
+    public function deleteMessage(array $data)
+    {
+        $messageId=$data['message_id'];
+        $data['connection_id'];
+        $message=Message::findOne($messageId);
+        if(!$message or !$message->delete()){
+            throw new Exception("Cannot delete message");
+        }
+        $message->chat->getUsers()->select('id')->all();
+    }
+
+    /**
+     * @param array $dataForSend
+     * @param array $users
+     * @param int $connectionId
+     * @param int $typeForSender
+     * @param int $typeForOthers
+     */
+    private function sendResponse(array $dataForSend, array $users, int $connectionId, int $typeForSender, int $typeForOthers): void
+    {
+        foreach ($users as $user) {
+            if (key_exists($user['id'], $this->worker->connections)) {
+                if ($connectionId == $user['id']) {
+                    $dataForSend['type'] = $typeForSender;
+                    $dataForSend = Json::encode($dataForSend);
+                    $this->worker->connections[$user['id']]->send($dataForSend);
+                } else {
+                    $dataForSend['type'] = $typeForOthers;
+                    $dataForSend = Json::encode($dataForSend);
+                    $this->worker->connections[$user['id']]->send($dataForSend);
+                }
+            }
+        }
+    }
+
 
     /**
      * @param ConnectionInterface $connection
