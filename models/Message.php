@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -13,7 +14,7 @@ use yii\db\ActiveRecord;
  * @property string $message
  * @property int $chat_id
  * @property string $created_at
- *
+ * @property string $updated_at
  * @property MessageStatus[] $messageStatuses
  * @property Chat $chat
  * @property User $user
@@ -34,10 +35,9 @@ class Message extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'message', 'chat_id', 'created_at'], 'required'],
+            [['user_id', 'message', 'chat_id','created_at'], 'required'],
             [['user_id', 'chat_id'], 'integer'],
             [['message'], 'string'],
-            [['created_at'], 'safe'],
             [['chat_id'], 'exist', 'skipOnError' => true, 'targetClass' => Chat::class, 'targetAttribute' => ['chat_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -54,6 +54,7 @@ class Message extends ActiveRecord
             'message' => 'Message',
             'chat_id' => 'Chat ID',
             'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ];
     }
 
@@ -86,4 +87,5 @@ class Message extends ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
+
 }

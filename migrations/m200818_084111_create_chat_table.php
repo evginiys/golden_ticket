@@ -20,6 +20,7 @@ class m200818_084111_create_chat_table extends Migration
             'user_id' => $this->bigInteger()->unsigned()->notNull(),
             'type' => $this->smallInteger()->defaultValue(0),
             'created_at' => $this->timestamp()->notNull(),
+            'updated_at' => $this->timestamp()->notNull(),
             'name' => $this->text()->notNull(),
         ]);
 

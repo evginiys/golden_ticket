@@ -6,9 +6,11 @@ use app\models\Chat;
 use app\models\Message;
 use app\models\User;
 use Exception;
+use Throwable;
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Connection\TcpConnection;
 use workerman\Worker;
+use Yii;
 use yii\helpers\Json;
 
 /**
@@ -91,7 +93,7 @@ class WebsocketHandler
             }
             call_user_func_array([$this, $method], [$decodedData]);
         } catch (Exception $e) {
-            $connection->send($e->getMessage());
+            $connection->send(Yii::t('app', $e->getMessage()));
             echo $e->getMessage() . $e->getLine() . $e->getFile();
         }
     }
@@ -124,7 +126,7 @@ class WebsocketHandler
      * @return string
      * @throws Exception
      */
-    public function chooseMethod(int $type): string
+    private function chooseMethod(int $type): string
     {
         if ($type > sizeof(self::CHAT_METHODS) || $type < 0) {
             throw new Exception("Invalid type of action");
@@ -133,11 +135,35 @@ class WebsocketHandler
     }
 
     /**
-     * @param array $data
-     * @return array
+     * @param ConnectionInterface $connection
+     */
+    public function onClose(ConnectionInterface $connection)
+    {
+        $connection->send('Connection closed');
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     */
+    public function onConnect(ConnectionInterface $connection)
+    {
+        $connection->send('Connection is ok');
+    }
+
+    /**
+     * @param $worker
      * @throws Exception
      */
-    public function addMessage(array $data)
+    public function workerStart($worker)
+    {
+        //@todo do something
+    }
+
+    /**
+     * @param array $data
+     * @throws Exception
+     */
+    private function addMessage(array $data)
     {
         $connectionId = $data['connection_id'];
         $chatId = $data['chat_id'];
@@ -150,35 +176,24 @@ class WebsocketHandler
         if (!$chat) {
             throw new Exception('Not found chat for this user');
         }
-        $messageInstanse = new Message([
+        $messageInstance = new Message([
             'message' => $message,
             'user_id' => $ownerOfMessage->id,
             'chat_id' => $chatId,
             'created_at' => date('Y-m-d H:i:s')
         ]);
-        if (!$messageInstanse->save()) {
-            throw new Exception($messageInstanse->getErrors());
+        if (!$messageInstance->save()) {
+            throw new Exception($messageInstance->getErrors());
         }
         $users = Chat::findOne($chatId)->getUsers()
             ->select('id')->asArray()
             ->all();
 
-        $data = array_merge(['username' => $ownerOfMessage->username], $messageInstanse->toArray());
+        $data = array_merge(['username' => $ownerOfMessage->username], $messageInstance->toArray());
         $response = ['type' => self::TYPE_ADD_MESSAGE, 'data' => $data];
 
         $this->sendResponse($response, $users, $connectionId,
             self::TYPE_ADD_MESSAGE, self::TYPE_SENDED_MESSAGE);
-    }
-
-    public function deleteMessage(array $data)
-    {
-        $messageId=$data['message_id'];
-        $data['connection_id'];
-        $message=Message::findOne($messageId);
-        if(!$message or !$message->delete()){
-            throw new Exception("Cannot delete message");
-        }
-        $message->chat->getUsers()->select('id')->all();
     }
 
     /**
@@ -205,30 +220,76 @@ class WebsocketHandler
         }
     }
 
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function onClose(ConnectionInterface $connection)
+    private function updateMessage(array $data): void
     {
-        $connection->send('Connection closed');
+        try {
+            $messageId = $data['message_id'];
+            $connectionId = $data['connection_id'];
+            $message = $data['message'];
+            $messageInstance = Message::findOne($messageId);
+            if (!$messageInstance) {
+                throw new Exception('Not found message');
+            }
+            if ($messageInstance->user_id != $connectionId) {
+                throw new Exception('Permission denied: you cannot delete message from another user');
+            }
+            $users = $messageInstance->chat->getUsers()->select('id')->all();
+            if (!$users) {
+                throw new Exception("Not users in chat");
+            }
+            $messageInstance->message = $message;
+            $messageInstance->updated_at = date('Y-m-d H:i:s');
+            if (!$messageInstance->save()) {
+                throw new Exception($messageInstance->getErrors());
+            }
+            $data = array_merge($messageInstance->toArray(), ['status' => true]);
+            $this->sendResponse($data, $users, $connectionId,
+                self::TYPE_UPDATE_MESSAGE, self::TYPE_UPDATE_MESSAGE);
+        }catch (Exception $e){
+            $this->worker->connections[$connectionId]->send(Json::encode(
+                [
+                    'type'=>self::TYPE_UPDATE_MESSAGE,
+                    'status'=>false,
+                    'message_id'=>$messageId,
+                    'error'=>$e->getMessage()
+                ]
+            ));
+            throw $e;
+        }
     }
 
     /**
-     * @param ConnectionInterface $connection
+     * @param array $data
+     * @throws Throwable
      */
-    public function onConnect(ConnectionInterface $connection)
+    private function deleteMessage(array $data): void
     {
-        $connection->send('Connection is ok');
-    }
-
-    /**
-     * @param $worker
-     * @throws Exception
-     */
-    public function workerStart($worker)
-    {
-        //@todo do something
+        try {
+            $messageId = $data['message_id'];
+            $connectionId = $data['connection_id'];
+            $message = Message::findOne($messageId);
+            if (!$message or !$message->delete()) {
+                throw new Exception("Cannot delete message");
+            }
+            if ($message->user_id != $connectionId) {
+                throw new Exception("Permission denied for this user");
+            }
+            $users = $message->chat->getUsers()->select('id')->all();
+            if (!$users) {
+                throw new Exception("Not users in chat");
+            }
+            $this->sendResponse(["status" => true, 'message_id' => $messageId], $users, $connectionId,
+                self::TYPE_DELETE_MESSAGE, self::TYPE_DELETE_MESSAGE);
+        } catch (Exception $e) {
+            $this->worker->connections[$connectionId]->send(Json::encode(
+                [
+                    'error' => $e->getMessage(),
+                    'type' => self::TYPE_DELETE_MESSAGE,
+                    'status' => false,
+                    'message_id' => $messageId
+                ]));
+            throw $e;
+        }
     }
 
     /**
