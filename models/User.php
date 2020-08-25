@@ -23,7 +23,7 @@ use yii\web\IdentityInterface;
  *
  * @property string $authKey
  * @property GameUser[] $gameUsers
- * @property string     $date_token_expired [datetime]
+ * @property string $date_token_expired [datetime]
  * @property Chat[] $ownChats
  * @property Chat[] $inChats
  * @property ChatUser[] $chatUsers
