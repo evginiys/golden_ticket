@@ -3,6 +3,7 @@
 namespace app\modules\websocket;
 
 use app\models\Chat;
+use app\models\ChatUser;
 use app\models\Message;
 use app\models\User;
 use Exception;
@@ -25,9 +26,12 @@ class WebsocketHandler
     private const TYPE_DELETE_MESSAGE = 2;
     private const TYPE_UPDATE_MESSAGE = 3;
     private const TYPE_CREATE_CHAT = 4;
-    private const TYPE_DELETE_CHAT = 5;
-    private const TYPE_SENDED_MESSAGE = 6;
+    private const TYPE_LEAVE_CHAT = 5;
+    private const TYPE_GET_MESSAGES = 6;
+    private const TYPE_SENDED_MESSAGE = 7;
     //
+
+    private const QUANTITY_OF_MESSAGES = 15;
 
     private const CHAT_METHODS = [
         'setConnectionId',
@@ -35,7 +39,8 @@ class WebsocketHandler
         'deleteMessage',
         'updateMessage',
         'createChat',
-        'deleteChat',
+        'leaveChat',
+        'getMessages',
     ];
 
     /** @var Worker */
@@ -94,7 +99,7 @@ class WebsocketHandler
             call_user_func_array([$this, $method], [$decodedData]);
         } catch (Exception $e) {
             $connection->send(Yii::t('app', $e->getMessage()));
-            echo $e->getMessage() . $e->getLine() . $e->getFile();
+            echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
         }
     }
 
@@ -115,9 +120,11 @@ class WebsocketHandler
         $idUser = $user->getId();
         if (key_exists($idUser, $this->worker->connections)) {
             echo "exist connection";
+            //$this->worker->connections[$idUser]->destroy();
         }
         $connection->id = $idUser;
-        echo $connection->id;
+        $this->worker->connections[$idUser] = $connection;
+        echo $this->worker->connections[$idUser]->id;
         //user can have one connection, which identificate connection by user id
     }
 
@@ -165,35 +172,44 @@ class WebsocketHandler
      */
     private function addMessage(array $data)
     {
-        $connectionId = $data['connection_id'];
-        $chatId = $data['chat_id'];
-        $message = $data['message'];
-        $ownerOfMessage = User::findOne($connectionId);//$connectionId equal user->id
-        if (!$ownerOfMessage) {
-            throw new Exception('Not found user, repeat token send');
-        }
-        $chat = $ownerOfMessage->getInChats()->where(['id' => $chatId])->one();
-        if (!$chat) {
-            throw new Exception('Not found chat for this user');
-        }
-        $messageInstance = new Message([
-            'message' => $message,
-            'user_id' => $ownerOfMessage->id,
-            'chat_id' => $chatId,
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
-        if (!$messageInstance->save()) {
-            throw new Exception($messageInstance->getErrors());
-        }
-        $users = Chat::findOne($chatId)->getUsers()
-            ->select('id')->asArray()
-            ->all();
+        try {
+            $connectionId = $data['connection_id'];
+            $chatId = $data['chat_id'];
+            $message = $data['message'];
+            $ownerOfMessage = User::findOne($connectionId);//$connectionId equal user->id
+            if (!$ownerOfMessage) {
+                throw new Exception('Not found user, repeat token send');
+            }
+            $chat = $ownerOfMessage->getInChats()->where(['id' => $chatId])->one();
+            if (!$chat) {
+                throw new Exception('Not found chat for this user');
+            }
+            $messageInstance = new Message([
+                'message' => $message,
+                'user_id' => $ownerOfMessage->id,
+                'chat_id' => $chatId,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            if (!$messageInstance->save()) {
+                throw new Exception($messageInstance->getErrors());
+            }
+            $users = Chat::findOne($chatId)->getUsers()
+                ->select('id')->asArray()
+                ->all();
 
-        $data = array_merge(['username' => $ownerOfMessage->username], $messageInstance->toArray());
-        $response = ['type' => self::TYPE_ADD_MESSAGE, 'data' => $data];
+            $data = array_merge(['username' => $ownerOfMessage->username], $messageInstance->toArray());
+            $response = ['data' => $data];
 
-        $this->sendResponse($response, $users, $connectionId,
-            self::TYPE_ADD_MESSAGE, self::TYPE_SENDED_MESSAGE);
+            $this->sendResponse($response, $users, $connectionId,
+                self::TYPE_ADD_MESSAGE, self::TYPE_SENDED_MESSAGE);
+        } catch (Exception $e) {
+            $this->worker->connections[$connectionId]->send(Json::encode([
+                'type' => self::TYPE_SENDED_MESSAGE,
+                'status' => false,
+                'error' => $e->getMessage()
+            ]));
+        }
     }
 
     /**
@@ -209,17 +225,22 @@ class WebsocketHandler
             if (key_exists($user['id'], $this->worker->connections)) {
                 if ($connectionId == $user['id']) {
                     $dataForSend['type'] = $typeForSender;
-                    $dataForSend = Json::encode($dataForSend);
-                    $this->worker->connections[$user['id']]->send($dataForSend);
+                    $dataForSend['status'] = true;
+                    $dataEncoded = Json::encode($dataForSend);
+                    $this->worker->connections[$user['id']]->send($dataEncoded);
                 } else {
                     $dataForSend['type'] = $typeForOthers;
-                    $dataForSend = Json::encode($dataForSend);
-                    $this->worker->connections[$user['id']]->send($dataForSend);
+                    $dataEncoded = Json::encode($dataForSend);
+                    $this->worker->connections[$user['id']]->send($dataEncoded);
                 }
             }
         }
     }
 
+    /**
+     * @param array $data
+     * @throws Exception
+     */
     private function updateMessage(array $data): void
     {
         try {
@@ -242,16 +263,16 @@ class WebsocketHandler
             if (!$messageInstance->save()) {
                 throw new Exception($messageInstance->getErrors());
             }
-            $data = array_merge($messageInstance->toArray(), ['status' => true]);
+            $data = $messageInstance->toArray();
             $this->sendResponse($data, $users, $connectionId,
                 self::TYPE_UPDATE_MESSAGE, self::TYPE_UPDATE_MESSAGE);
-        }catch (Exception $e){
+        } catch (Exception $e) {
             $this->worker->connections[$connectionId]->send(Json::encode(
                 [
-                    'type'=>self::TYPE_UPDATE_MESSAGE,
-                    'status'=>false,
-                    'message_id'=>$messageId,
-                    'error'=>$e->getMessage()
+                    'type' => self::TYPE_UPDATE_MESSAGE,
+                    'status' => false,
+                    'message_id' => $messageId,
+                    'error' => $e->getMessage()
                 ]
             ));
             throw $e;
@@ -268,17 +289,20 @@ class WebsocketHandler
             $messageId = $data['message_id'];
             $connectionId = $data['connection_id'];
             $message = Message::findOne($messageId);
-            if (!$message or !$message->delete()) {
-                throw new Exception("Cannot delete message");
+            if (!$message) {
+                throw new Exception("Not found message");
             }
             if ($message->user_id != $connectionId) {
                 throw new Exception("Permission denied for this user");
+            }
+            if (!$message->delete()) {
+                throw new Exception("Cannot delete message");
             }
             $users = $message->chat->getUsers()->select('id')->all();
             if (!$users) {
                 throw new Exception("Not users in chat");
             }
-            $this->sendResponse(["status" => true, 'message_id' => $messageId], $users, $connectionId,
+            $this->sendResponse(['message_id' => $messageId], $users, $connectionId,
                 self::TYPE_DELETE_MESSAGE, self::TYPE_DELETE_MESSAGE);
         } catch (Exception $e) {
             $this->worker->connections[$connectionId]->send(Json::encode(
@@ -290,6 +314,139 @@ class WebsocketHandler
                 ]));
             throw $e;
         }
+    }
+
+    /**
+     * @param array $data
+     */
+    private function createChat(array $data): void
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $connectionId = $data['connection_id'];
+            $participants = $data['users'];
+            $chatName = $data['name'];
+            $chat = new Chat([
+                'user_id' => $connectionId,//connection indentificated by user_id
+                'created_at' => date('Y-m-d H:i:s'),
+                'name' => $chatName,
+                'type' => Chat::TYPE_PRIVATE
+            ]);
+            if (!$chat->save()) {
+                throw new Exception($chat->getErrors());
+            }
+            $chat->addUserToChat($connectionId);
+            foreach ($participants as $participant) {
+                if (key_exists('id', $participant) &&
+                    is_numeric($participant['id']) &&
+                    is_int(+$participant['id'])) {
+                    $chat->addUserToChat($participant['id']);
+                }
+            }
+            $participants = $chat->getUsers()->select('id')->asArray()->all();
+            $dataForResponse = $chat->toArray();
+            $this->sendResponse($dataForResponse, $participants, $connectionId,
+                self::TYPE_CREATE_CHAT, self::TYPE_CREATE_CHAT);
+            $transaction->commit();
+        } catch (Exception $e) {
+            $this->worker->connections[$connectionId]->send(Json::encode([
+                'error' => $e->getMessage(),
+                'type' => self::TYPE_CREATE_CHAT,
+                'status' => false,
+            ]));
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param array $data
+     * @throws Throwable
+     */
+    private function leaveChat(array $data): void
+    {
+        try {
+            $connectionId = $data['connection_id'];
+            if (!key_exists('chat_id', $data)) {
+                throw new Exception("Argument chat_id not found in input data");
+            }
+            $chatId = $data['chat_id'];
+            $chat = Chat::findOne($chatId);
+            if (!$chat) {
+                throw new Exception("Not found chat");
+            }
+            if ($chat->game) {
+                throw new Exception("Cannot leave game chat");
+            }
+            $chatUser = ChatUser::find()->where(['chat_id' => $chatId, 'user_id' => $connectionId])->one();
+            if (!$chatUser) {
+                throw new Exception("Not found user in chat");
+            }
+            $users = $chat->getUsers()->select('id')->asArray()->all();
+            if (!$users) {
+                $chat->delete();
+                throw new Exception("Chat without users");
+            }
+            if (!$chatUser->delete()) {
+                throw new Exception("Cannot leave chat");
+            }
+            $data = array('chat_id' => $chatId, 'user_id' => $connectionId);
+            $this->sendResponse($data, $users, $connectionId,
+                self::TYPE_LEAVE_CHAT, self::TYPE_LEAVE_CHAT);
+        } catch (Exception $e) {
+            $this->worker->connections[$connectionId]->send(Json::encode([
+                'status' => false,
+                'error' => $e->getMessage(),
+                'type' => self::TYPE_LEAVE_CHAT,
+                'chat_id' => $chatId
+            ]));
+            throw $e;
+        }
+    }
+
+    private function loadMessages(array $data): void
+    {
+        try {
+            if (!key_exists('chat_id', $data)) {
+                throw new Exception('Incorrect incoming data: missing chat_id argument');
+            }
+            $chatId = $data['chat_id'];
+            $connectionId=$data['connection'];
+            if (key_exists('message_id', $data)) {
+                $messageFrom = $data['message_id'];
+                if (!is_numeric($messageFrom) && !is_int(+$messageFrom)) {
+                    throw new Exception('Incorrect incoming data: message_id argument is incorrect');
+                }
+            }
+            $chat = Chat::findOne($chatId);
+            if (!$chat) {
+                throw new Exception('Not found chat');
+            }
+            $users=$chat->getUsers()->select(['id'])->all();
+            if (!$users){
+                throw new Exception('Not found participants of this chat');
+            }
+            if ($messageFrom) {
+                $messages = $chat->getMessages()->where(['<', 'id', $messageFrom])
+                    ->orderBy(['id' => 'SORT_ASC'])->limit(self::QUANTITY_OF_MESSAGES)->all();
+            } else {
+                $messages = $chat->getMessages()->orderBy(['id' => 'SORT_ASC'])
+                    ->limit(self::QUANTITY_OF_MESSAGES)->all();
+            }
+            $this->worker->connections[$connectionId]->send(Json::encode([
+                'status'=>true,
+                'type'=>self::TYPE_GET_MESSAGES,
+                'data'=>$messages
+            ]));
+        }catch (Exception$e){
+            $this->worker->connections[$connectionId]->send(Json::encode([
+                'status'=>false,
+                'type'=>self::TYPE_GET_MESSAGES,
+                'error'=>$e->getMessage()
+            ]));
+            throw $e;
+        }
+
     }
 
     /**
