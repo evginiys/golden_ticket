@@ -404,14 +404,14 @@ class WebsocketHandler
         }
     }
 
-    private function loadMessages(array $data): void
+    private function getMessages(array $data): void
     {
         try {
             if (!key_exists('chat_id', $data)) {
                 throw new Exception('Incorrect incoming data: missing chat_id argument');
             }
             $chatId = $data['chat_id'];
-            $connectionId=$data['connection'];
+            $connectionId=$data['connection_id'];
             if (key_exists('message_id', $data)) {
                 $messageFrom = $data['message_id'];
                 if (!is_numeric($messageFrom) && !is_int(+$messageFrom)) {
@@ -426,11 +426,15 @@ class WebsocketHandler
             if (!$users){
                 throw new Exception('Not found participants of this chat');
             }
-            if ($messageFrom) {
-                $messages = $chat->getMessages()->where(['<', 'id', $messageFrom])
-                    ->orderBy(['id' => 'SORT_ASC'])->limit(self::QUANTITY_OF_MESSAGES)->all();
+            if (isset($messageFrom)) {
+                $messages = $chat->getMessages()->where(['<', 'messages.id', $messageFrom])
+                    ->select('user.*')
+                    ->innerJoin('user','`messages`.`user_id`=`user`.`id`')
+                    ->orderBy('messages.id desc')->limit(self::QUANTITY_OF_MESSAGES)->all();
             } else {
-                $messages = $chat->getMessages()->orderBy(['id' => 'SORT_ASC'])
+                $messages = $chat->getMessages()->orderBy('messages.id desc')
+                    ->innerJoin('user','`messages`.`user_id`=`user`.`id`')
+                    ->select('messages.*, username')
                     ->limit(self::QUANTITY_OF_MESSAGES)->all();
             }
             $this->worker->connections[$connectionId]->send(Json::encode([

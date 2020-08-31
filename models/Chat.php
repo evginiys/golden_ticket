@@ -124,12 +124,12 @@ class Chat extends ActiveRecord
      */
     public function getUsers()
     {
-        if ($this->type=self::TYPE_FOR_GAME){
-            return $this->getUsersInGame();
-        }else {
+       // if ($this->type=self::TYPE_FOR_GAME){
+      //      return $this->getUsersInGame();
+        //}else {
             return $this->hasMany(User::class, ['id' => 'user_id'])
                 ->via('chatUsers');
-        }
+      //  }
     }
 
     /**

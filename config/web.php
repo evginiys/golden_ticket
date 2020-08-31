@@ -96,6 +96,7 @@ $config  = [
                         'v1/game',
                         'v1/dashboard',
                         'v1/promo',
+                        'v1/chat'
                     ],
                     'extraPatterns' => [
                         'POST sign-in' => 'sign-in',
