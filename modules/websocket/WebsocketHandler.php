@@ -119,12 +119,13 @@ class WebsocketHandler
         }
         $idUser = $user->getId();
         if (key_exists($idUser, $this->worker->connections)) {
-            echo "exist connection";
+            echo "exist connection\n";
             //$this->worker->connections[$idUser]->destroy();
         }
+        $this->worker->connections[$connection->id]=null;
         $connection->id = $idUser;
         $this->worker->connections[$idUser] = $connection;
-        echo $this->worker->connections[$idUser]->id;
+        echo 'id connetion'.$this->worker->connections[$idUser]->id.'  ';
         //user can have one connection, which identificate connection by user id
     }
 
@@ -182,7 +183,10 @@ class WebsocketHandler
             }
             $chat = $ownerOfMessage->getInChats()->where(['id' => $chatId])->one();
             if (!$chat) {
-                throw new Exception('Not found chat for this user');
+                $chat=$ownerOfMessage->getGameChats()->where(['id' => $chatId])->one();
+                if(!$chat) {
+                    throw new Exception('Not found chat for this user');
+                }
             }
             $messageInstance = new Message([
                 'message' => $message,
@@ -243,9 +247,9 @@ class WebsocketHandler
      */
     private function updateMessage(array $data): void
     {
+        $connectionId = $data['connection_id'];
         try {
             $messageId = $data['message_id'];
-            $connectionId = $data['connection_id'];
             $message = $data['message'];
             $messageInstance = Message::findOne($messageId);
             if (!$messageInstance) {
@@ -411,7 +415,7 @@ class WebsocketHandler
                 throw new Exception('Incorrect incoming data: missing chat_id argument');
             }
             $chatId = $data['chat_id'];
-            $connectionId=$data['connection_id'];
+            $connectionId = $data['connection_id'];
             if (key_exists('message_id', $data)) {
                 $messageFrom = $data['message_id'];
                 if (!is_numeric($messageFrom) && !is_int(+$messageFrom)) {
@@ -422,31 +426,37 @@ class WebsocketHandler
             if (!$chat) {
                 throw new Exception('Not found chat');
             }
-            $users=$chat->getUsers()->select(['id'])->all();
-            if (!$users){
+            $users = $chat->getUsers()->select(['id'])->all();
+            if (!$users) {
                 throw new Exception('Not found participants of this chat');
             }
             if (isset($messageFrom)) {
                 $messages = $chat->getMessages()->where(['<', 'messages.id', $messageFrom])
-                    ->select('user.*')
-                    ->innerJoin('user','`messages`.`user_id`=`user`.`id`')
+                    ->innerJoinWith('user')
                     ->orderBy('messages.id desc')->limit(self::QUANTITY_OF_MESSAGES)->all();
             } else {
                 $messages = $chat->getMessages()->orderBy('messages.id desc')
-                    ->innerJoin('user','`messages`.`user_id`=`user`.`id`')
-                    ->select('messages.*, username')
+                    ->innerJoinWith('user')
                     ->limit(self::QUANTITY_OF_MESSAGES)->all();
             }
+            $data = [];
+            foreach ($messages as $message) {
+                $data[] = array_merge($message->toArray(),
+                    $message->user->getAttributes([
+                        'username',
+                        'email'
+                    ]));
+            }
             $this->worker->connections[$connectionId]->send(Json::encode([
-                'status'=>true,
-                'type'=>self::TYPE_GET_MESSAGES,
-                'data'=>$messages
+                'status' => true,
+                'type' => self::TYPE_GET_MESSAGES,
+                'data' => $data
             ]));
-        }catch (Exception$e){
+        } catch (Exception$e) {
             $this->worker->connections[$connectionId]->send(Json::encode([
-                'status'=>false,
-                'type'=>self::TYPE_GET_MESSAGES,
-                'error'=>$e->getMessage()
+                'status' => false,
+                'type' => self::TYPE_GET_MESSAGES,
+                'error' => $e->getMessage()
             ]));
             throw $e;
         }

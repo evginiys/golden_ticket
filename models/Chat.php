@@ -98,17 +98,6 @@ class Chat extends ActiveRecord
     }
 
     /**
-     * Gets query for [[GameUsers]].
-     *
-     * @return ActiveQuery
-     */
-    public function getUsersInGame()
-    {
-        return $this->hasMany(User::class, ['id' => 'user_id'])
-            ->via('gameUsers');
-    }
-
-    /**
      * Gets query for [[ChatUsers]].
      *
      * @return ActiveQuery
@@ -124,12 +113,23 @@ class Chat extends ActiveRecord
      */
     public function getUsers()
     {
-       // if ($this->type=self::TYPE_FOR_GAME){
-      //      return $this->getUsersInGame();
-        //}else {
+        if ($this->type == self::TYPE_FOR_GAME) {
+            return $this->getUsersInGame();
+        } else {
             return $this->hasMany(User::class, ['id' => 'user_id'])
                 ->via('chatUsers');
-      //  }
+        }
+    }
+
+    /**
+     * Gets query for [[GameUsers]].
+     *
+     * @return ActiveQuery
+     */
+    public function getUsersInGame()
+    {
+        return $this->hasMany(User::class, ['id' => 'user_id'])
+            ->via('gameUsers');
     }
 
     /**

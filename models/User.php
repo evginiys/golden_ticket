@@ -29,6 +29,7 @@ use yii\web\IdentityInterface;
  * @property ChatUser[] $chatUsers
  * @property Message[] $messages
  * @property MessageStatus[] $messageStatus
+ * @property Chat[] $gameChats
  */
 
 class User extends ActiveRecord implements IdentityInterface
@@ -104,6 +105,26 @@ class User extends ActiveRecord implements IdentityInterface
     public function getGameUsers()
     {
         return $this->hasMany(GameUser::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Game]].
+     * @return ActiveQuery
+     */
+    public function getInGame()
+    {
+        return $this->hasMany(Game::class, ['id' => 'game_id'])
+            ->via('gameUsers');
+    }
+
+    /**
+     * Gets query for [[Game]].
+     * @return ActiveQuery
+     */
+    public function getGameChats()
+    {
+        return $this->hasMany(Chat::class, ['game_id' => 'id'])
+            ->via('inGame');
     }
 
     /**
