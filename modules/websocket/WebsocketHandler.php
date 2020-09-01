@@ -97,7 +97,11 @@ class WebsocketHandler
                 throw new Exception('Not found method');
             }
             call_user_func_array([$this, $method], [$decodedData]);
-        } catch (Exception $e) {
+        } catch (\yii\db\Exception $e){
+            Yii::$app->db->close();
+            Yii::$app->db->open();
+       }
+        catch (Exception $e) {
             $connection->send(Yii::t('app', $e->getMessage()));
             echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
         }
@@ -118,14 +122,13 @@ class WebsocketHandler
             throw new Exception('Invalid token, not found user');
         }
         $idUser = $user->getId();
-        if (key_exists($idUser, $this->worker->connections)) {
+        if (key_exists($connection->id, $this->worker->connections)) {
             echo "exist connection\n";
-            //$this->worker->connections[$idUser]->destroy();
         }
-        $this->worker->connections[$connection->id]=null;
+        unset($this->worker->connections[$connection->id]);
         $connection->id = $idUser;
         $this->worker->connections[$idUser] = $connection;
-        echo 'id connetion'.$this->worker->connections[$idUser]->id.'  ';
+        echo "id{$connection->id} conneсtion" . $this->worker->connections[$idUser]->id . '  ';
         //user can have one connection, which identificate connection by user id
     }
 
@@ -183,8 +186,8 @@ class WebsocketHandler
             }
             $chat = $ownerOfMessage->getInChats()->where(['id' => $chatId])->one();
             if (!$chat) {
-                $chat=$ownerOfMessage->getGameChats()->where(['id' => $chatId])->one();
-                if(!$chat) {
+                $chat = $ownerOfMessage->getGameChats()->where(['id' => $chatId])->one();
+                if (!$chat) {
                     throw new Exception('Not found chat for this user');
                 }
             }
@@ -213,6 +216,7 @@ class WebsocketHandler
                 'status' => false,
                 'error' => $e->getMessage()
             ]));
+            throw $e;
         }
     }
 
@@ -306,7 +310,7 @@ class WebsocketHandler
             if (!$users) {
                 throw new Exception("Not users in chat");
             }
-            $this->sendResponse(['message_id' => $messageId], $users, $connectionId,
+            $this->sendResponse(['message_id' => $messageId, 'chat_id' => $message->chat_id], $users, $connectionId,
                 self::TYPE_DELETE_MESSAGE, self::TYPE_DELETE_MESSAGE);
         } catch (Exception $e) {
             $this->worker->connections[$connectionId]->send(Json::encode(
@@ -314,7 +318,7 @@ class WebsocketHandler
                     'error' => $e->getMessage(),
                     'type' => self::TYPE_DELETE_MESSAGE,
                     'status' => false,
-                    'message_id' => $messageId
+                    'message_id' => $messageId,
                 ]));
             throw $e;
         }
@@ -422,6 +426,12 @@ class WebsocketHandler
                     throw new Exception('Incorrect incoming data: message_id argument is incorrect');
                 }
             }
+            if (key_exists('quantity', $data)) {
+                $quantity = $data['quantity'];
+                if (!is_numeric($quantity) && !is_int(+$quantity)) {
+                    throw new Exception('Incorrect incoming data: quantity argument is incorrect');
+                }
+            }
             $chat = Chat::findOne($chatId);
             if (!$chat) {
                 throw new Exception('Not found chat');
@@ -433,11 +443,11 @@ class WebsocketHandler
             if (isset($messageFrom)) {
                 $messages = $chat->getMessages()->where(['<', 'messages.id', $messageFrom])
                     ->innerJoinWith('user')
-                    ->orderBy('messages.id desc')->limit(self::QUANTITY_OF_MESSAGES)->all();
+                    ->orderBy('messages.id desc')->limit($quantity ?? self::QUANTITY_OF_MESSAGES)->all();
             } else {
                 $messages = $chat->getMessages()->orderBy('messages.id desc')
                     ->innerJoinWith('user')
-                    ->limit(self::QUANTITY_OF_MESSAGES)->all();
+                    ->limit($quantity ?? self::QUANTITY_OF_MESSAGES)->all();
             }
             $data = [];
             foreach ($messages as $message) {
