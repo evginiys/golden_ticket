@@ -42,7 +42,7 @@ use yii\rest\Action;
  *         description="Email validation failed",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     ),
- *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  * )
  */
 class MailAction extends Action
