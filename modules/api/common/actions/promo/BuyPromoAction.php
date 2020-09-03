@@ -10,8 +10,31 @@ use Yii;
 use yii\rest\Action;
 
 /**
- * Class BUYPromoAction
+ * Class BuyPromoAction
+ *
  * @package app\modules\api\common\actions\promo
+ *
+ * @SWG\Post(path="/promo/buy-promo",
+ *     tags={"Promo"},
+ *     summary="Performs a buy of promo.",
+ *     @SWG\Parameter(ref="#/parameters/authorization"),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Success",
+ *         @SWG\Schema(ref="#/definitions/Promo")
+ *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Not enough coupons or buy failed",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
+ *     @SWG\Response(
+ *         response=404,
+ *         description="Product not found",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     )
+ * )
  */
 class BuyPromoAction extends Action
 {

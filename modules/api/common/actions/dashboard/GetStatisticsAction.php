@@ -30,7 +30,7 @@ use yii\rest\Action;
  *         description="Failed to retrieve user statistics",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     ),
- *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
+ *     @SWG\Response(response=401, ref="#/responses/unauthorized")
  * )
  */
 class GetStatisticsAction extends Action
