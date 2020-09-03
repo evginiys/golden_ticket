@@ -36,10 +36,15 @@ use yii\rest\Action;
  *             )
  *         )
  *     ),
+ *     @SWG\Response(
+ *         response=400,
+ *         description="Game is not ended",
+ *         @SWG\Schema(ref="#/definitions/ErrorResponse")
+ *     ),
  *     @SWG\Response(response=401, ref="#/responses/unauthorized"),
  *     @SWG\Response(
  *         response=404,
- *         description="User is not in the game",
+ *         description="Game is not found or user is not in the game",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )
