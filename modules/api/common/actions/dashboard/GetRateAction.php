@@ -23,7 +23,7 @@ use yii\rest\Action;
  *                 property="data",
  *                 type="object",
  *                 @SWG\Property(property="rur_for_coins", type="number", example=100),
- *                 @SWG\Property(property="coins_get", type="number", example=10)
+ *                 @SWG\Property(property="coins_for_coupon", type="number", example=10)
  *             )
  *         )
  *     ),
