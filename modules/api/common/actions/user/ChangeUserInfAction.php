@@ -34,7 +34,11 @@ use yii\rest\Action;
  *     @SWG\Response(
  *         response=200,
  *         description="New information about the user",
- *         @SWG\Schema(ref="#/definitions/User")
+ *         @SWG\Schema(
+ *             type="object",
+ *             @SWG\Property(property="error", type="integer", example=0),
+ *             @SWG\Property(property="data", ref="#/definitions/User")
+ *         )
  *     ),
  *     @SWG\Response(
  *         response=400,
