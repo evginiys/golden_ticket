@@ -21,8 +21,13 @@ use yii\rest\Action;
  *         description="Success",
  *         @SWG\Schema(
  *             type="object",
- *             @SWG\Property(property="allGames", type="integer", example="16", description="Number of games played"),
- *             @SWG\Property(property="winGames", type="integer", example="8", description="Number of wins")
+ *             @SWG\Property(property="error", type="integer", example=0),
+ *             @SWG\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @SWG\Property(property="allGames", type="integer", example="16", description="Number of games played"),
+ *                 @SWG\Property(property="winGames", type="integer", example="8", description="Number of wins")
+ *             )
  *         )
  *     ),
  *     @SWG\Response(
