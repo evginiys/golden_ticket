@@ -1,5 +1,7 @@
 <?php
 
+use app\models\GameUser;
+use app\models\Payment;
 use app\models\User;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -40,6 +42,24 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'label' => Yii::t('app', 'Roles'),
                 'format' => 'html'
+            ],
+            [
+                'value' => function (User $model) {
+                    return $model->getBalance(Payment::CURRENCY_RUR);
+                },
+                'label' => Yii::t('app', 'RUR')
+            ],
+            [
+                'value' => function (User $model) {
+                    return $model->getBalance(Payment::CURRENCY_COIN);
+                },
+                'label' => Yii::t('app', 'Coins')
+            ],
+            [
+                'value' => function (User $model) {
+                    return $model->getBalance(Payment::CURRENCY_COUPON);
+                },
+                'label' => Yii::t('app', 'Coupons')
             ],
             [
                 'class' => 'yii\grid\ActionColumn',
