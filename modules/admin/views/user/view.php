@@ -1,5 +1,7 @@
 <?php
 
+use app\models\GameUser;
+use app\models\Payment;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -46,6 +48,26 @@ foreach ($roles as $role) {
             'token',
             'date_token_expired',
         ],
+    ]) ?>
+
+    <h2><?= Yii::t('app', 'Balance') ?></h2>
+
+    <?= DetailView::widget([
+        'model' => $model,
+        'attributes' => [
+            [
+                'value' => $model->getBalance(Payment::CURRENCY_RUR),
+                'label' => Yii::t('app', 'RUR')
+            ],
+            [
+                'value' => $model->getBalance(Payment::CURRENCY_COIN),
+                'label' => Yii::t('app', 'Coins')
+            ],
+            [
+                'value' => $model->getBalance(Payment::CURRENCY_COUPON),
+                'label' => Yii::t('app', 'Coupons')
+            ],
+        ]
     ]) ?>
 
 </div>
