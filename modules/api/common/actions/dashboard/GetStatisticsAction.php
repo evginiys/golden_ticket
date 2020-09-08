@@ -48,8 +48,8 @@ class GetStatisticsAction extends Action
     {
         try {
            $userId = Yii::$app->user->id;
-           $gamesOfUser = GameUser::numberOfGamesPerUser($userId);
-           $winGamesOfUser = GameUser::numberOfWinGamesPerUser($userId);
+           $gamesOfUser = GameUser::numberOfGamesOfUser($userId);
+           $winGamesOfUser = GameUser::numberOfWinGamesOfUser($userId);
 
            return $this->controller->onSuccess([
                'allGames' => $gamesOfUser,
