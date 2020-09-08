@@ -24,7 +24,7 @@ use yii\rest\Action;
  *             @SWG\Property(
  *                 property="data",
  *                 type="array",
- *                 @SWG\Items(ref="#/definitions/Promo")
+ *                 @SWG\Items(ref="#/definitions/PromoView")
  *             )
  *         )
  *     ),
