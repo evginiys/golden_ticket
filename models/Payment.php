@@ -174,7 +174,6 @@ class Payment extends ActiveRecord
      */
     public static function userTickets(int $userId)
     {
-        $numberOfTickets = 0;
         try {
             $minus = self::find()
                 ->where(['type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
@@ -188,12 +187,11 @@ class Payment extends ActiveRecord
             throw new Exception(Yii::t('app', 'Database error'));
         }
         $ticketCount = $plus - $minus;
-        if ($ticketCount >= 0) {
-            return $ticketCount;
-        } else {
+        if ($ticketCount < 0) {
             throw new Exception(Yii::t('app', 'Error, negative quantity of tickets'));
         }
 
+        return $ticketCount;
     }
 
     /**
