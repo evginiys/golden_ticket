@@ -87,14 +87,20 @@ class Payment extends ActiveRecord
             if (!$game) {
                 throw new Exception("Not found game");
             }
-            $ticket = Ticket::find()->where(['cost' => $game->cost])->one();
-            if (!$ticket) {
-                throw new Exception("Not found ticket");
+            $ticketIds = Ticket::find()->where(['cost' => $game->cost])->select('id')->all();
+            if (!$ticketIds) {
+                throw new Exception("Not found tickets");
             }
-            if (!Payment::hasTicket($ticket->id, $userId)) {
-                throw new Exception("No ticket");
+            $betTicketId = -1;
+            foreach($ticketIds as $ticket) {
+                if (Payment::hasTicket($ticket->id, $userId)) {
+                    $betTicketId = $ticket->id;
+                    break;
+                }
             }
-
+            if ($betTicketId == -1) {
+                throw new Exception("No ticket to bet");
+            }
             $payment = new self([
                 'amount' => 0,
                 'to_user_id' => $userId,
@@ -102,7 +108,7 @@ class Payment extends ActiveRecord
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COIN,
                 'comment' => 'Ticket for game',
-                'ticket_id' => $ticket->id
+                'ticket_id' => $betTicketId
             ]);
             if (!$payment->save()) {
                 throw new Exception(Json::encode($payment->getErrors()));
