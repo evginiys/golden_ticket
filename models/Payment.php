@@ -259,15 +259,20 @@ class Payment extends ActiveRecord
     /**
      * @param $userId
      * @param $coupons
+     * @param $coins
      * @return bool
      * @throws Exception
      */
-    public static function coinsToCoupon(int $userId, int $coupons): bool
+    public static function coinsToCoupon(int $userId, int $coupons, float $coins): bool
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $coins = $coupons * (self::COINS_FOR_COUPON);
-            if ((User::findOne($userId)->getBalance(Payment::CURRENCY_COIN) < $coins)) {
+            $coinsCalculated = $coupons * (self::COINS_FOR_COUPON);
+            if ($coins != $coinsCalculated) {
+                throw new Exception(Yii::t('app', 'The number of coins provided must be equal to the calculated cost'));
+            }
+            $userCoins = User::findOne($userId)->getBalance(Payment::CURRENCY_COIN);
+            if ($userCoins < $coinsCalculated) {
                 throw new Exception(Yii::t('app', 'Not enough coins'));
             }
             $sell = new self([
@@ -275,10 +280,12 @@ class Payment extends ActiveRecord
                 'currency' => self::CURRENCY_COIN,
                 'type' => self::TYPE_BUY,
                 'comment' => 'Exchange on coupons',
-                'amount' => $coins,
+                'amount' => $coinsCalculated,
                 'from_user_id' => $userId
             ]);
-            if (!$sell->save()) throw new Exception(Yii::t('app', 'Cannot exchange'));
+            if (!$sell->save()) {
+                throw new Exception(Yii::t('app', 'Cannot exchange'));
+            }
             $buy = new self([
                 'status' => self::STATUS_DONE,
                 'currency' => self::CURRENCY_COUPON,
@@ -291,12 +298,12 @@ class Payment extends ActiveRecord
                 throw new Exception(Yii::t('app', 'Сannot exchange'));
             }
             $transaction->commit();
-            return true;
         } catch (Exception $e) {
             $transaction->rollBack();
-            throw new Exception($e->getMessage());
-            return false;
+            throw $e;
         }
+
+        return true;
     }
 
     /**

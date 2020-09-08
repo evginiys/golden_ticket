@@ -32,7 +32,7 @@ use yii\rest\Action;
  *     @SWG\Response(response=200, ref="#/responses/success_simple"),
  *     @SWG\Response(
  *         response=400,
- *         description="One of the following errors: not enough coins, incorrect coupons amount, cannot perform exchange",
+ *         description="One of the following errors: incorrect amount of coins or coupons, not enough coins, cannot perform exchange",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     ),
  *     @SWG\Response(response=401, ref="#/responses/unauthorized")
@@ -48,14 +48,16 @@ class ExchangeAction extends Action
     {
         try {
             $coupons = Yii::$app->request->post('coupons');
-            if (!is_numeric($coupons) || !is_int(+$coupons)) {
+            $coins = Yii::$app->request->post('coins');
+
+            if (!is_numeric($coins) || (float)$coins < 0) {
+                return $this->controller->onError(Yii::t('app', 'Incorrect amount of coins'), 400);
+            }
+            if (!is_numeric($coupons) || !is_int(+$coupons) || (int)$coupons <= 0) {
                 return $this->controller->onError(Yii::t('app', 'Incorrect amount of coupons'), 400);
             }
-            if ((int)$coupons >= 0) {
-                Payment::coinsToCoupon(Yii::$app->user->id, (int)$coupons);
-            } else {
-                return $this->controller->onError(Yii::t('app', 'Incorrect amount of coupons'), 400);
-            }
+
+            Payment::coinsToCoupon(Yii::$app->user->id, (int)$coupons, (float)$coins);
         } catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
