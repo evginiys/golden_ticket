@@ -34,7 +34,7 @@ class GameUser extends ActiveRecord
      * @param int $userId
      * @return int
      */
-    public static function numberOfGamesPerUser(int $userId): int
+    public static function numberOfGamesOfUser(int $userId): int
     {
         $quantityOfGames = self::find()->where(['user_id' => $userId])->count('DISTINCT game_id');
         return $quantityOfGames;
@@ -44,7 +44,7 @@ class GameUser extends ActiveRecord
      * @param int $userId
      * @return int
      */
-    public static function numberOfWinGamesPerUser(int $userId): int
+    public static function numberOfWinGamesOfUser(int $userId): int
     {
         $gameWithCountOfWinPoints = (new Query())
             ->select(['game_id', 'SUM(is_correct) AS coincidence'])
