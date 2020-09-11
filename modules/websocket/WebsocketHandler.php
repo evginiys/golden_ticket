@@ -97,11 +97,10 @@ class WebsocketHandler
                 throw new Exception('Not found method');
             }
             call_user_func_array([$this, $method], [$decodedData]);
-        } catch (\yii\db\Exception $e){
+        } catch (\yii\db\Exception $e) {
             Yii::$app->db->close();
             Yii::$app->db->open();
-       }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $connection->send(Yii::t('app', $e->getMessage()));
             echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
         }
@@ -332,8 +331,17 @@ class WebsocketHandler
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $connectionId = $data['connection_id'];
-            $participants = $data['users'];
+            $participant = $data['user'];
             $chatName = $data['name'];
+            $chatsSecondUser = User::findOne($participant)->getInChats()
+                ->where(['type' => Chat::TYPE_PRIVATE])->select('id')->asArray()->all();
+            $chatsFirstUser = User::findOne($connectionId)->getInChats()
+                ->where(['type' => Chat::TYPE_PRIVATE])->select('id')
+                ->andWhere(['id' => $chatsSecondUser])
+                ->one();
+            if ($chatsFirstUser) {
+                throw new Exception("Chat with this user already exist");
+            }
             $chat = new Chat([
                 'user_id' => $connectionId,//connection indentificated by user_id
                 'created_at' => date('Y-m-d H:i:s'),
@@ -344,16 +352,18 @@ class WebsocketHandler
                 throw new Exception($chat->getErrors());
             }
             $chat->addUserToChat($connectionId);
-            foreach ($participants as $participant) {
-                if (key_exists('id', $participant) &&
-                    is_numeric($participant['id']) &&
-                    is_int(+$participant['id'])) {
-                    $chat->addUserToChat($participant['id']);
-                }
+
+            if (key_exists('id', $participant) &&
+                is_numeric($participant['id']) &&
+                is_int(+$participant['id'])) {
+                $chat->addUserToChat($participant['id']);
+            } else {
+                throw new Exception("Not found user for chat");
             }
-            $participants = $chat->getUsers()->select('id')->asArray()->all();
+
+            $participant = $chat->getUsers()->select('id')->asArray()->all();
             $dataForResponse = $chat->toArray();
-            $this->sendResponse($dataForResponse, $participants, $connectionId,
+            $this->sendResponse($dataForResponse, $participant, $connectionId,
                 self::TYPE_CREATE_CHAT, self::TYPE_CREATE_CHAT);
             $transaction->commit();
         } catch (Exception $e) {
@@ -412,6 +422,10 @@ class WebsocketHandler
         }
     }
 
+    /**
+     * @param array $data
+     * @throws Exception
+     */
     private function getMessages(array $data): void
     {
         try {
