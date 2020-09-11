@@ -40,6 +40,11 @@ use yii\rest\Action;
  *         format="password",
  *         required=true
  *     ),
+ *     @SWG\Parameter(
+ *         in="formData",
+ *         name="social_user_id",
+ *         type="integer"
+ *     ),
  *     @SWG\Response(
  *         response=200,
  *         description="Token response",
@@ -47,7 +52,7 @@ use yii\rest\Action;
  *     ),
  *     @SWG\Response(
  *         response=400,
- *         description="Validation or user data saving failed",
+ *         description="Validation, user data saving or social user binding failed",
  *         @SWG\Schema(ref="#/definitions/ErrorResponse")
  *     )
  * )

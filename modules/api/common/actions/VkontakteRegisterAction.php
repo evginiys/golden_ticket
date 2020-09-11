@@ -13,6 +13,15 @@ use yii\web\Response;
 /**
  * Class VkontakteRegisterAction
  * @package app\modules\api\common\actions
+ *
+ * @SWG\Get(path="/user/vkontakte-register",
+ *     tags={"Authentication"},
+ *     summary="Performs authentication via VKontakte (vk.com) account.",
+ *     @SWG\Response(
+ *         response=302,
+ *         description="Redirect"
+ *     )
+ * )
  */
 class VkontakteRegisterAction extends AuthAction
 {
