@@ -170,6 +170,9 @@ class WebsocketHandler
     }
 
     /**
+     * Adds a new a message to database and ...
+     * Returns status of adding
+     *
      * @param array $data
      * @throws Exception
      */

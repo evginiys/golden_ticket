@@ -17,9 +17,9 @@ class m200818_084217_create_chat_user_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%chat_user}}', [
-            'id' => $this->primaryKey(),
+            'id' => $this->bigPrimaryKey()->unsigned()->notNull(),
             'user_id' => $this->bigInteger()->unsigned()->notNull(),
-            'chat_id' => $this->integer()->notNull(),
+            'chat_id' => $this->bigInteger()->unsigned()->notNull(),
         ]);
 
         // add foreign key for table `{{%user}}`

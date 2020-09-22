@@ -17,11 +17,11 @@ class m200818_085819_create_message_status_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%message_status}}', [
-            'id' => $this->primaryKey(),
+            'id' => $this->bigPrimaryKey()->unsigned()->notNull(),
             'user_id' => $this->bigInteger()->unsigned()->notNull(),
-            'message_id' => $this->integer()->notNull(),
+            'message_id' => $this->bigInteger()->unsigned()->notNull(),
             'is_read' => $this->integer()->notNull(),
-            'created_at' => $this->timestamp()->notNull(),
+            'created_at' => $this->dateTime()->notNull(),
         ]);
 
         // add foreign key for table `{{%user}}`

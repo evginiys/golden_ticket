@@ -43,7 +43,7 @@ class Chat extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'created_at', 'name'], 'required'],
+            [['created_at', 'name'], 'required'],
             [['user_id', 'game_id'], 'integer'],
             [['created_at'], 'safe'],
             [['name'], 'string'],

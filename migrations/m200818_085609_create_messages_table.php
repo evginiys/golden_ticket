@@ -17,12 +17,12 @@ class m200818_085609_create_messages_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%messages}}', [
-            'id' => $this->primaryKey(),
+            'id' => $this->bigPrimaryKey()->unsigned()->notNull(),
             'user_id' => $this->bigInteger()->unsigned()->notNull(),
             'message' => $this->text()->notNull(),
-            'chat_id' => $this->integer()->notNull(),
-            'created_at' => $this->timestamp()->notNull(),
-            'updated_at' => $this->timestamp()->notNull(),
+            'chat_id' => $this->bigInteger()->unsigned()->notNull(),
+            'created_at' => $this->dateTime()->defaultValue(null),
+            'updated_at' => $this->dateTime()->defaultValue(null),
         ]);
 
         // add foreign key for table `{{%user}}`
