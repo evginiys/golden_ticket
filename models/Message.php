@@ -5,6 +5,7 @@ namespace app\models;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "messages".
@@ -35,11 +36,24 @@ class Message extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'message', 'chat_id','created_at'], 'required'],
+            [['user_id', 'message', 'chat_id'], 'required'],
             [['user_id', 'chat_id'], 'integer'],
             [['message'], 'string'],
             [['chat_id'], 'exist', 'skipOnError' => true, 'targetClass' => Chat::class, 'targetAttribute' => ['chat_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+            'class' => TimestampBehavior::class,
+            'value' =>date('Y-m-d H:i:s')
+            ]
         ];
     }
 

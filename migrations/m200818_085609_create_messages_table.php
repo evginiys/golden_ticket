@@ -21,8 +21,8 @@ class m200818_085609_create_messages_table extends Migration
             'user_id' => $this->bigInteger()->unsigned()->notNull(),
             'message' => $this->text()->notNull(),
             'chat_id' => $this->bigInteger()->unsigned()->notNull(),
-            'created_at' => $this->dateTime()->defaultValue(null),
-            'updated_at' => $this->dateTime()->defaultValue(null),
+            'created_at' => $this->dateTime()->notNull(),
+            'updated_at' => $this->dateTime()->notNull(),
         ]);
 
         // add foreign key for table `{{%user}}`

@@ -19,12 +19,12 @@ class m200818_084111_create_chat_table extends Migration
     {
         $this->createTable('{{%chat}}', [
             'id' => $this->bigPrimaryKey()->unsigned()->notNull(),
-            'game_id' => $this->bigInteger()->unsigned()->defaultValue(NULL),
-            'user_id' => $this->bigInteger()->unsigned()->defaultValue(NULL),
-            'type' => $this->smallInteger()->defaultValue(0),
-            'created_at' => $this->dateTime()->defaultValue(null),
-            'updated_at' => $this->dateTime()->defaultValue(null),
-            'name' => $this->text()->defaultValue(null),
+            'game_id' => $this->bigInteger()->unsigned(),
+            'user_id' => $this->bigInteger()->unsigned(),
+            'type' => $this->smallInteger()->notNull()->defaultValue(0),
+            'created_at' => $this->dateTime()->notNull(),
+            'updated_at' => $this->dateTime()->notNull(),
+            'name' => $this->text(),
         ]);
 
         $this->addForeignKey(
@@ -51,7 +51,7 @@ class m200818_084111_create_chat_table extends Migration
         $commonChat->name = "common";
         $commonChat->created_at = date('Y-m-d H:i:s');
         if (!$commonChat->save()) {
-            throw new Exception(Json::encode($commonChat->getErrors()));
+            throw new Exception($commonChat->getErrors());
         }
     }
 

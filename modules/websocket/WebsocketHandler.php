@@ -20,7 +20,6 @@ use yii\helpers\Json;
  */
 class WebsocketHandler
 {
-    //
     private const TYPE_GET_TOKEN = 0;
     private const TYPE_ADD_MESSAGE = 1;
     private const TYPE_DELETE_MESSAGE = 2;
@@ -29,7 +28,6 @@ class WebsocketHandler
     private const TYPE_LEAVE_CHAT = 5;
     private const TYPE_GET_MESSAGES = 6;
     private const TYPE_SENDED_MESSAGE = 7;
-    //
 
     private const QUANTITY_OF_MESSAGES = 15;
 
@@ -77,6 +75,8 @@ class WebsocketHandler
     }
 
     /**
+     * Choose method by type of message
+     *
      * @param TcpConnection $connection
      * @param string $data
      */
@@ -107,6 +107,11 @@ class WebsocketHandler
     }
 
     /**
+     * Connection identificated by user id
+     *
+     * Set connection->id=user->id
+     * Send data in format {"type":"0","token":"string"}
+     *
      * @param array $data
      * @param TcpConnection $connection
      * @throws Exception
@@ -170,8 +175,9 @@ class WebsocketHandler
     }
 
     /**
-     * Adds a new a message to database and ...
-     * Returns status of adding
+     * Adds a new a message to database and returns status of adding
+     *
+     * Send data in format {"type":"1","chat_id":"int","message":"string"}
      *
      * @param array $data
      * @throws Exception
@@ -197,8 +203,6 @@ class WebsocketHandler
                 'message' => $message,
                 'user_id' => $ownerOfMessage->id,
                 'chat_id' => $chatId,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
             ]);
             if (!$messageInstance->save()) {
                 throw new Exception($messageInstance->getErrors());
@@ -223,6 +227,11 @@ class WebsocketHandler
     }
 
     /**
+     * sendResponse
+     *
+     * Send $dataForSend to each user in array $users with $typeForOthers
+     * and to user with id=connection->id with $typeForSender
+     *
      * @param array $dataForSend
      * @param array $users
      * @param int $connectionId
@@ -248,6 +257,10 @@ class WebsocketHandler
     }
 
     /**
+     * Update data of message
+     *
+     * Send data in format {"type":"3","message":"string","message_id":"int"}
+     *
      * @param array $data
      * @throws Exception
      */
@@ -269,7 +282,6 @@ class WebsocketHandler
                 throw new Exception("Not users in chat");
             }
             $messageInstance->message = $message;
-            $messageInstance->updated_at = date('Y-m-d H:i:s');
             if (!$messageInstance->save()) {
                 throw new Exception($messageInstance->getErrors());
             }
@@ -290,6 +302,10 @@ class WebsocketHandler
     }
 
     /**
+     * Delete message
+     *
+     * Send data in format {"type":"2","message_id":"int"}
+     *
      * @param array $data
      * @throws Throwable
      */
@@ -327,6 +343,10 @@ class WebsocketHandler
     }
 
     /**
+     * Create Chat
+     *
+     * Send data in format {"type":"4","name":"string","user":{"id":"int"}}
+     *
      * @param array $data
      */
     private function createChat(array $data): void
@@ -336,7 +356,11 @@ class WebsocketHandler
             $connectionId = $data['connection_id'];
             $participant = $data['user'];
             $chatName = $data['name'];
-            $chatsSecondUser = User::findOne($participant)->getInChats()
+            $participantUser = User::findOne($participant);
+            if(!$participantUser){
+                throw new Exception("Not found participant of chat");
+            }
+            $chatsSecondUser = $participantUser->getInChats()
                 ->where(['type' => Chat::TYPE_PRIVATE])->select('id')->asArray()->all();
             $chatsFirstUser = User::findOne($connectionId)->getInChats()
                 ->where(['type' => Chat::TYPE_PRIVATE])->select('id')
@@ -347,7 +371,6 @@ class WebsocketHandler
             }
             $chat = new Chat([
                 'user_id' => $connectionId,//connection indentificated by user_id
-                'created_at' => date('Y-m-d H:i:s'),
                 'name' => $chatName,
                 'type' => Chat::TYPE_PRIVATE
             ]);
@@ -381,6 +404,10 @@ class WebsocketHandler
     }
 
     /**
+     * Leave chat
+     *
+     * Send data in format {"type":"5","chat_id":"int"}
+     *
      * @param array $data
      * @throws Throwable
      */
@@ -426,6 +453,10 @@ class WebsocketHandler
     }
 
     /**
+     * Get messages
+     *
+     * Send data in format {"type":"6","chat_id":"int","message_id":"int","quantity":int}
+     *
      * @param array $data
      * @throws Exception
      */

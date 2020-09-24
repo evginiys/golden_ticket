@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Exception;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -43,9 +44,8 @@ class Chat extends ActiveRecord
     public function rules()
     {
         return [
-            [['created_at', 'name'], 'required'],
+            [['type'], 'required'],
             [['user_id', 'game_id'], 'integer'],
-            [['created_at'], 'safe'],
             [['name'], 'string'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -63,6 +63,20 @@ class Chat extends ActiveRecord
             'type' => 'Type',
             'created_at' => 'Created At',
             'name' => 'Name',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'value' => date('Y-m-d H:i:s'),
+            ]
         ];
     }
 
