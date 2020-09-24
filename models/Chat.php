@@ -156,7 +156,7 @@ class Chat extends ActiveRecord
             'chat_id' => $this->id
         ]);
         if (!$userChat->save()) {
-            throw new Exception($userChat->getFirstError());
+            throw new Exception($userChat->getErrors());
         }
     }
 }
