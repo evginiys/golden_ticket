@@ -3,6 +3,7 @@
 
 namespace app\models;
 
+use Exception;
 use Yii;
 use yii\base\Model;
 
@@ -48,7 +49,7 @@ class SignUpForm extends Model
      * Signs up a user by provided data
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function signup(): bool
     {
@@ -62,13 +63,29 @@ class SignUpForm extends Model
             $user->setPassword($this->password);
             $user->generateApiToken();
 
-            if ($user->save()) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                if (!$user->save()) {
+                    return false;
+                }
+
                 $playerRole = Yii::$app->authManager->getRole(User::ROLE_PLAYER);
                 Yii::$app->authManager->assign($playerRole, $user->id);
 
                 $user->updateTokenExpirationDate();
 
+                $commonChat = Chat::find()->where(['type' => Chat::TYPE_COMMON])->one();
+                if (!$commonChat) {
+                    throw new Exception(Yii::t('app', 'Not found common chat'));
+                }
+
+                $commonChat->addUserToChat($user->id);
+
+                $transaction->commit();
                 return true;
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                throw $e;
             }
         }
 
