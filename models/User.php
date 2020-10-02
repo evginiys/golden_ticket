@@ -252,6 +252,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function getTickets()
     {
         try {
+            $result = [];
             $minus = Payment::find()
                 ->where(['type' => Payment::TYPE_CHARGE, 'to_user_id' => $this->id])
                 ->andWhere(['not', ['ticket_id' => null]])
@@ -283,16 +284,21 @@ class User extends ActiveRecord implements IdentityInterface
             $plus = $commandPlus->bindValue(':type', Payment::TYPE_BUY)
                 ->bindValue(':user_id', $this->id)
                 ->queryAll();
-
+            foreach ($plus as $plusValue) {
+                foreach ($minus as $minusValue) {
+                    if ($minusValue['name'] == $plusValue['name']) {
+                        $quantity=$plusValue['quantity'] - $minusValue['quantity'];
+                        $quantity=($quantity>=0)?$quantity:0;
+                        $result [$plusValue['name']] = $quantity;
+                    }
+                }
+                if(!isset($result[$plusValue['name']])){
+                    $result[$plusValue['name']]=$plusValue['quantity'];
+                }
+            }
         } catch (Exception $e) {
             throw new Exception(Yii::t('app', $e->getMessage()));
         }
-        // $ticketCount = $plus - $minus;
-//        if ($ticketCount < 0) {
-//            throw new Exception(Yii::t('app', 'Error, negative quantity of tickets'));
-//        }
-
-        return $plus;
+        return $result;
     }
-
 }
