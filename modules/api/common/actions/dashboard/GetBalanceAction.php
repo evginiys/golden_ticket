@@ -49,7 +49,7 @@ class GetBalanceAction extends Action
         try {
             $coins = Yii::$app->user->identity->getBalance(Payment::CURRENCY_COIN);
             $coupons = Yii::$app->user->identity->getBalance(Payment::CURRENCY_COUPON);
-            $tickets = Payment::userTickets(Yii::$app->user->id);
+            $tickets = Yii::$app->user->identity->getTickets();
             return $this->controller->onSuccess([
                 "coins" => $coins,
                 "coupons" => $coupons,
