@@ -357,13 +357,19 @@ class WebsocketHandler
             $participant = $data['user'];
             $chatName = $data['name'];
             $participantUser = User::findOne($participant);
-            if(!$participantUser){
+            if (!$participantUser) {
                 throw new Exception("Not found participant of chat");
             }
-            $chatsSecondUser = $participantUser->getInChats()
-                ->where(['type' => Chat::TYPE_PRIVATE])->select('id')->asArray()->all();
-            $chatsFirstUser = User::findOne($connectionId)->getInChats()
-                ->where(['type' => Chat::TYPE_PRIVATE])->select('id')
+            $chatsSecondUser = $participantUser
+                ->getInChats()
+                ->where(['type' => Chat::TYPE_PRIVATE])
+                ->select('id')
+                ->asArray()
+                ->all();
+            $chatsFirstUser = User::findOne($connectionId)
+                ->getInChats()
+                ->where(['type' => Chat::TYPE_PRIVATE])
+                ->select('id')
                 ->andWhere(['id' => $chatsSecondUser])
                 ->one();
             if ($chatsFirstUser) {
