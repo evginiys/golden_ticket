@@ -277,13 +277,13 @@ class User extends ActiveRecord implements IdentityInterface
             foreach ($plus as $plusValue) {
                 foreach ($minus as $minusValue) {
                     if ($minusValue['name'] == $plusValue['name']) {
-                        $quantity=$plusValue['quantity'] - $minusValue['quantity'];
-                        $quantity=($quantity>=0)?$quantity:0;
+                        $quantity = $plusValue['quantity'] - $minusValue['quantity'];
+                        $quantity = ($quantity >= 0) ? $quantity : 0;
                         $result [$plusValue['name']] = $quantity;
                     }
                 }
-                if(!isset($result[$plusValue['name']])){
-                    $result[$plusValue['name']]=$plusValue['quantity'];
+                if (!isset($result[$plusValue['name']])) {
+                    $result[$plusValue['name']] = $plusValue['quantity'];
                 }
             }
         } catch (Exception $e) {
