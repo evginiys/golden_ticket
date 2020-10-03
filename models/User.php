@@ -253,16 +253,6 @@ class User extends ActiveRecord implements IdentityInterface
     {
         try {
             $result = [];
-            $minus = Payment::find()
-                ->where(['type' => Payment::TYPE_CHARGE, 'to_user_id' => $this->id])
-                ->andWhere(['not', ['ticket_id' => null]])
-                ->innerJoinWith('ticket', 'ticket_id=ticket.id')
-                ->innerJoin('ticket_pack', 'ticket_pack.id=ticket.ticket_pack_id')
-                ->select(['ticket_pack.name', 'COUNT(ticket.id) AS quantity'])
-                ->groupBy('ticket_pack.name')
-                ->prepare(Yii::$app->db->queryBuilder)->createCommand()->rawSql;
-            //->all();
-
             $commandMinus = Yii::$app->db->createCommand(
                 "SELECT `ticket_pack`.`name`, COUNT(ticket.id) AS `quantity` FROM `payment` 
                 INNER JOIN `ticket` ON `payment`.`ticket_id` = `ticket`.`id` 
