@@ -4,7 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Exception;
-use yii\db\ActiveQuery;
+use yii\db\Query;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
@@ -249,45 +249,34 @@ class User extends ActiveRecord implements IdentityInterface
      * @return mixed
      * @throws Exception
      */
-    public function getTickets()
+    public function getTicketsAmount()
     {
-        try {
-            $result = [];
-            $commandMinus = Yii::$app->db->createCommand(
-                "SELECT `ticket_pack`.`name`, COUNT(ticket.id) AS `quantity` FROM `payment` 
-                INNER JOIN `ticket` ON `payment`.`ticket_id` = `ticket`.`id` 
-                INNER JOIN `ticket_pack` ON ticket_pack.id=ticket.ticket_pack_id 
-                WHERE ((`type`=:type) AND (`to_user_id`=:user_id)) 
-                AND (NOT (`ticket_id` IS NULL)) 
-                GROUP BY `ticket_pack`.`name`");
-            $minus = $commandMinus->bindValue(':type', Payment::TYPE_CHARGE)
-                ->bindValue(':user_id', $this->id)
-                ->queryAll();
+        $result = [];
+        $query=(new Query())
+            ->select('ticket_pack.name, COUNT(ticket.id) AS `quantity`')
+            ->from('payment')
+            ->innerJoin('ticket','payment.ticket_id= ticket.id')
+            ->innerJoin('ticket_pack','ticket_pack.id = ticket.ticket_pack_id')
+            ->groupBy('ticket_pack.name')
+            ->where(['not',['ticket_id'=>null]]);
 
-            $commandPlus = Yii::$app->db->createCommand(
-                "SELECT `ticket_pack`.`name`, COUNT(ticket.id) AS `quantity` FROM `payment` 
-                INNER JOIN `ticket` ON `payment`.`ticket_id` = `ticket`.`id` 
-                INNER JOIN `ticket_pack` ON ticket_pack.id=ticket.ticket_pack_id 
-                WHERE ((`type`=:type) AND (`from_user_id`=:user_id)) 
-                AND (NOT (`ticket_id` IS NULL)) 
-                GROUP BY `ticket_pack`.`name`");
-            $plus = $commandPlus->bindValue(':type', Payment::TYPE_BUY)
-                ->bindValue(':user_id', $this->id)
-                ->queryAll();
-            foreach ($plus as $plusValue) {
-                foreach ($minus as $minusValue) {
-                    if ($minusValue['name'] == $plusValue['name']) {
-                        $quantity = $plusValue['quantity'] - $minusValue['quantity'];
-                        $quantity = ($quantity >= 0) ? $quantity : 0;
-                        $result [$plusValue['name']] = $quantity;
-                    }
-                }
-                if (!isset($result[$plusValue['name']])) {
-                    $result[$plusValue['name']] = $plusValue['quantity'];
+        $minus=$query->where(['type'=>Payment::TYPE_CHARGE])
+            ->where(['to_user_id'=>$this->id])->all();
+//
+        $plus=$query->where(['type'=>Payment::TYPE_BUY])
+            ->where(['from_user_id'=>$this->id])->all();
+
+        foreach ($plus as $plusValue) {
+            foreach ($minus as $minusValue) {
+                if ($minusValue['name'] == $plusValue['name']) {
+                    $quantity = $plusValue['quantity'] - $minusValue['quantity'];
+                    $quantity = ($quantity >= 0) ? $quantity : 0;
+                    $result [$plusValue['name']] = $quantity;
                 }
             }
-        } catch (Exception $e) {
-            throw new Exception(Yii::t('app', $e->getMessage()));
+            if (!isset($result[$plusValue['name']])) {
+                $result[$plusValue['name']] = (int)$plusValue['quantity'];
+            }
         }
         return $result;
     }
