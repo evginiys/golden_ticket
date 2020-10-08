@@ -31,7 +31,6 @@ use yii\web\IdentityInterface;
  * @property MessageStatus[] $messageStatus
  * @property Chat[] $gameChats
  */
-
 class User extends ActiveRecord implements IdentityInterface
 {
     public const ROLE_PLAYER = 'player';
@@ -44,6 +43,53 @@ class User extends ActiveRecord implements IdentityInterface
     public static function tableName()
     {
         return 'user';
+    }
+
+    /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getRoleDescription($key = null)
+    {
+        $data = [
+            self::ROLE_PLAYER => Yii::t('app', 'Player'),
+            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
+            self::ROLE_BANNED => Yii::t('app', 'Banned')
+        ];
+
+        return $data[$key] ?? $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function findIdentity($id)
+    {
+        return self::findOne($id);
+    }
+
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return array|ActiveRecord|IdentityInterface|null
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return self::find()
+            ->andWhere(['token' => $token])
+            ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
+            ->one();
+    }
+
+    /**
+     * Finds a user by the given username.
+     *
+     * @param $username
+     * @return User|null
+     */
+    public static function findByUsername(string $username)
+    {
+        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -80,21 +126,6 @@ class User extends ActiveRecord implements IdentityInterface
             'reset_password_token' => Yii::t('app', 'Reset Password Token'),
             'date_reset_password' => Yii::t('app', 'Date Reset Password'),
         ];
-    }
-
-    /**
-     * @param null|int $key
-     * @return array|string
-     */
-    public static function getRoleDescription($key = null)
-    {
-        $data = [
-            self::ROLE_PLAYER => Yii::t('app', 'Player'),
-            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
-            self::ROLE_BANNED => Yii::t('app', 'Banned')
-        ];
-
-        return $data[$key] ?? $data;
     }
 
     /**
@@ -181,38 +212,6 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany(Chat::class, ['id' => 'chat_id'])
             ->via('chatUsers');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function findIdentity($id)
-    {
-        return self::findOne($id);
-    }
-
-    /**
-     * @param mixed $token
-     * @param null $type
-     * @return array|ActiveRecord|IdentityInterface|null
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        return self::find()
-        ->andWhere(['token' => $token])
-        ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
-        ->one();
-    }
-
-    /**
-     * Finds a user by the given username.
-     *
-     * @param $username
-     * @return User|null
-     */
-    public static function findByUsername(string $username)
-    {
-        return self::findOne(['username' => $username]);
     }
 
     /**
