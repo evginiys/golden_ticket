@@ -19,14 +19,18 @@ use yii\web\IdentityInterface;
  * @property string|null $phone
  * @property string $password
  * @property string $token
- * @property string $date_token_expired [datetime]
  * @property string|null $reset_password_token
  * @property string|null $date_reset_password
  *
  * @property string $authKey
- *
  * @property GameUser[] $gameUsers
- * @property Social[] $socials
+ * @property string $date_token_expired [datetime]
+ * @property Chat[] $ownChats
+ * @property Chat[] $inChats
+ * @property ChatUser[] $chatUsers
+ * @property Message[] $messages
+ * @property MessageStatus[] $messageStatus
+ * @property Chat[] $gameChats
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -40,53 +44,6 @@ class User extends ActiveRecord implements IdentityInterface
     public static function tableName()
     {
         return 'user';
-    }
-
-    /**
-     * @param null|int $key
-     * @return array|string
-     */
-    public static function getRoleDescription($key = null)
-    {
-        $data = [
-            self::ROLE_PLAYER => Yii::t('app', 'Player'),
-            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
-            self::ROLE_BANNED => Yii::t('app', 'Banned')
-        ];
-
-        return $data[$key] ?? $data;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function findIdentity($id)
-    {
-        return self::findOne($id);
-    }
-
-    /**
-     * @param mixed $token
-     * @param null $type
-     * @return array|ActiveRecord|IdentityInterface|null
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        return self::find()
-            ->andWhere(['token' => $token])
-            ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
-            ->one();
-    }
-
-    /**
-     * Finds a user by the given username.
-     *
-     * @param $username
-     * @return User|null
-     */
-    public static function findByUsername(string $username)
-    {
-        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -126,6 +83,21 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @param null|int $key
+     * @return array|string
+     */
+    public static function getRoleDescription($key = null)
+    {
+        $data = [
+            self::ROLE_PLAYER => Yii::t('app', 'Player'),
+            self::ROLE_ADMIN => Yii::t('app', 'Administrator'),
+            self::ROLE_BANNED => Yii::t('app', 'Banned')
+        ];
+
+        return $data[$key] ?? $data;
+    }
+
+    /**
      * Gets query for [[GameUsers]].
      *
      * @return ActiveQuery
@@ -136,6 +108,53 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[Game]].
+     * @return ActiveQuery
+     */
+    public function getInGame()
+    {
+        return $this->hasMany(Game::class, ['id' => 'game_id'])
+            ->via('gameUsers');
+    }
+
+    /**
+     * Gets query for [[Game]].
+     * @return ActiveQuery
+     */
+    public function getGameChats()
+    {
+        return $this->hasMany(Chat::class, ['game_id' => 'id'])
+            ->via('inGame');
+    }
+
+    /**
+     * Gets query for [[ChatUsers]].
+     * @return ActiveQuery
+     */
+    public function getChatUsers()
+    {
+        return $this->hasMany(ChatUser::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Chat]].
+     * @return ActiveQuery
+     */
+    public function getOwnChats()
+    {
+        return $this->hasMany(Chat::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Message]].
+     * @return ActiveQuery
+     */
+    public function getMessages()
+    {
+        return $this->hasMany(Message::class, ['user_id' => 'id']);
+    }
+
+    /**
      * * Gets query for [[Socials]].
      *
      * @return ActiveQuery
@@ -143,6 +162,57 @@ class User extends ActiveRecord implements IdentityInterface
     public function getSocials()
     {
         return $this->hasMany(Social::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[MessageStatus]].
+     * @return ActiveQuery
+     */
+    public function getMessageStatuses()
+    {
+        return $this->hasMany(MessageStatus::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Chat]].
+     * @return ActiveQuery
+     */
+    public function getInChats()
+    {
+        return $this->hasMany(Chat::class, ['id' => 'chat_id'])
+            ->via('chatUsers');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function findIdentity($id)
+    {
+        return self::findOne($id);
+    }
+
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return array|ActiveRecord|IdentityInterface|null
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return self::find()
+        ->andWhere(['token' => $token])
+        ->andWhere(['>', 'date_token_expired', date('Y-m-d H:i:s')])
+        ->one();
+    }
+
+    /**
+     * Finds a user by the given username.
+     *
+     * @param $username
+     * @return User|null
+     */
+    public static function findByUsername(string $username)
+    {
+        return self::findOne(['username' => $username]);
     }
 
     /**
