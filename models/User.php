@@ -4,8 +4,8 @@ namespace app\models;
 
 use Yii;
 use yii\base\Exception;
-use yii\db\Query;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
@@ -252,19 +252,19 @@ class User extends ActiveRecord implements IdentityInterface
     public function getTicketsAmount()
     {
         $result = [];
-        $query=(new Query())
+        $query = (new Query())
             ->select('ticket_pack.name, COUNT(ticket.id) AS `quantity`')
             ->from('payment')
-            ->innerJoin('ticket','payment.ticket_id= ticket.id')
-            ->innerJoin('ticket_pack','ticket_pack.id = ticket.ticket_pack_id')
+            ->innerJoin('ticket', 'payment.ticket_id= ticket.id')
+            ->innerJoin('ticket_pack', 'ticket_pack.id = ticket.ticket_pack_id')
             ->groupBy('ticket_pack.name')
-            ->where(['not',['ticket_id'=>null]]);
+            ->where(['not', ['ticket_id' => null]]);
 
-        $minus=$query->where(['type'=>Payment::TYPE_CHARGE])
-            ->where(['to_user_id'=>$this->id])->all();
+        $minus = $query->where(['type' => Payment::TYPE_CHARGE])
+            ->where(['to_user_id' => $this->id])->all();
 //
-        $plus=$query->where(['type'=>Payment::TYPE_BUY])
-            ->where(['from_user_id'=>$this->id])->all();
+        $plus = $query->where(['type' => Payment::TYPE_BUY])
+            ->where(['from_user_id' => $this->id])->all();
 
         foreach ($plus as $plusValue) {
             foreach ($minus as $minusValue) {
