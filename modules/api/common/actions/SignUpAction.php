@@ -2,6 +2,7 @@
 
 namespace app\modules\api\common\actions;
 
+use app\models\Chat;
 use app\models\Social;
 use app\models\User;
 use Exception;
@@ -74,10 +75,13 @@ class SignUpAction extends Action
 
             if ($user->validate()) {
                 $user->setPassword($user->password);
-
                 if ($user->save(false)) {
                     $user->updateTokenExpirationDate();
-
+                    $chat = Chat::find()->where(['type' => Chat::TYPE_COMMON])->one();
+                    if (!$chat) {
+                        throw new Exception("Not found common Chat");
+                    }
+                    $chat->addUserToChat($user->id);
                     if (isset($socialUserId)) {
                         $socialUser = Social::findOne($socialUserId);
                         if (!$socialUser) {

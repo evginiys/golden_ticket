@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\models\SignUpForm;
+use Exception;
+use yii\db\Exception as DbException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
@@ -146,13 +148,23 @@ class SiteController extends Controller
      * Sign Up action.
      *
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function actionSignUp()
     {
         $model = new SignUpForm();
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            return $this->goHome();
+        if ($model->load(Yii::$app->request->post())) {
+            try {
+                if ($model->signup()) {
+                    return $this->goHome();
+                }
+            } catch (Exception $e) {
+                if ($e instanceof DbException) {
+                    Yii::$app->session->setFlash('error', Yii::t('app', 'Database error'));
+                } else {
+                    Yii::$app->session->setFlash('error', Yii::t('app', $e->getMessage()));
+                }
+            }
         }
 
         return $this->render('sign-up', [

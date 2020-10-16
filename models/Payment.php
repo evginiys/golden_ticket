@@ -92,7 +92,7 @@ class Payment extends ActiveRecord
                 throw new Exception("Not found tickets");
             }
             $betTicketId = -1;
-            foreach($ticketIds as $ticket) {
+            foreach ($ticketIds as $ticket) {
                 if (Payment::hasTicket($ticket->id, $userId)) {
                     $betTicketId = $ticket->id;
                     break;

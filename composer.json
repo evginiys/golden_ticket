@@ -18,6 +18,7 @@
         "yiisoft/yii2": "~2.0.36",
         "yiisoft/yii2-bootstrap4": "*",
         "yiisoft/yii2-swiftmailer": "*",
+        "yii2tech/ar-softdelete": "*",
         "kartik-v/yii2-widgets": "dev-master",
         "kartik-v/yii2-grid": "^3.3",
         "yiithings/yii2-dotenv": "^1.0",
