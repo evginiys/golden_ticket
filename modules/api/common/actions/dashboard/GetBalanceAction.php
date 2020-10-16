@@ -4,6 +4,7 @@ namespace app\modules\api\common\actions\dashboard;
 
 use app\models\Payment;
 use Exception;
+use yii\db\Exception as DbException;
 use Yii;
 use yii\rest\Action;
 
@@ -49,13 +50,15 @@ class GetBalanceAction extends Action
         try {
             $coins = Yii::$app->user->identity->getBalance(Payment::CURRENCY_COIN);
             $coupons = Yii::$app->user->identity->getBalance(Payment::CURRENCY_COUPON);
-            $tickets = Payment::userTickets(Yii::$app->user->id);
+            $tickets = Yii::$app->user->identity->getTicketsAmount();
             return $this->controller->onSuccess([
                 "coins" => $coins,
                 "coupons" => $coupons,
                 "tickets" => $tickets
             ]);
-        } catch (Exception $e) {
+        }catch (DbException $e) {
+            return $this->controller->onError(Yii::t('app', "Database error"), 400);
+        }catch (Exception $e) {
             return $this->controller->onError(Yii::t('app', $e->getMessage()), 400);
         }
     }

@@ -4,8 +4,8 @@ namespace app\models;
 
 use Yii;
 use yii\base\Exception;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
@@ -241,5 +241,43 @@ class User extends ActiveRecord implements IdentityInterface
             return $balance;
         }
         return (float)$balance['balance'];
+    }
+
+    /**
+     *
+     * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getTicketsAmount()
+    {
+        $result = [];
+        $query = (new Query())
+            ->select('ticket_pack.name, COUNT(ticket.id) AS `quantity`')
+            ->from('payment')
+            ->innerJoin('ticket', 'payment.ticket_id= ticket.id')
+            ->innerJoin('ticket_pack', 'ticket_pack.id = ticket.ticket_pack_id')
+            ->groupBy('ticket_pack.name')
+            ->where(['not', ['ticket_id' => null]]);
+
+        $minus = $query->where(['type' => Payment::TYPE_CHARGE])
+            ->where(['to_user_id' => $this->id])->all();
+//
+        $plus = $query->where(['type' => Payment::TYPE_BUY])
+            ->where(['from_user_id' => $this->id])->all();
+
+        foreach ($plus as $plusValue) {
+            foreach ($minus as $minusValue) {
+                if ($minusValue['name'] == $plusValue['name']) {
+                    $quantity = $plusValue['quantity'] - $minusValue['quantity'];
+                    $quantity = ($quantity >= 0) ? $quantity : 0;
+                    $result [$plusValue['name']] = $quantity;
+                }
+            }
+            if (!isset($result[$plusValue['name']])) {
+                $result[$plusValue['name']] = (int)$plusValue['quantity'];
+            }
+        }
+        return $result;
     }
 }
