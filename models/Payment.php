@@ -173,34 +173,6 @@ class Payment extends ActiveRecord
     }
 
     /**
-     *
-     * @param $userId
-     * @return int
-     * @throws Exception
-     */
-    public static function userTickets(int $userId)
-    {
-        try {
-            $minus = self::find()
-                ->where(['type' => self::TYPE_CHARGE, 'to_user_id' => $userId])
-                ->andWhere(['not', ['ticket_id' => null]])
-                ->count();
-            $plus = self::find()
-                ->where(['type' => self::TYPE_BUY, 'from_user_id' => $userId])
-                ->andWhere(['not', ['ticket_id' => null]])
-                ->count();
-        } catch (Exception $e) {
-            throw new Exception(Yii::t('app', 'Database error'));
-        }
-        $ticketCount = $plus - $minus;
-        if ($ticketCount < 0) {
-            throw new Exception(Yii::t('app', 'Error, negative quantity of tickets'));
-        }
-
-        return $ticketCount;
-    }
-
-    /**
      * @param $userId
      * @param $amount
      * @return bool

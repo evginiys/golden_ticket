@@ -4,8 +4,8 @@ namespace app\models;
 
 use Yii;
 use yii\base\Exception;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
@@ -24,12 +24,6 @@ use yii\web\IdentityInterface;
  * @property string $authKey
  * @property GameUser[] $gameUsers
  * @property string $date_token_expired [datetime]
- * @property Chat[] $ownChats
- * @property Chat[] $inChats
- * @property ChatUser[] $chatUsers
- * @property Message[] $messages
- * @property MessageStatus[] $messageStatus
- * @property Chat[] $gameChats
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -139,53 +133,6 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[Game]].
-     * @return ActiveQuery
-     */
-    public function getInGame()
-    {
-        return $this->hasMany(Game::class, ['id' => 'game_id'])
-            ->via('gameUsers');
-    }
-
-    /**
-     * Gets query for [[Game]].
-     * @return ActiveQuery
-     */
-    public function getGameChats()
-    {
-        return $this->hasMany(Chat::class, ['game_id' => 'id'])
-            ->via('inGame');
-    }
-
-    /**
-     * Gets query for [[ChatUsers]].
-     * @return ActiveQuery
-     */
-    public function getChatUsers()
-    {
-        return $this->hasMany(ChatUser::class, ['user_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Chat]].
-     * @return ActiveQuery
-     */
-    public function getOwnChats()
-    {
-        return $this->hasMany(Chat::class, ['user_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Message]].
-     * @return ActiveQuery
-     */
-    public function getMessages()
-    {
-        return $this->hasMany(Message::class, ['user_id' => 'id']);
-    }
-
-    /**
      * * Gets query for [[Socials]].
      *
      * @return ActiveQuery
@@ -193,25 +140,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function getSocials()
     {
         return $this->hasMany(Social::class, ['user_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[MessageStatus]].
-     * @return ActiveQuery
-     */
-    public function getMessageStatuses()
-    {
-        return $this->hasMany(MessageStatus::class, ['user_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Chat]].
-     * @return ActiveQuery
-     */
-    public function getInChats()
-    {
-        return $this->hasMany(Chat::class, ['id' => 'chat_id'])
-            ->via('chatUsers');
     }
 
     /**
@@ -315,4 +243,41 @@ class User extends ActiveRecord implements IdentityInterface
         return (float)$balance['balance'];
     }
 
+    /**
+     *
+     * @param $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getTicketsAmount()
+    {
+        $result = [];
+        $query = (new Query())
+            ->select('ticket_pack.name, COUNT(ticket.id) AS `quantity`')
+            ->from('payment')
+            ->innerJoin('ticket', 'payment.ticket_id= ticket.id')
+            ->innerJoin('ticket_pack', 'ticket_pack.id = ticket.ticket_pack_id')
+            ->groupBy('ticket_pack.name')
+            ->where(['not', ['ticket_id' => null]]);
+
+        $minus = $query->where(['type' => Payment::TYPE_CHARGE])
+            ->where(['to_user_id' => $this->id])->all();
+//
+        $plus = $query->where(['type' => Payment::TYPE_BUY])
+            ->where(['from_user_id' => $this->id])->all();
+
+        foreach ($plus as $plusValue) {
+            foreach ($minus as $minusValue) {
+                if ($minusValue['name'] == $plusValue['name']) {
+                    $quantity = $plusValue['quantity'] - $minusValue['quantity'];
+                    $quantity = ($quantity >= 0) ? $quantity : 0;
+                    $result [$plusValue['name']] = $quantity;
+                }
+            }
+            if (!isset($result[$plusValue['name']])) {
+                $result[$plusValue['name']] = (int)$plusValue['quantity'];
+            }
+        }
+        return $result;
+    }
 }
