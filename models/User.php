@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -18,12 +19,14 @@ use yii\web\IdentityInterface;
  * @property string|null $phone
  * @property string $password
  * @property string $token
+ * @property string $date_token_expired [datetime]
  * @property string|null $reset_password_token
  * @property string|null $date_reset_password
  *
  * @property string $authKey
+ *
  * @property GameUser[] $gameUsers
- * @property string $date_token_expired [datetime]
+ * @property Social[] $socials
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -244,10 +247,9 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets tickets amount
      *
-     * @param $userId
-     * @return mixed
-     * @throws Exception
+     * @return array pack_name => amount
      */
     public function getTicketsAmount()
     {
@@ -260,11 +262,15 @@ class User extends ActiveRecord implements IdentityInterface
             ->groupBy('ticket_pack.name')
             ->where(['not', ['ticket_id' => null]]);
 
-        $minus = $query->where(['type' => Payment::TYPE_CHARGE])
-            ->where(['to_user_id' => $this->id])->all();
-//
-        $plus = $query->where(['type' => Payment::TYPE_BUY])
-            ->where(['from_user_id' => $this->id])->all();
+        $minus = $query
+            ->where(['type' => Payment::TYPE_CHARGE])
+            ->where(['to_user_id' => $this->id])
+            ->all();
+
+        $plus = $query
+            ->where(['type' => Payment::TYPE_BUY])
+            ->where(['from_user_id' => $this->id])
+            ->all();
 
         foreach ($plus as $plusValue) {
             foreach ($minus as $minusValue) {
