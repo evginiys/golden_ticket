@@ -19,8 +19,9 @@ class ChatsAction extends Action
     {
         $chats = User::findOne(Yii::$app->user->id)->inChats;
         if (!$chats) {
-            return $this->controller->onError(Yii::t('app', 'Not chats'), 404);
+            return $this->controller->onError(Yii::t('app', 'No chats'), 404);
         }
+
         return $this->controller->onSuccess($chats);
     }
 }
