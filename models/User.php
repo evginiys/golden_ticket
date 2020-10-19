@@ -21,16 +21,19 @@ use yii\web\IdentityInterface;
  * @property string $token
  * @property string|null $reset_password_token
  * @property string|null $date_reset_password
+ * @property string $date_token_expired [datetime]
  *
  * @property string $authKey
+ *
  * @property GameUser[] $gameUsers
- * @property string $date_token_expired [datetime]
+ * @property Game[] $inGame
+ * @property Chat[] $gameChats
  * @property Chat[] $ownChats
- * @property Chat[] $inChats
  * @property ChatUser[] $chatUsers
+ * @property Chat[] $inChats
  * @property Message[] $messages
  * @property MessageStatus[] $messageStatus
- * @property Chat[] $gameChats
+ * @property Social[] $socials
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -128,6 +131,15 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[Chat]].
+     * @return ActiveQuery
+     */
+    public function getOwnChats()
+    {
+        return $this->hasMany(Chat::class, ['user_id' => 'id']);
+    }
+
+    /**
      * Gets query for [[ChatUsers]].
      * @return ActiveQuery
      */
@@ -140,9 +152,10 @@ class User extends ActiveRecord implements IdentityInterface
      * Gets query for [[Chat]].
      * @return ActiveQuery
      */
-    public function getOwnChats()
+    public function getInChats()
     {
-        return $this->hasMany(Chat::class, ['user_id' => 'id']);
+        return $this->hasMany(Chat::class, ['id' => 'chat_id'])
+            ->via('chatUsers');
     }
 
     /**
@@ -155,16 +168,6 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * * Gets query for [[Socials]].
-     *
-     * @return ActiveQuery
-     */
-    public function getSocials()
-    {
-        return $this->hasMany(Social::class, ['user_id' => 'id']);
-    }
-
-    /**
      * Gets query for [[MessageStatus]].
      * @return ActiveQuery
      */
@@ -174,13 +177,13 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[Chat]].
+     * * Gets query for [[Socials]].
+     *
      * @return ActiveQuery
      */
-    public function getInChats()
+    public function getSocials()
     {
-        return $this->hasMany(Chat::class, ['id' => 'chat_id'])
-            ->via('chatUsers');
+        return $this->hasMany(Social::class, ['user_id' => 'id']);
     }
 
     /**
