@@ -2,8 +2,8 @@
 
 namespace app\models;
 
+use Exception;
 use Yii;
-use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -19,6 +19,9 @@ use yii\helpers\ArrayHelper;
  */
 class TicketPack extends ActiveRecord
 {
+
+    public const AMOUNT_OF_TICKETS = 5;
+
     /**
      * {@inheritdoc}
      */
@@ -59,6 +62,19 @@ class TicketPack extends ActiveRecord
     public function getTickets()
     {
         return $this->hasMany(Ticket::class, ['ticket_pack_id' => 'id']);
+    }
+
+    /**
+     * @param int $cost
+     * return TicketPack
+     */
+    public static function getTicketPackByCost(int $cost): TicketPack
+    {
+        $ticket = Ticket::find()->where(['cost' => $cost / TicketPack::AMOUNT_OF_TICKETS])->one();
+        if (!$ticket) {
+            throw new Exception(Yii::t('app', 'Not found pack'));
+        }
+        return $ticket->ticketPack;
     }
 
     /**

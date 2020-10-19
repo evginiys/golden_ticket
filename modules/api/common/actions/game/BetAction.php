@@ -79,7 +79,11 @@ class BetAction extends Action
                 throw new Exception(Yii::t('app', "Incorrect bet"));
             }
             if ($game->status != Game::STATUS_ENDED) {
-                if (Payment::betByTicket($gameId, Yii::$app->user->id)) {
+                if($game->type==Game::TYPE_REGULAR) {
+                    Payment::betForUsualGame($gameId, Yii::$app->user->id);
+                }else{
+                    Payment::betForJackpotGame($gameId, Yii::$app->user->id);
+                }
                     $bets = $game->getGameUsers()
                         ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])
                         ->count();
@@ -101,9 +105,6 @@ class BetAction extends Action
                             throw new Exception("Error with points");
                         }
                     }
-                } else {
-                    throw new Exception('Cannot bet');
-                }
             } else {
                 throw new Exception('Game ended');
             }
