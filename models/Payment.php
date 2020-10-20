@@ -120,55 +120,6 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * @param int $gameId
-     * @param int $userId
-     * @return bool
-     * @throws Exception
-     */
-    public static function betForJackpotGame(int $gameId, int $userId): bool
-    {
-        try {
-            $game = Game::findOne($gameId);
-            if (!$game or $game->type!=Game::TYPE_JACKPOT) {
-                throw new Exception("Not found game");
-            }
-            $ticketPack=TicketPack::getTicketPackByCost($game->cost);
-            $ticketIds=$ticketPack->tickets;
-            if (!$ticketIds) {
-                throw new Exception("Not found tickets");
-            }
-            $betTicketAmount = 0;
-            foreach ($ticketIds as $ticket) {
-                if (Payment::hasTicket($ticket->id, $userId)) {
-                    $payment = new self([
-                        'amount' => 0,
-                        'to_user_id' => $userId,
-                        'type' => self::TYPE_CHARGE,
-                        'status' => self::STATUS_DONE,
-                        'currency' => self::CURRENCY_COIN,
-                        'comment' => 'Ticket for jackpot game',
-                        'ticket_id' => $ticket->id
-                    ]);
-                    if (!$payment->save()) {
-                        throw new Exception(Json::encode($payment->getErrors()));
-                    }else{
-                        $betTicketAmount++;
-                        if($betTicketAmount==TicketPack::AMOUNT_OF_TICKETS){
-                            break;
-                        }
-                    }
-                }
-            }
-            if($betTicketAmount!=TicketPack::AMOUNT_OF_TICKETS){
-                throw new Exception("Not found full ticket pack");
-            }
-        } catch (Exception $e) {
-            throw new Exception(Yii::t('app', $e->getMessage()));
-        }
-        return true;
-    }
-
-    /**
      * @param int $ticketId
      * @param int $userId
      * @return bool
@@ -186,6 +137,55 @@ class Payment extends ActiveRecord
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param int $gameId
+     * @param int $userId
+     * @return bool
+     * @throws Exception
+     */
+    public static function betForJackpotGame(int $gameId, int $userId): bool
+    {
+        try {
+            $game = Game::findOne($gameId);
+            if (!$game or $game->type != Game::TYPE_JACKPOT) {
+                throw new Exception("Not found game");
+            }
+            $ticketPack = TicketPack::getTicketPackByCost($game->cost);
+            $ticketIds = $ticketPack->tickets;
+            if (!$ticketIds) {
+                throw new Exception("Not found tickets");
+            }
+            $betTicketAmount = 0;
+            foreach ($ticketIds as $ticket) {
+                if (Payment::hasTicket($ticket->id, $userId)) {
+                    $payment = new self([
+                        'amount' => 0,
+                        'to_user_id' => $userId,
+                        'type' => self::TYPE_CHARGE,
+                        'status' => self::STATUS_DONE,
+                        'currency' => self::CURRENCY_COIN,
+                        'comment' => 'Ticket for jackpot game',
+                        'ticket_id' => $ticket->id
+                    ]);
+                    if (!$payment->save()) {
+                        throw new Exception(Json::encode($payment->getErrors()));
+                    } else {
+                        $betTicketAmount++;
+                        if ($betTicketAmount == TicketPack::AMOUNT_OF_TICKETS) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if ($betTicketAmount != TicketPack::AMOUNT_OF_TICKETS) {
+                throw new Exception("Not found full ticket pack");
+            }
+        } catch (Exception $e) {
+            throw new Exception(Yii::t('app', $e->getMessage()));
+        }
+        return true;
     }
 
     /**

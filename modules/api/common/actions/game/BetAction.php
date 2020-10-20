@@ -79,32 +79,32 @@ class BetAction extends Action
                 throw new Exception(Yii::t('app', "Incorrect bet"));
             }
             if ($game->status != Game::STATUS_ENDED) {
-                if($game->type==Game::TYPE_REGULAR) {
+                if ($game->type == Game::TYPE_REGULAR) {
                     Payment::betForUsualGame($gameId, Yii::$app->user->id);
-                }else{
+                } else {
                     Payment::betForJackpotGame($gameId, Yii::$app->user->id);
                 }
-                    $bets = $game->getGameUsers()
-                        ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])
-                        ->count();
-                    if ($bets) {
-                        throw new Exception(Yii::t('app', "You have already bet"));
+                $bets = $game->getGameUsers()
+                    ->where(['user_id' => Yii::$app->user->id, 'game_id' => $gameId])
+                    ->count();
+                if ($bets) {
+                    throw new Exception(Yii::t('app', "You have already bet"));
+                }
+                $gameCombinations = $game->gameCombinations;
+                foreach ($gameCombinations as $winCombination) {
+                    $winPoints[] = $winCombination->point;
+                }
+                foreach ($points as $point) {
+                    $gameUser = new GameUser();
+                    $gameUser->game_id = $gameId;
+                    $gameUser->user_id = Yii::$app->user->id;
+                    $gameUser->point = $point;
+                    $gameUser->date_point = date('Y-m-d H:i:s');
+                    $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
+                    if (!$gameUser->save()) {
+                        throw new Exception("Error with points");
                     }
-                    $gameCombinations = $game->gameCombinations;
-                    foreach ($gameCombinations as $winCombination) {
-                        $winPoints[] = $winCombination->point;
-                    }
-                    foreach ($points as $point) {
-                        $gameUser = new GameUser();
-                        $gameUser->game_id = $gameId;
-                        $gameUser->user_id = Yii::$app->user->id;
-                        $gameUser->point = $point;
-                        $gameUser->date_point = date('Y-m-d H:i:s');
-                        $gameUser->is_correct = (in_array($point, $winPoints)) ? 1 : 0;
-                        if (!$gameUser->save()) {
-                            throw new Exception("Error with points");
-                        }
-                    }
+                }
             } else {
                 throw new Exception('Game ended');
             }

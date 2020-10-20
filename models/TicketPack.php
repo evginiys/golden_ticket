@@ -31,6 +31,19 @@ class TicketPack extends ActiveRecord
     }
 
     /**
+     * @param int $cost
+     * return TicketPack
+     */
+    public static function getTicketPackByCost(int $cost): TicketPack
+    {
+        $ticket = Ticket::find()->where(['cost' => $cost / TicketPack::AMOUNT_OF_TICKETS])->one();
+        if (!$ticket) {
+            throw new Exception(Yii::t('app', 'Not found pack'));
+        }
+        return $ticket->ticketPack;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function rules()
@@ -62,19 +75,6 @@ class TicketPack extends ActiveRecord
     public function getTickets()
     {
         return $this->hasMany(Ticket::class, ['ticket_pack_id' => 'id']);
-    }
-
-    /**
-     * @param int $cost
-     * return TicketPack
-     */
-    public static function getTicketPackByCost(int $cost): TicketPack
-    {
-        $ticket = Ticket::find()->where(['cost' => $cost / TicketPack::AMOUNT_OF_TICKETS])->one();
-        if (!$ticket) {
-            throw new Exception(Yii::t('app', 'Not found pack'));
-        }
-        return $ticket->ticketPack;
     }
 
     /**
