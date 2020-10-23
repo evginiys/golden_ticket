@@ -80,7 +80,7 @@ class BetAction extends Action
             }
             if ($game->status != Game::STATUS_ENDED) {
                 if ($game->type == Game::TYPE_REGULAR) {
-                    Payment::betForUsualGame($gameId, Yii::$app->user->id);
+                    Payment::betForRegularGame($gameId, Yii::$app->user->id);
                 } else {
                     Payment::betForJackpotGame($gameId, Yii::$app->user->id);
                 }

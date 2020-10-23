@@ -80,42 +80,39 @@ class Payment extends ActiveRecord
      * @return bool
      * @throws Exception
      */
-    public static function betForUsualGame(int $gameId, int $userId): bool
+    public static function betForRegularGame(int $gameId, int $userId): bool
     {
-        try {
-            $game = Game::findOne($gameId);
-            if (!$game) {
-                throw new Exception("Not found game");
-            }
-            $ticketIds = Ticket::find()->where(['cost' => $game->cost])->select('id')->all();
-            if (!$ticketIds) {
-                throw new Exception("Not found tickets");
-            }
-            $betTicketId = -1;
-            foreach ($ticketIds as $ticket) {
-                if (Payment::hasTicket($ticket->id, $userId)) {
-                    $betTicketId = $ticket->id;
-                    break;
-                }
-            }
-            if ($betTicketId == -1) {
-                throw new Exception("No ticket to bet");
-            }
-            $payment = new self([
-                'amount' => 0,
-                'to_user_id' => $userId,
-                'type' => self::TYPE_CHARGE,
-                'status' => self::STATUS_DONE,
-                'currency' => self::CURRENCY_COIN,
-                'comment' => 'Ticket for game',
-                'ticket_id' => $betTicketId
-            ]);
-            if (!$payment->save()) {
-                throw new Exception(Json::encode($payment->getErrors()));
-            }
-        } catch (Exception $e) {
-            throw new Exception(Yii::t('app', $e->getMessage()));
+        $game = Game::findOne($gameId);
+        if (!$game) {
+            throw new Exception("Not found game");
         }
+        $tickets = Ticket::find()->where(['cost' => $game->cost])->select('id')->all();
+        if (!$tickets) {
+            throw new Exception("Not found tickets");
+        }
+        $betTicketId = -1;
+        foreach ($tickets as $ticket) {
+            if (Payment::hasTicket($ticket->id, $userId)) {
+                $betTicketId = $ticket->id;
+                break;
+            }
+        }
+        if ($betTicketId == -1) {
+            throw new Exception("No ticket to bet");
+        }
+        $payment = new self([
+            'amount' => 0,
+            'to_user_id' => $userId,
+            'type' => self::TYPE_CHARGE,
+            'status' => self::STATUS_DONE,
+            'currency' => self::CURRENCY_COIN,
+            'comment' => 'Ticket for game',
+            'ticket_id' => $betTicketId
+        ]);
+        if (!$payment->save()) {
+            throw new Exception($payment->getErrors());
+        }
+
         return true;
     }
 
@@ -147,44 +144,41 @@ class Payment extends ActiveRecord
      */
     public static function betForJackpotGame(int $gameId, int $userId): bool
     {
-        try {
-            $game = Game::findOne($gameId);
-            if (!$game or $game->type != Game::TYPE_JACKPOT) {
-                throw new Exception("Not found game");
-            }
-            $ticketPack = TicketPack::getTicketPackByCost($game->cost);
-            $ticketIds = $ticketPack->tickets;
-            if (!$ticketIds) {
-                throw new Exception("Not found tickets");
-            }
-            $betTicketAmount = 0;
-            foreach ($ticketIds as $ticket) {
-                if (Payment::hasTicket($ticket->id, $userId)) {
-                    $payment = new self([
-                        'amount' => 0,
-                        'to_user_id' => $userId,
-                        'type' => self::TYPE_CHARGE,
-                        'status' => self::STATUS_DONE,
-                        'currency' => self::CURRENCY_COIN,
-                        'comment' => 'Ticket for jackpot game',
-                        'ticket_id' => $ticket->id
-                    ]);
-                    if (!$payment->save()) {
-                        throw new Exception(Json::encode($payment->getErrors()));
-                    } else {
-                        $betTicketAmount++;
-                        if ($betTicketAmount == TicketPack::AMOUNT_OF_TICKETS) {
-                            break;
-                        }
+        $game = Game::findOne($gameId);
+        if (!$game or $game->type != Game::TYPE_JACKPOT) {
+            throw new Exception("Not found game");
+        }
+        $ticketPack = TicketPack::getTicketPackByCost($game->cost);
+        $tickets = $ticketPack->tickets;
+        if (!$tickets) {
+            throw new Exception("Not found tickets");
+        }
+        $betTicketAmount = 0;
+        foreach ($tickets as $ticket) {
+            while (Payment::hasTicket($ticket->id, $userId)) {
+                $payment = new self([
+                    'amount' => 0,
+                    'to_user_id' => $userId,
+                    'type' => self::TYPE_CHARGE,
+                    'status' => self::STATUS_DONE,
+                    'currency' => self::CURRENCY_COIN,
+                    'comment' => 'Ticket for jackpot game',
+                    'ticket_id' => $ticket->id
+                ]);
+                if (!$payment->save()) {
+                    throw new Exception($payment->getErrors());
+                } else {
+                    $betTicketAmount++;
+                    if ($betTicketAmount == TicketPack::AMOUNT_OF_TICKETS) {
+                        break 2;
                     }
                 }
             }
-            if ($betTicketAmount != TicketPack::AMOUNT_OF_TICKETS) {
-                throw new Exception("Not found full ticket pack");
-            }
-        } catch (Exception $e) {
-            throw new Exception(Yii::t('app', $e->getMessage()));
         }
+        if ($betTicketAmount != TicketPack::AMOUNT_OF_TICKETS) {
+            throw new Exception("Not found full ticket pack");
+        }
+
         return true;
     }
 
