@@ -49,9 +49,9 @@ class WebsocketHandler
      * @param string $host
      * @param string $port
      */
-    public function __construct(string $host, string $port)
+    public function __construct(string $host, string $port, array $context = [])
     {
-        $this->worker = new Worker("websocket://{$host}:{$port}");
+        $this->worker = new Worker("websocket://{$host}:{$port}", $context);
     }
 
     /**
