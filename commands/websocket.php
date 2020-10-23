@@ -12,10 +12,25 @@ use app\modules\websocket\WebsocketHandler;
 use Workerman\Connection\TcpConnection;
 use workerman\Worker;
 
-$websocket = new WebsocketHandler(env('SOCKET_HOST'), env('SOCKET_PORT'));
-$websocket->setParams([
+$websocketParams = [
     'count' => 4,
-]);
+];
+if (env('WEBSOCKET_USE_SSL')) {
+    $context = [
+        'ssl' => [
+            'local_cert' => env('WEBSOCKET_CERT'),
+            'local_pk' => env('WEBSOCKET_PK'),
+            'verify_peer' => false,
+        ]
+    ];
+    $websocketParams['transport'] = 'ssl';
+} else {
+    $context = null;
+}
+
+$websocket = new WebsocketHandler(env('WEBSOCKET_HOST'), env('WEBSOCKET_PORT'), $context);
+$websocket->setParams($websocketParams);
+
 $wsWorker = $websocket->getWorker();
 
 /**
