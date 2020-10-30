@@ -48,6 +48,7 @@ class WebsocketHandler
      * WebsocketHandler constructor.
      * @param string $host
      * @param string $port
+     * @param array $context
      */
     public function __construct(string $host, string $port, array $context = [])
     {

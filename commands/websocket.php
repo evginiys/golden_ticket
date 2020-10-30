@@ -15,6 +15,8 @@ use workerman\Worker;
 $websocketParams = [
     'count' => 4,
 ];
+
+$context = [];
 if (env('WEBSOCKET_USE_SSL')) {
     $context = [
         'ssl' => [
@@ -24,8 +26,6 @@ if (env('WEBSOCKET_USE_SSL')) {
         ]
     ];
     $websocketParams['transport'] = 'ssl';
-} else {
-    $context = null;
 }
 
 $websocket = new WebsocketHandler(env('WEBSOCKET_HOST'), env('WEBSOCKET_PORT'), $context);
