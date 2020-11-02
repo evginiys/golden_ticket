@@ -83,9 +83,10 @@ class Payment extends ActiveRecord
     public static function betForRegularGame(int $gameId, int $userId): bool
     {
         $game = Game::findOne($gameId);
-        if (!$game) {
+        if (!$game or $game->type != Game::TYPE_REGULAR) {
             throw new Exception("Not found game");
         }
+
         $tickets = Ticket::find()->where(['cost' => $game->cost])->select('id')->all();
         if (!$tickets) {
             throw new Exception("Not found tickets");
