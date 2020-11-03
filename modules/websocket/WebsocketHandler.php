@@ -356,11 +356,13 @@ class WebsocketHandler
         try {
             $connectionId = $data['connection_id'];
             $participant = $data['user'];
-            $chatName = $data['name'];
             $participantUser = User::findOne($participant);
-            if (!$participantUser) {
+            $owner = User::findOne($connectionId);
+            if (!$participantUser or !$owner) {
                 throw new Exception("Not found participant of chat");
             }
+            $chatName = Json::encode([$participantUser->username => $owner->username,
+                $owner->username => $participantUser->username]);
             $chatsSecondUser = $participantUser
                 ->getInChats()
                 ->where(['type' => Chat::TYPE_PRIVATE])
