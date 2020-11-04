@@ -12,8 +12,10 @@ use app\modules\websocket\WebsocketHandler;
 use Workerman\Connection\TcpConnection;
 use workerman\Worker;
 
+const DEFAULT_WORKERS_NUMBER = 4;
+
 $websocketParams = [
-    'count' => 4,
+    'count' => env('WEBSOCKET_WORKERS_NUMBER', DEFAULT_WORKERS_NUMBER)
 ];
 
 $context = [];
