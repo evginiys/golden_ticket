@@ -12,6 +12,7 @@ use Workerman\Connection\ConnectionInterface;
 use Workerman\Connection\TcpConnection;
 use workerman\Worker;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -76,6 +77,32 @@ class WebsocketHandler
     }
 
     /**
+     * @param $worker
+     * @throws Exception
+     */
+    public function onWorkerStart($worker) {}
+
+    /**
+     * @param ConnectionInterface $connection
+     */
+    public function onConnect(ConnectionInterface $connection)
+    {
+        echo '[Worker ' . $connection->worker->id . '] ';
+        echo 'New connection accepted. CID = ' . $connection->id . PHP_EOL;
+        $connection->send('Connection is open');
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     */
+    public function onClose(ConnectionInterface $connection)
+    {
+        echo '[Worker ' . $connection->worker->id . '] ';
+        echo 'Connection closed. CID = ' . $connection->id . PHP_EOL;
+        $connection->send('Connection closed');
+    }
+
+    /**
      * Choose method by type of message
      *
      * @param TcpConnection $connection
@@ -127,14 +154,22 @@ class WebsocketHandler
             throw new Exception('Invalid token, not found user');
         }
         $idUser = $user->getId();
+        echo '[Worker ' . $connection->worker->id . '] ';
+        echo 'Existing CIDs: ' .
+             implode(' ', ArrayHelper::getColumn($this->worker->connections, 'id')) . ' - ' .
+             count($this->worker->connections) . ' in total. ';
         if (key_exists($connection->id, $this->worker->connections)) {
-            echo "exist connection\n";
+            echo 'CID = ' . $connection->id .' already exists. Switching to user_id = ' . $idUser;
         }
+        echo PHP_EOL;
         unset($this->worker->connections[$connection->id]);
         $connection->id = $idUser;
         $this->worker->connections[$idUser] = $connection;
-        echo "id{$connection->id} conneсtion" . $this->worker->connections[$idUser]->id . '  ';
-        //user can have one connection, which identificate connection by user id
+        echo '[Worker ' . $connection->worker->id . '] ';
+        echo 'Current CID = ' . $connection->id . ', worker CIDs: ' .
+             implode(' ', ArrayHelper::getColumn($this->worker->connections, 'id')) . ' - ' .
+             count($this->worker->connections) . ' in total' . PHP_EOL;
+        //user can have one connection, which is identified by user id
     }
 
     /**
@@ -148,31 +183,6 @@ class WebsocketHandler
             throw new Exception("Invalid type of action");
         }
         return self::CHAT_METHODS[$type];
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function onClose(ConnectionInterface $connection)
-    {
-        $connection->send('Connection closed');
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function onConnect(ConnectionInterface $connection)
-    {
-        $connection->send('Connection is ok');
-    }
-
-    /**
-     * @param $worker
-     * @throws Exception
-     */
-    public function workerStart($worker)
-    {
-        //@todo do something
     }
 
     /**

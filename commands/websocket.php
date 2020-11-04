@@ -58,7 +58,7 @@ $wsWorker->onClose = static function ($connection) use ($websocket) {
 };
 
 $wsWorker->onWorkerStart = static function ($worker) use ($websocket) {
-    $websocket->workerStart($worker);
+    $websocket->onWorkerStart($worker);
 };
 
 Worker::runAll();
