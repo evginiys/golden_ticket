@@ -87,9 +87,24 @@ class WebsocketHandler
      */
     public function onConnect(ConnectionInterface $connection)
     {
-        echo '[Worker ' . $connection->worker->id . '] ';
-        echo 'New connection accepted. CID = ' . $connection->id . PHP_EOL;
-        $connection->send('Connection is open');
+        $connection->onWebSocketConnect = function ($connection) {
+            $token = $_GET['token'] ?? null;
+            if (!$token) {
+                throw new Exception('Please send access token');
+            }
+
+            $user = User::findIdentityByAccessToken($token);
+            if (!$user) {
+                throw new Exception('Not found user');
+            }
+
+            $connection->user_id = $user->id; // dynamically added field
+            //todo check existance of user_id and push new connection_id for user_id to mongodb
+
+            echo '[Worker ' . $connection->worker->id . '] New connection accepted, CID=' . $connection->id . PHP_EOL;
+
+            $connection->send('Connection is open');
+        };
     }
 
     /**
@@ -97,9 +112,8 @@ class WebsocketHandler
      */
     public function onClose(ConnectionInterface $connection)
     {
-        echo '[Worker ' . $connection->worker->id . '] ';
-        echo 'Connection closed. CID = ' . $connection->id . PHP_EOL;
-        $connection->send('Connection closed');
+        //todo remove connection_id for user_id from mongodb
+        echo '[Worker ' . $connection->worker->id . '] Connection ' . $connection->id . ' closed' . PHP_EOL;
     }
 
     /**
@@ -110,28 +124,29 @@ class WebsocketHandler
      */
     public function onMessage(TcpConnection $connection, string $data)
     {
-        try {
-            $decodedData['connection_id'] = $connection->id;
-            $decodedData = array_merge($decodedData, Json::decode($data));
-            if ($decodedData['type'] == self::TYPE_GET_TOKEN) {
-                $this->setConnectionId($decodedData, $connection);//connection->id=user->id
-                return;
-            }
-            if (!$decodedData['type'] || !is_numeric($decodedData['type']) || !is_int(+$decodedData['type'])) {
-                throw new Exception("Invalid argument 'type'");
-            }
-            $method = $this->chooseMethod($decodedData['type']);
-            if (!is_callable([$this, $method])) {
-                throw new Exception('Not found method');
-            }
-            call_user_func_array([$this, $method], [$decodedData]);
-        } catch (\yii\db\Exception $e) {
-            Yii::$app->db->close();
-            Yii::$app->db->open();
-        } catch (Exception $e) {
-            $connection->send(Yii::t('app', $e->getMessage()));
-            echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
-        }
+        echo '[Worker ' . $connection->worker->id . '] User ' . $connection->user_id . ' sent message to connection ' . $connection->id . PHP_EOL;
+//        try {
+//            $decodedData['connection_id'] = $connection->id;
+//            $decodedData = array_merge($decodedData, Json::decode($data));
+//            if ($decodedData['type'] == self::TYPE_GET_TOKEN) {
+//                $this->setConnectionId($decodedData, $connection);//connection->id=user->id
+//                return;
+//            }
+//            if (!$decodedData['type'] || !is_numeric($decodedData['type']) || !is_int(+$decodedData['type'])) {
+//                throw new Exception("Invalid argument 'type'");
+//            }
+//            $method = $this->chooseMethod($decodedData['type']);
+//            if (!is_callable([$this, $method])) {
+//                throw new Exception('Not found method');
+//            }
+//            call_user_func_array([$this, $method], [$decodedData]);
+//        } catch (\yii\db\Exception $e) {
+//            Yii::$app->db->close();
+//            Yii::$app->db->open();
+//        } catch (Exception $e) {
+//            $connection->send(Yii::t('app', $e->getMessage()));
+//            echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
+//        }
     }
 
     /**
