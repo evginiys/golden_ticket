@@ -5,6 +5,7 @@ namespace app\modules\websocket;
 use app\models\Chat;
 use app\models\ChatUser;
 use app\models\Message;
+use app\models\OnlineUser;
 use app\models\User;
 use Exception;
 use Throwable;
@@ -21,7 +22,7 @@ use yii\helpers\Json;
  */
 class WebsocketHandler
 {
-    private const TYPE_GET_TOKEN = 0;
+    private const TYPE_GET_TOKEN = 0; // todo remove
     private const TYPE_ADD_MESSAGE = 1;
     private const TYPE_DELETE_MESSAGE = 2;
     private const TYPE_UPDATE_MESSAGE = 3;
@@ -88,6 +89,8 @@ class WebsocketHandler
     public function onConnect(ConnectionInterface $connection)
     {
         $connection->onWebSocketConnect = function ($connection) {
+            echo '[Worker ' . $connection->worker->id . '] New connection accepted, CID=' . $connection->id . ' ';
+
             $token = $_GET['token'] ?? null;
             if (!$token) {
                 throw new Exception('Please send access token');
@@ -98,10 +101,16 @@ class WebsocketHandler
                 throw new Exception('Not found user');
             }
 
-            $connection->user_id = $user->id; // dynamically added field
-            //todo check existance of user_id and push new connection_id for user_id to mongodb
+            if (OnlineUser::getByUserId($user->id)) {
+                echo $user->username . ' is already online';
+            }
+            echo PHP_EOL;
 
-            echo '[Worker ' . $connection->worker->id . '] New connection accepted, CID=' . $connection->id . PHP_EOL;
+            $connection->user_id = $user->id;
+
+            if (!OnlineUser::setOnline($user->id)) {
+                $connection->send('Failed to save user data');
+            }
 
             $connection->send('Connection is open');
         };
@@ -112,7 +121,11 @@ class WebsocketHandler
      */
     public function onClose(ConnectionInterface $connection)
     {
-        //todo remove connection_id for user_id from mongodb
+        if (!OnlineUser::setOffline($connection->user_id)) {
+            echo '[Worker ' . $connection->worker->id . '] Connection ' . $connection->id . ' closed';
+            echo ' but unable to set user ' . $connection->user_id . ' offline' . PHP_EOL;
+        }
+
         echo '[Worker ' . $connection->worker->id . '] Connection ' . $connection->id . ' closed' . PHP_EOL;
     }
 
@@ -124,7 +137,9 @@ class WebsocketHandler
      */
     public function onMessage(TcpConnection $connection, string $data)
     {
-        echo '[Worker ' . $connection->worker->id . '] User ' . $connection->user_id . ' sent message to connection ' . $connection->id . PHP_EOL;
+        echo '[Worker ' . $connection->worker->id . '] Received message on connection ' . $connection->id . ' from user ' . PHP_EOL;
+
+        // todo rework
 //        try {
 //            $decodedData['connection_id'] = $connection->id;
 //            $decodedData = array_merge($decodedData, Json::decode($data));
@@ -161,6 +176,7 @@ class WebsocketHandler
      */
     public function setConnectionId(array $data, TcpConnection $connection): void
     {
+        // todo remove method
         if (!key_exists('token', $data)) {
             throw new Exception('Not found token');
         }
