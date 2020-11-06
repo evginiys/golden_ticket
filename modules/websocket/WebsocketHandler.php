@@ -5,6 +5,7 @@ namespace app\modules\websocket;
 use app\models\Chat;
 use app\models\ChatUser;
 use app\models\Message;
+use app\models\OnlineUser;
 use app\models\User;
 use Exception;
 use Throwable;
@@ -12,6 +13,7 @@ use Workerman\Connection\ConnectionInterface;
 use Workerman\Connection\TcpConnection;
 use workerman\Worker;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -20,7 +22,7 @@ use yii\helpers\Json;
  */
 class WebsocketHandler
 {
-    private const TYPE_GET_TOKEN = 0;
+    private const TYPE_GET_TOKEN = 0; // todo remove
     private const TYPE_ADD_MESSAGE = 1;
     private const TYPE_DELETE_MESSAGE = 2;
     private const TYPE_UPDATE_MESSAGE = 3;
@@ -76,6 +78,58 @@ class WebsocketHandler
     }
 
     /**
+     * @param $worker
+     * @throws Exception
+     */
+    public function onWorkerStart($worker) {}
+
+    /**
+     * @param ConnectionInterface $connection
+     */
+    public function onConnect(ConnectionInterface $connection)
+    {
+        $connection->onWebSocketConnect = function ($connection) {
+            echo '[Worker ' . $connection->worker->id . '] New connection accepted, CID=' . $connection->id . ' ';
+
+            $token = $_GET['token'] ?? null;
+            if (!$token) {
+                throw new Exception('Please send access token');
+            }
+
+            $user = User::findIdentityByAccessToken($token);
+            if (!$user) {
+                throw new Exception('Not found user');
+            }
+
+            if (OnlineUser::getByUserId($user->id)) {
+                echo $user->username . ' is already online';
+            }
+            echo PHP_EOL;
+
+            $connection->user_id = $user->id;
+
+            if (!OnlineUser::setOnline($user->id)) {
+                $connection->send('Failed to save user data');
+            }
+
+            $connection->send('Connection is open');
+        };
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     */
+    public function onClose(ConnectionInterface $connection)
+    {
+        if (!OnlineUser::setOffline($connection->user_id)) {
+            echo '[Worker ' . $connection->worker->id . '] Connection ' . $connection->id . ' closed';
+            echo ' but unable to set user ' . $connection->user_id . ' offline' . PHP_EOL;
+        }
+
+        echo '[Worker ' . $connection->worker->id . '] Connection ' . $connection->id . ' closed' . PHP_EOL;
+    }
+
+    /**
      * Choose method by type of message
      *
      * @param TcpConnection $connection
@@ -83,28 +137,31 @@ class WebsocketHandler
      */
     public function onMessage(TcpConnection $connection, string $data)
     {
-        try {
-            $decodedData['connection_id'] = $connection->id;
-            $decodedData = array_merge($decodedData, Json::decode($data));
-            if ($decodedData['type'] == self::TYPE_GET_TOKEN) {
-                $this->setConnectionId($decodedData, $connection);//connection->id=user->id
-                return;
-            }
-            if (!$decodedData['type'] || !is_numeric($decodedData['type']) || !is_int(+$decodedData['type'])) {
-                throw new Exception("Invalid argument 'type'");
-            }
-            $method = $this->chooseMethod($decodedData['type']);
-            if (!is_callable([$this, $method])) {
-                throw new Exception('Not found method');
-            }
-            call_user_func_array([$this, $method], [$decodedData]);
-        } catch (\yii\db\Exception $e) {
-            Yii::$app->db->close();
-            Yii::$app->db->open();
-        } catch (Exception $e) {
-            $connection->send(Yii::t('app', $e->getMessage()));
-            echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
-        }
+        echo '[Worker ' . $connection->worker->id . '] Received message on connection ' . $connection->id . ' from user ' . PHP_EOL;
+
+        // todo rework
+//        try {
+//            $decodedData['connection_id'] = $connection->id;
+//            $decodedData = array_merge($decodedData, Json::decode($data));
+//            if ($decodedData['type'] == self::TYPE_GET_TOKEN) {
+//                $this->setConnectionId($decodedData, $connection);//connection->id=user->id
+//                return;
+//            }
+//            if (!$decodedData['type'] || !is_numeric($decodedData['type']) || !is_int(+$decodedData['type'])) {
+//                throw new Exception("Invalid argument 'type'");
+//            }
+//            $method = $this->chooseMethod($decodedData['type']);
+//            if (!is_callable([$this, $method])) {
+//                throw new Exception('Not found method');
+//            }
+//            call_user_func_array([$this, $method], [$decodedData]);
+//        } catch (\yii\db\Exception $e) {
+//            Yii::$app->db->close();
+//            Yii::$app->db->open();
+//        } catch (Exception $e) {
+//            $connection->send(Yii::t('app', $e->getMessage()));
+//            echo $e->getMessage() . "\n" . $e->getLine() . "\n" . $e->getFile() . "\n\n";
+//        }
     }
 
     /**
@@ -119,6 +176,7 @@ class WebsocketHandler
      */
     public function setConnectionId(array $data, TcpConnection $connection): void
     {
+        // todo remove method
         if (!key_exists('token', $data)) {
             throw new Exception('Not found token');
         }
@@ -127,14 +185,22 @@ class WebsocketHandler
             throw new Exception('Invalid token, not found user');
         }
         $idUser = $user->getId();
+        echo '[Worker ' . $connection->worker->id . '] ';
+        echo 'Existing CIDs: ' .
+             implode(' ', ArrayHelper::getColumn($this->worker->connections, 'id')) . ' - ' .
+             count($this->worker->connections) . ' in total. ';
         if (key_exists($connection->id, $this->worker->connections)) {
-            echo "exist connection\n";
+            echo 'CID = ' . $connection->id .' already exists. Switching to user_id = ' . $idUser;
         }
+        echo PHP_EOL;
         unset($this->worker->connections[$connection->id]);
         $connection->id = $idUser;
         $this->worker->connections[$idUser] = $connection;
-        echo "id{$connection->id} conneсtion" . $this->worker->connections[$idUser]->id . '  ';
-        //user can have one connection, which identificate connection by user id
+        echo '[Worker ' . $connection->worker->id . '] ';
+        echo 'Current CID = ' . $connection->id . ', worker CIDs: ' .
+             implode(' ', ArrayHelper::getColumn($this->worker->connections, 'id')) . ' - ' .
+             count($this->worker->connections) . ' in total' . PHP_EOL;
+        //user can have one connection, which is identified by user id
     }
 
     /**
@@ -148,31 +214,6 @@ class WebsocketHandler
             throw new Exception("Invalid type of action");
         }
         return self::CHAT_METHODS[$type];
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function onClose(ConnectionInterface $connection)
-    {
-        $connection->send('Connection closed');
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function onConnect(ConnectionInterface $connection)
-    {
-        $connection->send('Connection is ok');
-    }
-
-    /**
-     * @param $worker
-     * @throws Exception
-     */
-    public function workerStart($worker)
-    {
-        //@todo do something
     }
 
     /**
