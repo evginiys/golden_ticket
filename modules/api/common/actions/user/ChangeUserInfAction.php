@@ -2,7 +2,10 @@
 
 namespace app\modules\api\common\actions\user;
 
+use app\models\Chat;
+use Exception;
 use Yii;
+use yii\helpers\Json;
 use yii\rest\Action;
 
 /**
@@ -59,21 +62,46 @@ class ChangeUserInfAction extends Action
         $phone = Yii::$app->request->post('phone');
         $email = Yii::$app->request->post('email');
         $username = Yii::$app->request->post('username');
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if (isset($phone)) {
+                $user->phone = $phone;
+            }
+            if (isset($email)) {
+                $user->email = $email;
+            }
+            if (isset($username)) {
 
-        if (isset($phone)) {
-            $user->phone = $phone;
-        }
-        if (isset($email)) {
-            $user->email = $email;
-        }
-        if (isset($username)) {
-            $user->username = $username;
-        }
+                $oldUserName = $user->username;
+                $user->username = $username;
+                $chats = $user->getInChats()->where(["type" => Chat::TYPE_PRIVATE])->all();
+                if ($chats) {
+                    foreach ($chats as $chat) {
+                        $nameChat = Json::decode($chat->name);
+                        $index = array_search($oldUserName, $nameChat);
+                        $nameSecondUser = $nameChat[$oldUserName];
+                        unset($nameChat[$oldUserName]);
+                        if (!$index) {
+                            throw new Exception("Not found username in chat");
+                        }
+                        $nameChat[$user->username] = $nameSecondUser;
+                        $nameChat[$index] = $user->username;
+                        $chat->name = Json::encode($nameChat);
+                        if (!$chat->save()) {
+                            throw new Exception($chat->getErrors());
+                        }
+                    }
+                }
 
-        if (!$user->save()) {
-            return $this->controller->onError($user->getErrors(), 400);
+            }
+            if (!$user->save()) {
+                throw new Exception($user->getErrors());
+            }
+            $transaction->commit();
+            return $this->controller->onSuccess($user->getAttributes(['username', 'phone', 'email']));
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            return $this->controller->onError(Yii::t('app', $e->getMessage()));
         }
-
-        return $this->controller->onSuccess($user->getAttributes(['username', 'phone', 'email']));
     }
 }
